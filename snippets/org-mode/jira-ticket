@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: JIRA ticket
+# key: ticket                                                                                       
+# --
+TODO [[https://jirabuild.keringapps.com/browse/ANI-${1:$$(upcase yas-text)}][ANI-$1]${0:$$(insert "]")} : ${3:title}
+**** Description:
+     $4
+**** Comments:
+1. ${5:author}
+    ${6:comment}
+**** Dump:
+**** References:

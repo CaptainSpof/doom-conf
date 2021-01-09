@@ -1,0 +1,19 @@
+alias tg topgrade
+;; ls
+; alias sl ls
+; alias l ls -lAh $*
+; alias ll ls -l
+; alias la ls -a
+; alias lla ls -la
+
+alias l exa -lah --icons
+alias ldot exa -ld .*
+alias sl ls
+;; alias ls exa
+alias la exa -a
+alias lla exa -la --icons
+alias ll exa -lh --git --icons
+
+;; eshell
+;; alias ff find-file $1
+alias ff find-file-other-window $1

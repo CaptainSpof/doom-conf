@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: new JIRA ticket
+# key: nticket
+# --
+*** TODO [[https://jirabuild.keringapps.com/browse/${1:$$(upcase yas-text)}][$1]${0:$$(insert "]")} : ${3:title}
+**** Description:
+**** Comments:
+     1. ${4:author}
+        ${5:comment}
+**** [/] Tasks:
+  - [ ]
+**** Dump:
+**** Troubleshoots:
+***** What's wrong
+***** What I tried
+***** What worked
+**** References:
