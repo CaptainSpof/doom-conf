@@ -147,8 +147,13 @@ Then pull up dired
 ;; (after! org (set-popup-rule! "*xwidget" :side 'right :size .50 :select t :vslot 5 :ttl 3))
 ;; (after! org (set-popup-rule! "*Org Agenda*" :side 'right :size .40 :select t :vslot 2 :ttl 3))
 ;; (after! org (set-popup-rule! "*Org ql" :side 'right :size .50 :select t :vslot 2 :ttl 3))
-#+END_SRC`
+#+END_SRC
 *** Theme
+Tell emacs where to look for custom themes.
+#+begin_src emacs-lisp
+(setq custom-theme-directory "~/.config/doom/themes")
+#+end_src
+I like a rusty theme, this is a custom theme, forked from doom-rouge.
 #+BEGIN_SRC emacs-lisp
 (setq doom-theme 'doom-rouille)
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
