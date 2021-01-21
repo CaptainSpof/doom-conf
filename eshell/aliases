@@ -14,6 +14,10 @@ alias la exa -a
 alias lla exa -la --icons
 alias ll exa -lh --git --icons
 
+;; docker
+alias dk docker $1
+alias dkc docker-compose $1
+
 ;; eshell
 ;; alias ff find-file $1
 alias ff find-file-other-window $1
