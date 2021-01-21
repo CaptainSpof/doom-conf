@@ -50,8 +50,11 @@
 
 (setq custom-theme-directory "~/.config/doom/themes")
 
-(setq doom-theme 'doom-rouille)
+(setq doom-theme 'modus-operandi)  ;; Light
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+;; (setq doom-theme 'doom-rouille) ;; Dark
+;; (setq doom-theme 'kaolin-breeze)  ;; Light
+;; (setq doom-theme 'apropospriate-light)  ;; Light
 
 (setq doom-modeline-buffer-file-name-style 'auto)
 ;; (setq doom-modeline-buffer-file-name-style 'relative-to-project)
@@ -310,6 +313,19 @@ same `major-mode'."
     ;; (setq treemacs--width-is-locked nil) ;; FIXME treemacs doesn't care for that it seems
     (treemacs-follow-mode t))
 
+(defun dired-dotfiles-toggle ()
+  "Show/hide dot-files"
+  (interactive)
+  (when (equal major-mode 'dired-mode)
+    (if (or (not (boundp 'dired-dotfiles-show-p)) dired-dotfiles-show-p) ; if currently showing
+	(progn
+	  (set (make-local-variable 'dired-dotfiles-show-p) nil)
+	  (message "h")
+	  (dired-mark-files-regexp "^\\\.")
+	  (dired-do-kill-lines))
+      (progn (revert-buffer) ; otherwise just revert to re-show
+	     (set (make-local-variable 'dired-dotfiles-show-p) t)))))
+
 (map! :leader
       (:prefix-map ("d" . "dired")
         :desc "Dired"                       "d" #'dired
@@ -322,7 +338,9 @@ same `major-mode'."
   (map!
    :map dired-mode-map
    :n "h" #'dired-up-directory
-   :n "l" #'dired-find-file))
+   :n "l" #'dired-find-file
+   :localleader
+      :desc "toggle hidden files" "." #'dired-dotfiles-toggle))
 
 (after! eshell
 (add-hook 'eshell-directory-change-hook #'direnv-update-directory-environment))
@@ -425,6 +443,15 @@ directory."
   (ivy-add-actions
    'projectile-completing-read
    (cdr counsel-projectile-find-file-action)))
+
+(setq nov-text-width t)
+(setq visual-fill-column-center-text t)
+(add-hook 'nov-mode-hook 'visual-line-mode)
+(add-hook 'nov-mode-hook 'visual-fill-column-mode)
+
+(map!
+      (:when (featurep! :tools lookup)
+       :n  "z?"   #'define-word-at-point))
 
 (setq org-directory "~/Documents/Org/")
 (setq org-agenda-files (directory-files-recursively "~/Documents/Org/" "\\.org$"))

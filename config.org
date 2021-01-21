@@ -41,6 +41,8 @@
     - [[#dired][Dired]]
     - [[#eshell][Eshell]]
     - [[#proced][Proced]]
+    - [[#novel][nov.el]]
+    - [[#define-word][define-word]]
     - [[#org][Org]]
     - [[#org-annotate][Org-annotate]]
     - [[#org-roam][Org-Roam]]
@@ -155,9 +157,13 @@ Tell emacs where to look for custom themes.
 #+end_src
 I like a rusty theme, this is a custom theme, forked from doom-rouge.
 #+BEGIN_SRC emacs-lisp
-(setq doom-theme 'doom-rouille)
+(setq doom-theme 'modus-operandi)  ;; Light
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+;; (setq doom-theme 'doom-rouille) ;; Dark
+;; (setq doom-theme 'kaolin-breeze)  ;; Light
+;; (setq doom-theme 'apropospriate-light)  ;; Light
 #+END_SRC
+
 *** Modeline
 
 #+begin_src emacs-lisp
@@ -519,6 +525,22 @@ Set project path to where projects usually live.
 #+END_SRC
 
 *** Dired
+**** Configuration
+#+begin_src emacs-lisp
+  (defun dired-dotfiles-toggle ()
+    "Show/hide dot-files"
+    (interactive)
+    (when (equal major-mode 'dired-mode)
+      (if (or (not (boundp 'dired-dotfiles-show-p)) dired-dotfiles-show-p) ; if currently showing
+	  (progn
+	    (set (make-local-variable 'dired-dotfiles-show-p) nil)
+	    (message "h")
+	    (dired-mark-files-regexp "^\\\.")
+	    (dired-do-kill-lines))
+	(progn (revert-buffer) ; otherwise just revert to re-show
+	       (set (make-local-variable 'dired-dotfiles-show-p) t)))))
+#+end_src
+
 **** Mapping
 #+begin_src emacs-lisp
 (map! :leader
@@ -533,7 +555,9 @@ Set project path to where projects usually live.
   (map!
    :map dired-mode-map
    :n "h" #'dired-up-directory
-   :n "l" #'dired-find-file))
+   :n "l" #'dired-find-file
+   :localleader
+      :desc "toggle hidden files" "." #'dired-dotfiles-toggle))
 #+end_src
 
 *** Eshell
@@ -663,6 +687,28 @@ Try to enable ~company-shell~ inside eshell
    (cdr counsel-projectile-find-file-action)))
 #+end_src
 
+
+*** nov.el
+
+**** Configuration
+#+begin_src emacs-lisp
+(setq nov-text-width t)
+(setq visual-fill-column-center-text t)
+(add-hook 'nov-mode-hook 'visual-line-mode)
+(add-hook 'nov-mode-hook 'visual-fill-column-mode)
+#+end_src
+
+*** define-word
+
+**** Mapping
+#+begin_src emacs-lisp
+
+(map!
+      (:when (featurep! :tools lookup)
+       :n  "z?"   #'define-word-at-point))
+#+end_src
+
+#+RESULTS:
 
 *** Org
 
