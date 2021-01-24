@@ -72,9 +72,9 @@
 (add-hook 'after-change-major-mode-hook #'doom-modeline-conditional-buffer-encoding)
 
 ;; (custom-set-faces!
-  ;; '(mode-line :family "JetBrains Mono" :height 0.9)
-  ;; '(mode-line :family "SauceCodePro Nerd Font")
-  ;; '(mode-line-inactive :family "SauceCodePro Nerd Font"))
+;; '(mode-line :family "JetBrains Mono" :height 0.9)
+;; '(mode-line :family "SauceCodePro Nerd Font")
+;; '(mode-line-inactive :family "SauceCodePro Nerd Font"))
 
 ;; (with-current-buffer (get-buffer " *Echo Area 0*")
 ;;    (setq-local face-remapping-alist '((default (:height 0.9) variable-pitch))))
@@ -94,7 +94,7 @@
 
 ;; (setq prettify-symbols-alist '(("null" . "∅") ("compose" . "∘") ("() =>" . "λ")))
 ;; (setq +pretty-code-symbols-alist '((typescript-mode ("null" . "∅") ("compose" . "∘") ("() =>" . "λ")) (emacs-lisp-mode ("lambda" . "λ")) (org-mode ("#+end_quote" . "”") ("#+END_QUOTE" . "”") ("#+begin_quote" . "“") ("#+BEGIN_QUOTE" . "“") ("#+end_src" . "«") ("#+END_SRC" . "«") ("#+begin_src" . "»") ("#+BEGIN_SRC" . "»") ("#+name:" . "»") ("#+NAME:" . "»")) (t)))
- (setq +pretty-code-symbols '(:name "»" :src_block "»" :src_block_end "«" :quote "“" :quote_end "”" :lambda "λ" :composition "∘" :null "∅" :pipe "" :dot "•"))
+(setq +pretty-code-symbols '(:name "»" :src_block "»" :src_block_end "«" :quote "“" :quote_end "”" :lambda "λ" :composition "∘" :null "∅" :pipe "" :dot "•"))
 
 (defvar fancy-splash-image-template
   (expand-file-name "misc/splash-images/blackhole-lines-template.svg" doom-private-dir)
@@ -104,15 +104,15 @@
   "An image to use at minimum size, usually a transparent pixel")
 
 (setq fancy-splash-sizes
-  `((:height 500 :min-height 50 :padding (0 . 4) :template ,(expand-file-name "misc/splash-images/blackhole-lines-0.svg" doom-private-dir))
-    (:height 440 :min-height 42 :padding (1 . 4) :template ,(expand-file-name "misc/splash-images/blackhole-lines-0.svg" doom-private-dir))
-    (:height 400 :min-height 38 :padding (1 . 4) :template ,(expand-file-name "misc/splash-images/blackhole-lines-1.svg" doom-private-dir))
-    (:height 350 :min-height 36 :padding (1 . 3) :template ,(expand-file-name "misc/splash-images/blackhole-lines-2.svg" doom-private-dir))
-    (:height 300 :min-height 34 :padding (1 . 3) :template ,(expand-file-name "misc/splash-images/blackhole-lines-3.svg" doom-private-dir))
-    (:height 250 :min-height 32 :padding (1 . 2) :template ,(expand-file-name "misc/splash-images/blackhole-lines-4.svg" doom-private-dir))
-    (:height 200 :min-height 30 :padding (1 . 2) :template ,(expand-file-name "misc/splash-images/blackhole-lines-5.svg" doom-private-dir))
-    (:height 100 :min-height 24 :padding (1 . 2) :template ,(expand-file-name "misc/splash-images/emacs-e-template.svg" doom-private-dir))
-    (:height 0   :min-height 0  :padding (0 . 0) :file ,fancy-splash-image-nil)))
+      `((:height 500 :min-height 50 :padding (0 . 4) :template ,(expand-file-name "misc/splash-images/blackhole-lines-0.svg" doom-private-dir))
+        (:height 440 :min-height 42 :padding (1 . 4) :template ,(expand-file-name "misc/splash-images/blackhole-lines-0.svg" doom-private-dir))
+        (:height 400 :min-height 38 :padding (1 . 4) :template ,(expand-file-name "misc/splash-images/blackhole-lines-1.svg" doom-private-dir))
+        (:height 350 :min-height 36 :padding (1 . 3) :template ,(expand-file-name "misc/splash-images/blackhole-lines-2.svg" doom-private-dir))
+        (:height 300 :min-height 34 :padding (1 . 3) :template ,(expand-file-name "misc/splash-images/blackhole-lines-3.svg" doom-private-dir))
+        (:height 250 :min-height 32 :padding (1 . 2) :template ,(expand-file-name "misc/splash-images/blackhole-lines-4.svg" doom-private-dir))
+        (:height 200 :min-height 30 :padding (1 . 2) :template ,(expand-file-name "misc/splash-images/blackhole-lines-5.svg" doom-private-dir))
+        (:height 100 :min-height 24 :padding (1 . 2) :template ,(expand-file-name "misc/splash-images/emacs-e-template.svg" doom-private-dir))
+        (:height 0   :min-height 0  :padding (0 . 0) :file ,fancy-splash-image-nil)))
 
 (defvar fancy-splash-sizes
   `((:height 500 :min-height 50 :padding (0 . 2))
@@ -148,16 +148,16 @@
 
 (defun fancy-splash-generate-image (template height)
   "Read TEMPLATE and create an image if HEIGHT with colour substitutions as  ;described by `fancy-splash-template-colours' for the current theme"
-    (with-temp-buffer
-      (insert-file-contents template)
-      (re-search-forward "$height" nil t)
-      (replace-match (number-to-string height) nil nil)
-      (dolist (substitution fancy-splash-template-colours)
-        (beginning-of-buffer)
-        (while (re-search-forward (car substitution) nil t)
-          (replace-match (doom-color (cdr substitution)) nil nil)))
-      (write-region nil nil
-                    (fancy-splash-filename (symbol-name doom-theme) height) nil nil)))
+  (with-temp-buffer
+    (insert-file-contents template)
+    (re-search-forward "$height" nil t)
+    (replace-match (number-to-string height) nil nil)
+    (dolist (substitution fancy-splash-template-colours)
+      (beginning-of-buffer)
+      (while (re-search-forward (car substitution) nil t)
+        (replace-match (doom-color (cdr substitution)) nil nil)))
+    (write-region nil nil
+                  (fancy-splash-filename (symbol-name doom-theme) height) nil nil)))
 
 (defun fancy-splash-generate-images ()
   "Perform `fancy-splash-generate-image' in bulk"
@@ -238,9 +238,9 @@ same `major-mode'."
 (setq aw-keys '(?j ?s ?a ?d ?h ?g ?f ?k ?l))
 
 (custom-set-faces
-   '(aw-leading-char-face
-     ((t
-       (:foreground "red" :bold t :height 1.5)))))
+ '(aw-leading-char-face
+   ((t
+     (:foreground "red" :bold t :height 1.5)))))
 
 (map!
  :leader
@@ -308,31 +308,31 @@ same `major-mode'."
 (setq projectile-project-search-path '("~/Projects/"))
 
 (after! treemacs
-    (setq doom-variable-pitch-font (font-spec :family "SauceCodePro Nerd Font" :size 14))
-    (setq treemacs-width 30)
-    ;; (setq treemacs--width-is-locked nil) ;; FIXME treemacs doesn't care for that it seems
-    (treemacs-follow-mode t))
+  (setq doom-variable-pitch-font (font-spec :family "SauceCodePro Nerd Font" :size 14))
+  (setq treemacs-width 30)
+  ;; (setq treemacs--width-is-locked nil) ;; FIXME treemacs doesn't care for that it seems
+  (treemacs-follow-mode t))
 
 (defun dired-dotfiles-toggle ()
   "Show/hide dot-files"
   (interactive)
   (when (equal major-mode 'dired-mode)
     (if (or (not (boundp 'dired-dotfiles-show-p)) dired-dotfiles-show-p) ; if currently showing
-	(progn
-	  (set (make-local-variable 'dired-dotfiles-show-p) nil)
-	  (message "h")
-	  (dired-mark-files-regexp "^\\\.")
-	  (dired-do-kill-lines))
+        (progn
+          (set (make-local-variable 'dired-dotfiles-show-p) nil)
+          (message "h")
+          (dired-mark-files-regexp "^\\\.")
+          (dired-do-kill-lines))
       (progn (revert-buffer) ; otherwise just revert to re-show
-	     (set (make-local-variable 'dired-dotfiles-show-p) t)))))
+             (set (make-local-variable 'dired-dotfiles-show-p) t)))))
 
 (map! :leader
       (:prefix-map ("d" . "dired")
-        :desc "Dired"                       "d" #'dired
-        :desc "Dired jump to current"       "j" #'dired-jump
-        :desc "fd input to dired"           "f" #'fd-dired
-        :desc "Dired into project root"     "p" #'project-dired
-        :desc "open dired in another frame" "D" #'dired-other-window))
+       :desc "Dired"                       "d" #'dired
+       :desc "Dired jump to current"       "j" #'dired-jump
+       :desc "fd input to dired"           "f" #'fd-dired
+       :desc "Dired into project root"     "p" #'project-dired
+       :desc "open dired in another frame" "D" #'dired-other-window))
 
 (after! dired
   (map!
@@ -340,26 +340,26 @@ same `major-mode'."
    :n "h" #'dired-up-directory
    :n "l" #'dired-find-file
    :localleader
-      :desc "toggle hidden files" "." #'dired-dotfiles-toggle))
+   :desc "toggle hidden files" "." #'dired-dotfiles-toggle))
 
 (after! eshell
-(add-hook 'eshell-directory-change-hook #'direnv-update-directory-environment))
+  (add-hook 'eshell-directory-change-hook #'direnv-update-directory-environment))
 
 (map! :leader
       (:prefix-map ("e" . "eshell")
-        :desc "toggle eshell popup"           "E" #'+eshell/toggle
-        :desc "open eshell here"              "e" #'+eshell/here
-        :desc "open eshell in project root"   "p" #'project-eshell
-        :desc "eshell below"                  "s" #'+eshell/split-below
-        :desc "eshell right"                  "v" #'+eshell/split-right))
+       :desc "toggle eshell popup"           "E" #'+eshell/toggle
+       :desc "open eshell here"              "e" #'+eshell/here
+       :desc "open eshell in project root"   "p" #'project-eshell
+       :desc "eshell below"                  "s" #'+eshell/split-below
+       :desc "eshell right"                  "v" #'+eshell/split-right))
 
 (map!
-  :map eshell-mode-map
-  :n "gd" #'prot/eshell-find-file-at-point
-  :n "gD" #'prot/eshell-find-file-at-point-other-window
-  :n "go" #'prot/eshell-put-last-output-to-buffer
-  ;; :i "C-SPC C-SPC" #'company-shell
-  :i "C-S-SPC" #'company-shell)
+ :map eshell-mode-map
+ :n "gd" #'prot/eshell-find-file-at-point
+ :n "gD" #'prot/eshell-find-file-at-point-other-window
+ :n "go" #'prot/eshell-put-last-output-to-buffer
+ ;; :i "C-SPC C-SPC" #'company-shell
+ :i "C-S-SPC" #'company-shell)
 
 (use-package exec-path-from-shell
   :ensure t
@@ -370,64 +370,64 @@ same `major-mode'."
 
 (declare-function ffap-file-at-point "ffap.el")
 
-  (defmacro prot/eshell-ffap (name doc &rest body)
-    "Make commands for `eshell' find-file-at-point.
+(defmacro prot/eshell-ffap (name doc &rest body)
+  "Make commands for `eshell' find-file-at-point.
 NAME is how the function is called.  DOC is the function's
 documentation string.  BODY is the set of arguments passed to the
 `if' statement to be evaluated when a file at point is present."
-    `(defun ,name ()
-       ,doc
-       (interactive)
-       (let ((file (ffap-file-at-point)))
-         (if file
-             ,@body
-           (user-error "No file at point")))))
-
-  (prot/eshell-ffap
-   prot/eshell-insert-file-at-point
-   "Insert (cat) contents of file at point."
-   (progn
-     (goto-char (point-max))
-     (insert (concat "cat " file))
-     (eshell-send-input)))
-
-  (prot/eshell-ffap
-   prot/eshell-kill-save-file-at-point
-   "Add to kill-ring the absolute path of file at point."
-   (progn
-     (kill-new (concat (eshell/pwd) "/" file))
-     (message "Copied full path of %s" file)))
-
-  (prot/eshell-ffap
-   prot/eshell-find-file-at-point
-   "Run `find-file' for file at point (ordinary file or dir).
-Recall that this will produce a `dired' buffer if the file is a
-directory."
-   (find-file file))
+  `(defun ,name ()
+     ,doc
+     (interactive)
+     (let ((file (ffap-file-at-point)))
+       (if file
+           ,@body
+         (user-error "No file at point")))))
 
 (prot/eshell-ffap
-   prot/eshell-find-file-at-point-other-window
-   "Run `find-file' for file at point (ordinary file or dir).
+ prot/eshell-insert-file-at-point
+ "Insert (cat) contents of file at point."
+ (progn
+   (goto-char (point-max))
+   (insert (concat "cat " file))
+   (eshell-send-input)))
+
+(prot/eshell-ffap
+ prot/eshell-kill-save-file-at-point
+ "Add to kill-ring the absolute path of file at point."
+ (progn
+   (kill-new (concat (eshell/pwd) "/" file))
+   (message "Copied full path of %s" file)))
+
+(prot/eshell-ffap
+ prot/eshell-find-file-at-point
+ "Run `find-file' for file at point (ordinary file or dir).
 Recall that this will produce a `dired' buffer if the file is a
 directory."
-   (find-file-other-window file))
+ (find-file file))
+
+(prot/eshell-ffap
+ prot/eshell-find-file-at-point-other-window
+ "Run `find-file' for file at point (ordinary file or dir).
+Recall that this will produce a `dired' buffer if the file is a
+directory."
+ (find-file-other-window file))
 
 
-  (prot/eshell-ffap
-   prot/eshell-file-parent-dir
-   "Open `dired' with the parent directory of file at point."
-   (dired (file-name-directory file)))
+(prot/eshell-ffap
+ prot/eshell-file-parent-dir
+ "Open `dired' with the parent directory of file at point."
+ (dired (file-name-directory file)))
 
 (defun prot/eshell-put-last-output-to-buffer ()
-    "Produce a buffer with output of last `eshell' command."
-    (interactive)
-    (let ((eshell-output (buffer-substring-no-properties
-                          (eshell-beginning-of-output)
-                          (eshell-end-of-output))))
-      (with-current-buffer (get-buffer-create "*last-eshell-output*")
-        (erase-buffer)
-        (insert eshell-output)
-        (switch-to-buffer-other-window (current-buffer)))))
+  "Produce a buffer with output of last `eshell' command."
+  (interactive)
+  (let ((eshell-output (buffer-substring-no-properties
+                        (eshell-beginning-of-output)
+                        (eshell-end-of-output))))
+    (with-current-buffer (get-buffer-create "*last-eshell-output*")
+      (erase-buffer)
+      (insert eshell-output)
+      (switch-to-buffer-other-window (current-buffer)))))
 
 (after! eshell-mode
   (set-company-backend! 'eshell-mode '(company-shell company-shell-env company-files)))
@@ -450,8 +450,8 @@ directory."
 (add-hook 'nov-mode-hook 'visual-fill-column-mode)
 
 (map!
-      (:when (featurep! :tools lookup)
-       :n  "z?"   #'define-word-at-point))
+ (:when (featurep! :tools lookup)
+  :n  "z?"   #'define-word-at-point))
 
 (setq org-directory "~/Documents/Org/")
 (setq org-agenda-files (directory-files-recursively "~/Documents/Org/" "\\.org$"))
@@ -480,23 +480,23 @@ directory."
 
 (after! org
   (use-package org-pretty-tags
-  :config
-   (setq org-pretty-tags-surrogate-strings
-         `(("uni"        . ,(all-the-icons-faicon   "graduation-cap" :face 'all-the-icons-purple  :v-adjust 0.01))
-           ("ucc"        . ,(all-the-icons-material "computer"       :face 'all-the-icons-silver  :v-adjust 0.01))
-           ("assignment" . ,(all-the-icons-material "library_books"  :face 'all-the-icons-orange  :v-adjust 0.01))
-           ("test"       . ,(all-the-icons-material "timer"          :face 'all-the-icons-red     :v-adjust 0.01))
-           ("lecture"    . ,(all-the-icons-fileicon "keynote"        :face 'all-the-icons-orange  :v-adjust 0.01))
-           ("email"      . ,(all-the-icons-faicon   "envelope"       :face 'all-the-icons-blue    :v-adjust 0.01))
-           ("read"       . ,(all-the-icons-octicon  "book"           :face 'all-the-icons-lblue   :v-adjust 0.01))
-           ("article"    . ,(all-the-icons-octicon  "file-text"      :face 'all-the-icons-yellow  :v-adjust 0.01))
-           ("web"        . ,(all-the-icons-faicon   "globe"          :face 'all-the-icons-green   :v-adjust 0.01))
-           ("info"       . ,(all-the-icons-faicon   "info-circle"    :face 'all-the-icons-blue    :v-adjust 0.01))
-           ("issue"      . ,(all-the-icons-faicon   "bug"            :face 'all-the-icons-red     :v-adjust 0.01))
-           ("someday"    . ,(all-the-icons-faicon   "calendar-o"     :face 'all-the-icons-cyan    :v-adjust 0.01))
-           ("idea"       . ,(all-the-icons-octicon  "light-bulb"     :face 'all-the-icons-yellow  :v-adjust 0.01))
-           ("emacs"      . ,(all-the-icons-fileicon "emacs"          :face 'all-the-icons-lpurple :v-adjust 0.01))))
-   (org-pretty-tags-global-mode)))
+    :config
+    (setq org-pretty-tags-surrogate-strings
+          `(("uni"        . ,(all-the-icons-faicon   "graduation-cap" :face 'all-the-icons-purple  :v-adjust 0.01))
+            ("ucc"        . ,(all-the-icons-material "computer"       :face 'all-the-icons-silver  :v-adjust 0.01))
+            ("assignment" . ,(all-the-icons-material "library_books"  :face 'all-the-icons-orange  :v-adjust 0.01))
+            ("test"       . ,(all-the-icons-material "timer"          :face 'all-the-icons-red     :v-adjust 0.01))
+            ("lecture"    . ,(all-the-icons-fileicon "keynote"        :face 'all-the-icons-orange  :v-adjust 0.01))
+            ("email"      . ,(all-the-icons-faicon   "envelope"       :face 'all-the-icons-blue    :v-adjust 0.01))
+            ("read"       . ,(all-the-icons-octicon  "book"           :face 'all-the-icons-lblue   :v-adjust 0.01))
+            ("article"    . ,(all-the-icons-octicon  "file-text"      :face 'all-the-icons-yellow  :v-adjust 0.01))
+            ("web"        . ,(all-the-icons-faicon   "globe"          :face 'all-the-icons-green   :v-adjust 0.01))
+            ("info"       . ,(all-the-icons-faicon   "info-circle"    :face 'all-the-icons-blue    :v-adjust 0.01))
+            ("issue"      . ,(all-the-icons-faicon   "bug"            :face 'all-the-icons-red     :v-adjust 0.01))
+            ("someday"    . ,(all-the-icons-faicon   "calendar-o"     :face 'all-the-icons-cyan    :v-adjust 0.01))
+            ("idea"       . ,(all-the-icons-octicon  "light-bulb"     :face 'all-the-icons-yellow  :v-adjust 0.01))
+            ("emacs"      . ,(all-the-icons-fileicon "emacs"          :face 'all-the-icons-lpurple :v-adjust 0.01))))
+    (org-pretty-tags-global-mode)))
 
 (after! org-superstar
   (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
@@ -522,10 +522,10 @@ directory."
 
 (after! org
   (map!
-  :map org-mode-map
-  :n "M-j" #'org-metadown
-  :n "M-k" #'org-metadup
-  :n "g TAB" #'outline-show-subtree))
+   :map org-mode-map
+   :n "M-j" #'org-metadown
+   :n "M-k" #'org-metadup
+   :n "g TAB" #'outline-show-subtree))
 
 (after! org
   (defun transform-square-brackets-to-round-ones(string-to-transform)
@@ -633,25 +633,28 @@ directory."
        :desc  "git-messenger popup" "," #'git-messenger:popup-message
        :desc  "git buffer log"      "d" #'magit-log-buffer-file))
 
-(set-email-account! "gmail"
-  '((mu4e-sent-folder       . "/gmail/Sent")
-    (mu4e-drafts-folder     . "/gmail/Drafts")
-    (mu4e-trash-folder      . "/gmail/Trash")
-    (mu4e-refile-folder     . "/gmail/[Gmail]/All Mail"))
-  t)
+(set-email-account! "CaptainSpof"
+                    '((mu4e-sent-folder       . "/[Gmail]/Sent")
+                      (mu4e-drafts-folder     . "/[Gmail]/Drafts")
+                      (mu4e-trash-folder      . "/[Gmail]/Trash")
+                      (mu4e-refile-folder     . "/[Gmail]/All Mail")
+                      (user-mail-address      . "captain.spof@gmail")    ;; only needed for mu < 1.4
+                      (mu4e-compose-signature . "Captain Spof"))
+                    t)
+(setq doom-modeline-mu4e t)
 
 (after! tramp
   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
 
 (after! company
-    (require 'company-tabnine)
-    ;; (add-to-list 'company-backends #'company-tabnine)
-    ;; Trigger completion immediately.
-    (setq company-idle-delay 4)
-    ;; (setq company-global-modes '(not eshell-mode))
+  (require 'company-tabnine)
+  ;; (add-to-list 'company-backends #'company-tabnine)
+  ;; Trigger completion immediately.
+  (setq company-idle-delay 4)
+  ;; (setq company-global-modes '(not eshell-mode))
 
-    ;; Number the candidates (use M-1, M-2 etc to select completions).
-    (setq company-show-numbers t))
+  ;; Number the candidates (use M-1, M-2 etc to select completions).
+  (setq company-show-numbers t))
 
 ;; (after! company
 ;;   (setq company-require-match nil)            ; Don't require match, so you can still move your cursor as expected.
@@ -690,12 +693,12 @@ Affects behaviour of `emacs-anywhere--finalise-content'")
   :keymap (list
            ;; Finish edit, but be smart in org mode
            (cons (kbd "C-c C-c") (cmd! (if (and (eq major-mode 'org-mode)
-                                                   (org-in-src-block-p))
-                                              (org-ctrl-c-ctrl-c)
-                                            (delete-frame))))
+                                                (org-in-src-block-p))
+                                           (org-ctrl-c-ctrl-c)
+                                         (delete-frame))))
            ;; Abort edit. emacs-anywhere saves the current edit for next time.
            (cons (kbd "C-c C-k") (cmd! (setq ea-on nil)
-                                          (delete-frame))))
+                                       (delete-frame))))
   (when emacs-anywhere-mode
     ;; line breaking
     (turn-off-auto-fill)
@@ -751,10 +754,10 @@ Affects behaviour of `emacs-anywhere--finalise-content'")
 
 (map! :leader
       (:prefix-map ("v" . "verb")
-        :desc "send request"              "V" #'verb-send-request-on-point-other-window
-        :desc "send request other window" "v" #'verb-send-request-on-point-other-window-stay
-        :desc "re-send request"           "r" #'verb-re-send-request
-      (:prefix-map ("s" . "verb show")
+       :desc "send request"              "V" #'verb-send-request-on-point-other-window
+       :desc "send request other window" "v" #'verb-send-request-on-point-other-window-stay
+       :desc "re-send request"           "r" #'verb-re-send-request
+       (:prefix-map ("s" . "verb show")
         :desc "show sent request" "r" #'verb-show-request
         :desc "show headers"      "h" #'verb-toggle-show-headers
         :desc "show vars"         "v" #'verb-show-vars
@@ -762,4 +765,4 @@ Affects behaviour of `emacs-anywhere--finalise-content'")
         )))
 
 (setq +zen-window-divider-size 0
-       +zen-text-scale 0.4)
+      +zen-text-scale 0.4)
