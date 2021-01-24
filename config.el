@@ -448,6 +448,11 @@ directory."
 (setq visual-fill-column-center-text t)
 (add-hook 'nov-mode-hook 'visual-line-mode)
 (add-hook 'nov-mode-hook 'visual-fill-column-mode)
+;; disables highlight line in nov mode
+(add-hook 'nov-mode-hook (lambda () (hl-line-mode -1)))
+(add-hook 'nov-mode-hook (lambda ()
+                           (make-local-variable 'scroll-margin)
+                           (setq scroll-margin 0)))
 
 (map!
  (:when (featurep! :tools lookup)
@@ -641,7 +646,8 @@ directory."
                       (user-mail-address      . "captain.spof@gmail")    ;; only needed for mu < 1.4
                       (mu4e-compose-signature . "Captain Spof"))
                     t)
-(setq doom-modeline-mu4e t)
+(setq doom-modeline-mu4e t
+      mu4e-update-interval 600)
 
 (after! tramp
   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))

@@ -696,13 +696,40 @@ Try to enable ~company-shell~ inside eshell
 (setq visual-fill-column-center-text t)
 (add-hook 'nov-mode-hook 'visual-line-mode)
 (add-hook 'nov-mode-hook 'visual-fill-column-mode)
+;; disables highlight line in nov mode
+(add-hook 'nov-mode-hook (lambda () (hl-line-mode -1)))
+(add-hook 'nov-mode-hook (lambda ()
+                           (make-local-variable 'scroll-margin)
+                           (setq scroll-margin 0)))
+
+#+end_src
+
+**** Custom Functions
+Scroll bottom line to the top, then move cursor to the bottom.
+#+begin_src emacs-lisp
+(defun daf/scroll-bottom-line-to-top ()
+    (interactive)
+    (evil-window-bottom)
+    (evil-scroll-line-to-top (line-number-at-pos)))
+(defun daf/scroll-top-line-to-bottom ()
+    (interactive)
+    (evil-window-top)
+    (evil-scroll-line-to-bottom (line-number-at-pos)))
+#+end_src
+
+**** Mapping
+#+begin_src elisp
+(after! nov
+  (map!
+   :map nov-mode-map
+   :n "J" #'daf/scroll-bottom-line-to-top
+   :n "K" #'daf/scroll-top-line-to-bottom))
 #+end_src
 
 *** define-word
 
 **** Mapping
 #+begin_src emacs-lisp
-
 (map!
  (:when (featurep! :tools lookup)
   :n  "z?"   #'define-word-at-point))
@@ -970,7 +997,8 @@ Add entry to menu.
                       (user-mail-address      . "captain.spof@gmail")    ;; only needed for mu < 1.4
                       (mu4e-compose-signature . "Captain Spof"))
                     t)
-(setq doom-modeline-mu4e t)
+(setq doom-modeline-mu4e t
+      mu4e-update-interval 600)
 #+end_src
 
 *** Tramp
