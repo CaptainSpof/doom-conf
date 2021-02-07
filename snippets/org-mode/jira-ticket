@@ -2,11 +2,21 @@
 # name: JIRA ticket
 # key: ticket                                                                                       
 # --
-TODO [[https://jirabuild.keringapps.com/browse/ANI-${1:$$(upcase yas-text)}][ANI-$1]${0:$$(insert "]")} : ${3:title}
+[[https://jirabuild.keringapps.com/browse/ANI-${1:$$(upcase yas-text)}][ANI-$1]${0:$$(insert "]")} : ${3:title}
 **** Description:
-     $4
+#+begin_quote
+
+#+end_quote
 **** Comments:
-1. ${5:author}
-    ${6:comment}
+     1. ${4:author}
+    #+begin_quote
+        ${5:comment}
+    #+end_quote
+**** [/] Tasks:
+  - [ ]
 **** Dump:
+**** Troubleshoots:
+***** What's wrong ?
+***** What I tried ?
+***** What worked ?
 **** References:
