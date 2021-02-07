@@ -34,6 +34,7 @@
   - [[#modules][Modules]]
     - [[#ace-window][Ace Window]]
     - [[#evil][Evil]]
+    - [[#emojify][Emojify]]
     - [[#ivy][Ivy]]
     - [[#swiper][Swiper]]
     - [[#projectile][Projectile]]
@@ -48,6 +49,8 @@
     - [[#org-roam][Org-Roam]]
     - [[#org-super-agenda][Org-super-agenda]]
     - [[#org-pretty-table][Org-pretty-table]]
+    - [[#org-tree-slide][Org-tree-slide]]
+    - [[#org-krita][Org-krita]]
     - [[#magit][Magit]]
     - [[#mu4e][Mu4e]]
     - [[#tramp][Tramp]]
@@ -103,6 +106,12 @@ Little bird told me, line number makes emacs slow
                  (fboundp 'evil-jump-item)
                  #'evil-jump-item))
 #+END_SRC
+
+#+begin_src emacs-lisp
+(map! :leader
+      (:prefix-map ("t" . "toggle")
+       :desc "Rainbow mode" :mvn "R" #'rainbow-delimiters-mode))
+#+end_src
 
 =g "= to display register content.
 TODO: ideally it should select the register, not insert it.
@@ -163,6 +172,11 @@ I like a rusty theme, this is a custom theme, forked from doom-rouge.
 ;; (setq doom-theme 'kaolin-breeze)  ;; Light
 ;; (setq doom-theme 'apropospriate-light)  ;; Light
 #+END_SRC
+
+#+begin_src emacs-lisp
+(setq doom-themes-enable-bold t
+      doom-themes-enable-italic t)
+#+end_src
 
 *** Modeline
 
@@ -427,6 +441,17 @@ Make ace-window font more visible.
 #+end_src
 
 *** Evil
+**** Configuration
+When going to insert mode then back to normal mode, the cursor move back one character from its initial position, that's odd, let's not do that.
+#+begin_src emacs-lisp
+(setq evil-move-cursor-back nil)
+#+end_src
+
+Do not overwritte clipboard with replaced value in visual mode. If I replaced a visual selection with the content of my clipboard, the replaced selection end up in place of the initial value, I don't like that.
+#+begin_src emacs-lisp
+(setq evil-kill-on-visual-paste nil)
+#+end_src
+
 **** Key Mapping
 Bind =evil-quit= to =q=, so I can get mad when accidentally quitting buffer (=SPC w u= to the rescue).
 Replace =Q= for vim macros.
@@ -435,15 +460,27 @@ Add =g RET= binding to quickly fold... folds.
 #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'evil-maps
   (define-key evil-normal-state-map "q" 'evil-quit)
-  (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro)
-  (define-key evil-normal-state-map (kbd "g RET") 'evil-toggle-fold))
-
+  (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro))
 #+END_SRC
+
+Quickly toggle fold
+#+begin_src emacs-lisp
+(after! evil
+  (map!
+   :n "z <tab>" #'evil-toggle-fold))
+#+end_src
+
 **** Substitution: global on by default
 #+BEGIN_SRC emacs-lisp
 (after! evil
   (setq evil-ex-substitute-global t)) ; I like my s/../.. to be global by default
 #+END_SRC
+*** Emojify
+**** Configuration
+#+begin_src emacs-lisp
+(after! emojify
+  (setq emojify-inhibit-major-modes '(dired-mode doc-view-mode debugger-mode pdf-view-mode image-mode help-mode ibuffer-mode magit-popup-mode magit-diff-mode ert-results-mode compilation-mode proced-mode mu4e-headers-mode deft-mode groovy-mode )))
+#+end_src
 *** Ivy
 Attempts (and fail) to add action to Ivy's menu to allow opening file / buffer in specific direction.
 #+BEGIN_SRC emacs-lisp
@@ -687,7 +724,6 @@ Try to enable ~company-shell~ inside eshell
    (cdr counsel-projectile-find-file-action)))
 #+end_src
 
-
 *** nov.el
 
 **** Configuration
@@ -700,7 +736,7 @@ Try to enable ~company-shell~ inside eshell
 (add-hook 'nov-mode-hook (lambda () (hl-line-mode -1)))
 (add-hook 'nov-mode-hook (lambda ()
                            (make-local-variable 'scroll-margin)
-                           (setq scroll-margin 0)))
+                           (setq scroll-margin 1)))
 
 #+end_src
 
@@ -708,13 +744,23 @@ Try to enable ~company-shell~ inside eshell
 Scroll bottom line to the top, then move cursor to the bottom.
 #+begin_src emacs-lisp
 (defun daf/scroll-bottom-line-to-top ()
-    (interactive)
-    (evil-window-bottom)
-    (evil-scroll-line-to-top (line-number-at-pos)))
+  (interactive)
+  (evil-window-bottom)
+  (evil-scroll-line-to-top (line-number-at-pos)))
 (defun daf/scroll-top-line-to-bottom ()
-    (interactive)
-    (evil-window-top)
-    (evil-scroll-line-to-bottom (line-number-at-pos)))
+  (interactive)
+  (evil-window-top)
+  (evil-scroll-line-to-bottom (line-number-at-pos)))
+#+end_src
+
+#+begin_src emacs-lisp
+(defun daf/indent-now ()
+  (interactive)
+  (evil-ex "%!sed '/^$/{N;s/\\n/\\n  /;}'"))
+
+(defun daf/condense-now ()
+  (interactive)
+  (evil-ex "%!sed '/^\\n*$/!b;N;//!D;:a;z;N;//ba'"))
 #+end_src
 
 **** Mapping
@@ -727,7 +773,6 @@ Scroll bottom line to the top, then move cursor to the bottom.
 #+end_src
 
 *** define-word
-
 **** Mapping
 #+begin_src emacs-lisp
 (map!
@@ -735,14 +780,11 @@ Scroll bottom line to the top, then move cursor to the bottom.
   :n  "z?"   #'define-word-at-point))
 #+end_src
 
-#+RESULTS:
-
 *** Org
-
 **** Set org directory to the Drive directory.
 #+BEGIN_SRC emacs-lisp
-(setq org-directory "~/Documents/Org/")
-(setq org-agenda-files (directory-files-recursively "~/Documents/Org/" "\\.org$"))
+(setq org-directory "~/Sync/Org/")
+(setq org-agenda-files (directory-files-recursively "~/Sync/Org/" "\\.org$"))
 #+END_SRC
 
 **** Set time when task is done.
@@ -863,13 +905,13 @@ Make quotes blocks /italic/.
 *** Org-annotate
 
 #+begin_src emacs-lisp
-(setq org-annotate-file-storage-file "~/Documents/Org/annotations/annotations.org")
+(setq org-annotate-file-storage-file "~/Sync/Org/annotations/annotations.org")
 #+end_src
 
 *** Org-Roam
 **** Set org-roam directory to the Drive directory.
 #+BEGIN_SRC emacs-lisp
-(setq org-roam-directory "~/Documents/Org")
+(setq org-roam-directory "~/Sync/Org")
 #+END_SRC
 
 Don't open backlinks pane automatically
@@ -958,6 +1000,100 @@ Don't open backlinks pane automatically
 #+begin_src emacs-lisp
 (setq global-org-pretty-table-mode t)
 #+end_src
+*** Org-tree-slide
+
+**** Custom Functions
+
+#+begin_src emacs-lisp
+(defun advice:org-edit-src-code (&optional code edit-buffer-name)
+  (interactive)
+  (my:show-headers))
+(advice-add 'org-edit-src-code :before #'advice:org-edit-src-code)
+
+(defun advice:org-edit-src-exit ()
+  (interactive)
+  (my:hide-headers))
+
+(defun daf/presentation-setup ()
+
+  (setq my:org-src-block-faces 'org-src-block-faces)
+  (hide-lines-show-all)
+  (setq org-src-block-faces
+        '(("emacs-lisp" (:background "cornsilk"))))
+  (hide-lines-matching "#\\+BEGIN_\\(SRC\\|EXAMPLE\\|VERSE\\|QUOTE\\)")
+  (hide-lines-matching "#\\+END_\\(SRC\\|EXAMPLE\\|VERSE\\|QUOTE\\)")
+  ;; (hide-lines-matching "#\\+attr_html")
+
+  (advice-add 'org-edit-src-exit :after #'advice:org-edit-src-exit)
+;; Display images inline
+(org-display-inline-images) ;; Can also use org-startup-with-inline-images
+
+;; Scale the text.  The next line is for basic scaling:
+(setq text-scale-mode-amount 3)
+(text-scale-mode 1))
+(hl-line-mode -1)
+
+;; This option is more advanced, allows you to scale other faces too
+;; (setq-local face-remapping-alist '((default (:height 2.0) variable-pitch)
+;;                                    (org-verbatim (:height 1.75) org-verbatim)
+;;                                    (org-block (:height 1.25) org-block))))
+
+(defun daf/presentation-end ()
+  ;; Show the mode line again
+
+  ;; Turn off text scale mode (or use the next line if you didn't use text-scale-mode)
+  (text-scale-mode 0)
+
+  (hide-lines-show-all)
+  ;; If you use face-remapping-alist, this clears the scaling:
+  (setq-local face-remapping-alist '((default variable-pitch default))))
+
+;; (use-package org-tree-slide
+;;   :hook ((org-tree-slide-play . efs/presentation-setup)
+;;          (org-tree-slide-stop . efs/presentation-end))
+;;   :custom
+;;   (org-tree-slide-slide-in-effect t)
+;;   (org-tree-slide-activate-message "Presentation started!")
+;;   (org-tree-slide-deactivate-message "Presentation finished!")
+;;   (org-tree-slide-header t)
+;;   (org-tree-slide-breadcrumbs " > ")
+;;   (org-image-actual-width nil))
+
+#+end_src
+
+#+RESULTS:
+: daf/presentation-end
+
+**** Configuration
+#+begin_src emacs-lisp
+(after! org-tree-slide
+  (add-hook 'org-tree-slide-play-hook (lambda () (daf/presentation-setup)))
+  (add-hook 'org-tree-slide-stop-hook (lambda () (daf/presentation-end)))
+
+  (setq org-src-block-faces 'my:org-src-block-faces)
+
+  (setq org-tree-slide-skip-outline-level 0))
+#+end_src
+
+**** Mapping
+#+begin_src emacs-lisp
+(after! org-tree-slide
+  (map!
+   :map org-tree-slide-mode-map
+   :n "J" #'org-tree-slide-move-next-tree
+   :n "K" #'org-tree-slide-move-previous-tree
+   :n "<right>" #'org-tree-slide-move-next-tree
+   :n "<left>" #'org-tree-slide-move-previous-tree))
+#+end_src
+
+#+RESULTS:
+*** Org-krita
+**** Configuration
+#+begin_src emacs-lisp
+(use-package! org-krita
+  :config
+  (add-hook 'org-mode-hook 'org-krita-mode))
+#+end_src
 
 *** Magit
 **** todos
@@ -989,16 +1125,28 @@ Add entry to menu.
 **** Configuration
 
 #+begin_src emacs-lisp
+(setq mu4e-attachment-dir "~/Downloads/")
 (set-email-account! "CaptainSpof"
-                    '((mu4e-sent-folder       . "/[Gmail]/Sent")
-                      (mu4e-drafts-folder     . "/[Gmail]/Drafts")
-                      (mu4e-trash-folder      . "/[Gmail]/Trash")
-                      (mu4e-refile-folder     . "/[Gmail]/All Mail")
-                      (user-mail-address      . "captain.spof@gmail")    ;; only needed for mu < 1.4
-                      (mu4e-compose-signature . "Captain Spof"))
+                    '(
+                      (user-mail-address            . "captain.spof@gmail.com")
+                      (user-full-name               . "Cédric Da Fonseca")
+                      (smtpmail-smtp-user           . "captain.spof@gmail.com")
+                      (smtpmail-smtp-server         . "smtp.gmail.com")
+                      (smtpmail-smtp-service        . 465)
+                      (smtpmail-stream-type         . ssl)
+                      (smtpmail-default-smtp-server . "smtp.gmail.com")
+                      (message-send-mail-function   . smtpmail-send-it)
+                      (smtpmail-debug-info          . t)
+                      (smtpmail-debug-verbose       . t)
+                      (mu4e-compose-signature       . "Captain Spof")
+                      (mu4e-update-interval         . 300)
+                      (mu4e-attachment-dir          . "~/Downloads/")
+                      (mu4e-sent-folder             . "/[Gmail]/Sent")
+                      (mu4e-drafts-folder           . "/[Gmail]/Drafts")
+                      (mu4e-trash-folder            . "/[Gmail]/Trash")
+                      (mu4e-refile-folder           . "/[Gmail]/All Mail")
+                      )
                     t)
-(setq doom-modeline-mu4e t
-      mu4e-update-interval 600)
 #+end_src
 
 *** Tramp
@@ -1011,10 +1159,10 @@ Fix weird problems due to prompt, I don't know, wild c/c from google.
 Tabnine
 #+BEGIN_SRC emacs-lisp
 (after! company
-  (require 'company-tabnine)
+  ;; (require 'company-tabnine)
   ;; (add-to-list 'company-backends #'company-tabnine)
   ;; Trigger completion immediately.
-  (setq company-idle-delay 4)
+  (setq company-idle-delay 2)
   ;; (setq company-global-modes '(not eshell-mode))
 
   ;; Number the candidates (use M-1, M-2 etc to select completions).

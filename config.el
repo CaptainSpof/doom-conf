@@ -22,6 +22,10 @@
                  (fboundp 'evil-jump-item)
                  #'evil-jump-item))
 
+(map! :leader
+      (:prefix-map ("t" . "toggle")
+       :desc "Rainbow mode" :mvn "R" #'rainbow-delimiters-mode))
+
 (map! :n "g\"" #'counsel-evil-registers)
 
 (setq evil-escape-key-sequence "jj")
@@ -55,6 +59,9 @@
 ;; (setq doom-theme 'doom-rouille) ;; Dark
 ;; (setq doom-theme 'kaolin-breeze)  ;; Light
 ;; (setq doom-theme 'apropospriate-light)  ;; Light
+
+(setq doom-themes-enable-bold t
+      doom-themes-enable-italic t)
 
 (setq doom-modeline-buffer-file-name-style 'auto)
 ;; (setq doom-modeline-buffer-file-name-style 'relative-to-project)
@@ -246,13 +253,23 @@ same `major-mode'."
  :leader
  "j" #'ace-window)
 
+(setq evil-move-cursor-back nil)
+
+(setq evil-kill-on-visual-paste nil)
+
 (with-eval-after-load 'evil-maps
   (define-key evil-normal-state-map "q" 'evil-quit)
-  (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro)
-  (define-key evil-normal-state-map (kbd "g RET") 'evil-toggle-fold))
+  (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro))
+
+(after! evil
+  (map!
+   :n "z <tab>" #'evil-toggle-fold))
 
 (after! evil
   (setq evil-ex-substitute-global t)) ; I like my s/../.. to be global by default
+
+(after! emojify
+  (setq emojify-inhibit-major-modes '(dired-mode doc-view-mode debugger-mode pdf-view-mode image-mode help-mode ibuffer-mode magit-popup-mode magit-diff-mode ert-results-mode compilation-mode proced-mode mu4e-headers-mode deft-mode groovy-mode )))
 
 (defun find-file-right (filename)
   (interactive)
@@ -452,14 +469,31 @@ directory."
 (add-hook 'nov-mode-hook (lambda () (hl-line-mode -1)))
 (add-hook 'nov-mode-hook (lambda ()
                            (make-local-variable 'scroll-margin)
-                           (setq scroll-margin 0)))
+                           (setq scroll-margin 1)))
+
+(defun daf/scroll-bottom-line-to-top ()
+  (interactive)
+  (evil-window-bottom)
+  (evil-scroll-line-to-top (line-number-at-pos)))
+(defun daf/scroll-top-line-to-bottom ()
+  (interactive)
+  (evil-window-top)
+  (evil-scroll-line-to-bottom (line-number-at-pos)))
+
+(defun daf/indent-now ()
+  (interactive)
+  (evil-ex "%!sed '/^$/{N;s/\\n/\\n  /;}'"))
+
+(defun daf/condense-now ()
+  (interactive)
+  (evil-ex "%!sed '/^\\n*$/!b;N;//!D;:a;z;N;//ba'"))
 
 (map!
  (:when (featurep! :tools lookup)
   :n  "z?"   #'define-word-at-point))
 
-(setq org-directory "~/Documents/Org/")
-(setq org-agenda-files (directory-files-recursively "~/Documents/Org/" "\\.org$"))
+(setq org-directory "~/Sync/Org/")
+(setq org-agenda-files (directory-files-recursively "~/Sync/Org/" "\\.org$"))
 
 (setq org-log-done 'time)
 
@@ -545,9 +579,9 @@ directory."
                `("L" "Protocol Link" entry (file+headline ,(concat org-directory "bookmarks.org") "Bookmarks")
                  "* [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]] %i %?\n")))
 
-(setq org-annotate-file-storage-file "~/Documents/Org/annotations/annotations.org")
+(setq org-annotate-file-storage-file "~/Sync/Org/annotations/annotations.org")
 
-(setq org-roam-directory "~/Documents/Org")
+(setq org-roam-directory "~/Sync/Org")
 
 (setq +org-roam-open-buffer-on-find-file 'nil)
 
@@ -625,6 +659,80 @@ directory."
 
 (setq global-org-pretty-table-mode t)
 
+(defun advice:org-edit-src-code (&optional code edit-buffer-name)
+  (interactive)
+  (my:show-headers))
+(advice-add 'org-edit-src-code :before #'advice:org-edit-src-code)
+
+(defun advice:org-edit-src-exit ()
+  (interactive)
+  (my:hide-headers))
+
+(defun daf/presentation-setup ()
+
+  (setq my:org-src-block-faces 'org-src-block-faces)
+  (hide-lines-show-all)
+  (setq org-src-block-faces
+        '(("emacs-lisp" (:background "cornsilk"))))
+  (hide-lines-matching "#\\+BEGIN_\\(SRC\\|EXAMPLE\\|VERSE\\|QUOTE\\)")
+  (hide-lines-matching "#\\+END_\\(SRC\\|EXAMPLE\\|VERSE\\|QUOTE\\)")
+  ;; (hide-lines-matching "#\\+attr_html")
+
+  (advice-add 'org-edit-src-exit :after #'advice:org-edit-src-exit)
+;; Display images inline
+(org-display-inline-images) ;; Can also use org-startup-with-inline-images
+
+;; Scale the text.  The next line is for basic scaling:
+(setq text-scale-mode-amount 3)
+(text-scale-mode 1))
+(hl-line-mode -1)
+
+;; This option is more advanced, allows you to scale other faces too
+;; (setq-local face-remapping-alist '((default (:height 2.0) variable-pitch)
+;;                                    (org-verbatim (:height 1.75) org-verbatim)
+;;                                    (org-block (:height 1.25) org-block))))
+
+(defun daf/presentation-end ()
+  ;; Show the mode line again
+
+  ;; Turn off text scale mode (or use the next line if you didn't use text-scale-mode)
+  (text-scale-mode 0)
+
+  (hide-lines-show-all)
+  ;; If you use face-remapping-alist, this clears the scaling:
+  (setq-local face-remapping-alist '((default variable-pitch default))))
+
+;; (use-package org-tree-slide
+;;   :hook ((org-tree-slide-play . efs/presentation-setup)
+;;          (org-tree-slide-stop . efs/presentation-end))
+;;   :custom
+;;   (org-tree-slide-slide-in-effect t)
+;;   (org-tree-slide-activate-message "Presentation started!")
+;;   (org-tree-slide-deactivate-message "Presentation finished!")
+;;   (org-tree-slide-header t)
+;;   (org-tree-slide-breadcrumbs " > ")
+;;   (org-image-actual-width nil))
+
+(after! org-tree-slide
+  (add-hook 'org-tree-slide-play-hook (lambda () (daf/presentation-setup)))
+  (add-hook 'org-tree-slide-stop-hook (lambda () (daf/presentation-end)))
+
+  (setq org-src-block-faces 'my:org-src-block-faces)
+
+  (setq org-tree-slide-skip-outline-level 0))
+
+(after! org-tree-slide
+  (map!
+   :map org-tree-slide-mode-map
+   :n "J" #'org-tree-slide-move-next-tree
+   :n "K" #'org-tree-slide-move-previous-tree
+   :n "<right>" #'org-tree-slide-move-next-tree
+   :n "<left>" #'org-tree-slide-move-previous-tree))
+
+(use-package! org-krita
+  :config
+  (add-hook 'org-mode-hook 'org-krita-mode))
+
 (after! magit
   (magit-todos-mode t))
 
@@ -638,25 +746,37 @@ directory."
        :desc  "git-messenger popup" "," #'git-messenger:popup-message
        :desc  "git buffer log"      "d" #'magit-log-buffer-file))
 
+(setq mu4e-attachment-dir "~/Downloads/")
 (set-email-account! "CaptainSpof"
-                    '((mu4e-sent-folder       . "/[Gmail]/Sent")
-                      (mu4e-drafts-folder     . "/[Gmail]/Drafts")
-                      (mu4e-trash-folder      . "/[Gmail]/Trash")
-                      (mu4e-refile-folder     . "/[Gmail]/All Mail")
-                      (user-mail-address      . "captain.spof@gmail")    ;; only needed for mu < 1.4
-                      (mu4e-compose-signature . "Captain Spof"))
+                    '(
+                      (user-mail-address            . "captain.spof@gmail.com")
+                      (user-full-name               . "Cédric Da Fonseca")
+                      (smtpmail-smtp-user           . "captain.spof@gmail.com")
+                      (smtpmail-smtp-server         . "smtp.gmail.com")
+                      (smtpmail-smtp-service        . 465)
+                      (smtpmail-stream-type         . ssl)
+                      (smtpmail-default-smtp-server . "smtp.gmail.com")
+                      (message-send-mail-function   . smtpmail-send-it)
+                      (smtpmail-debug-info          . t)
+                      (smtpmail-debug-verbose       . t)
+                      (mu4e-compose-signature       . "Captain Spof")
+                      (mu4e-update-interval         . 300)
+                      (mu4e-attachment-dir          . "~/Downloads/")
+                      (mu4e-sent-folder             . "/[Gmail]/Sent")
+                      (mu4e-drafts-folder           . "/[Gmail]/Drafts")
+                      (mu4e-trash-folder            . "/[Gmail]/Trash")
+                      (mu4e-refile-folder           . "/[Gmail]/All Mail")
+                      )
                     t)
-(setq doom-modeline-mu4e t
-      mu4e-update-interval 600)
 
 (after! tramp
   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
 
 (after! company
-  (require 'company-tabnine)
+  ;; (require 'company-tabnine)
   ;; (add-to-list 'company-backends #'company-tabnine)
   ;; Trigger completion immediately.
-  (setq company-idle-delay 4)
+  (setq company-idle-delay 2)
   ;; (setq company-global-modes '(not eshell-mode))
 
   ;; Number the candidates (use M-1, M-2 etc to select completions).
@@ -772,3 +892,9 @@ Affects behaviour of `emacs-anywhere--finalise-content'")
 
 (setq +zen-window-divider-size 0
       +zen-text-scale 0.4)
+
+(after! nov
+  (map!
+   :map nov-mode-map
+   :n "J" #'daf/scroll-bottom-line-to-top
+   :n "K" #'daf/scroll-top-line-to-bottom))
