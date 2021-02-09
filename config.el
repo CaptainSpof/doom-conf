@@ -461,6 +461,7 @@ directory."
    'projectile-completing-read
    (cdr counsel-projectile-find-file-action)))
 
+(after! nov
 (setq nov-text-width t)
 (setq visual-fill-column-center-text t)
 (add-hook 'nov-mode-hook 'visual-line-mode)
@@ -469,7 +470,7 @@ directory."
 (add-hook 'nov-mode-hook (lambda () (hl-line-mode -1)))
 (add-hook 'nov-mode-hook (lambda ()
                            (make-local-variable 'scroll-margin)
-                           (setq scroll-margin 1)))
+                           (setq scroll-margin 1))))
 
 (defun daf/scroll-bottom-line-to-top ()
   (interactive)
@@ -585,77 +586,77 @@ directory."
 
 (setq +org-roam-open-buffer-on-find-file 'nil)
 
-(use-package! org-super-agenda
-  :commands (org-super-agenda-mode))
-(after! org-agenda
-  (org-super-agenda-mode))
+;; (use-package! org-super-agenda
+;;   :commands (org-super-agenda-mode))
+;; (after! org-agenda
+;;   (org-super-agenda-mode))
 
-(setq org-agenda-skip-scheduled-if-done t
-      org-agenda-skip-deadline-if-done t
-      org-agenda-include-deadlines t
-      org-agenda-block-separator nil
-      org-agenda-tags-column 100 ;; from testing this seems to be a good value
-      org-agenda-compact-blocks t)
+;; (setq org-agenda-skip-scheduled-if-done t
+;;       org-agenda-skip-deadline-if-done t
+;;       org-agenda-include-deadlines t
+;;       org-agenda-block-separator nil
+;;       org-agenda-tags-column 100 ;; from testing this seems to be a good value
+;;       org-agenda-compact-blocks t)
 
-(setq org-agenda-custom-commands
-      '(("o" "Overview"
-         ((agenda "" ((org-agenda-span 'day)
-                      (org-super-agenda-groups
-                       '((:name "Today"
-                          :time-grid t
-                          :date today
-                          :todo "TODAY"
-                          :scheduled today
-                          :order 1)))))
-          (alltodo "" ((org-agenda-overriding-header "")
-                       (org-super-agenda-groups
-                        '((:name "Next to do"
-                           :todo "NEXT"
-                           :order 1)
-                          (:name "Important"
-                           :tag "Important"
-                           :priority "A"
-                           :order 6)
-                          (:name "Due Today"
-                           :deadline today
-                           :order 2)
-                          (:name "Due Soon"
-                           :deadline future
-                           :order 8)
-                          (:name "Overdue"
-                           :deadline past
-                           :face error
-                           :order 7)
-                          (:name "Assignments"
-                           :tag "Assignment"
-                           :order 10)
-                          (:name "Issues"
-                           :tag "Issue"
-                           :order 12)
-                          (:name "Emacs"
-                           :tag "Emacs"
-                           :order 13)
-                          (:name "Projects"
-                           :tag "Project"
-                           :order 14)
-                          (:name "Research"
-                           :tag "Research"
-                           :order 15)
-                          (:name "To read"
-                           :tag "Read"
-                           :order 30)
-                          (:name "Waiting"
-                           :todo "WAITING"
-                           :order 20)
-                          (:name "University"
-                           :tag "uni"
-                           :order 32)
-                          (:name "Trivial"
-                           :priority<= "E"
-                           :tag ("Trivial" "Unimportant")
-                           :todo ("SOMEDAY" )
-                           :order 90)
-                          (:discard (:tag ("Chore" "Routine" "Daily")))))))))))
+;; (setq org-agenda-custom-commands
+;;       '(("o" "Overview"
+;;          ((agenda "" ((org-agenda-span 'day)
+;;                       (org-super-agenda-groups
+;;                        '((:name "Today"
+;;                           :time-grid t
+;;                           :date today
+;;                           :todo "TODAY"
+;;                           :scheduled today
+;;                           :order 1)))))
+;;           (alltodo "" ((org-agenda-overriding-header "")
+;;                        (org-super-agenda-groups
+;;                         '((:name "Next to do"
+;;                            :todo "NEXT"
+;;                            :order 1)
+;;                           (:name "Important"
+;;                            :tag "Important"
+;;                            :priority "A"
+;;                            :order 6)
+;;                           (:name "Due Today"
+;;                            :deadline today
+;;                            :order 2)
+;;                           (:name "Due Soon"
+;;                            :deadline future
+;;                            :order 8)
+;;                           (:name "Overdue"
+;;                            :deadline past
+;;                            :face error
+;;                            :order 7)
+;;                           (:name "Assignments"
+;;                            :tag "Assignment"
+;;                            :order 10)
+;;                           (:name "Issues"
+;;                            :tag "Issue"
+;;                            :order 12)
+;;                           (:name "Emacs"
+;;                            :tag "Emacs"
+;;                            :order 13)
+;;                           (:name "Projects"
+;;                            :tag "Project"
+;;                            :order 14)
+;;                           (:name "Research"
+;;                            :tag "Research"
+;;                            :order 15)
+;;                           (:name "To read"
+;;                            :tag "Read"
+;;                            :order 30)
+;;                           (:name "Waiting"
+;;                            :todo "WAITING"
+;;                            :order 20)
+;;                           (:name "University"
+;;                            :tag "uni"
+;;                            :order 32)
+;;                           (:name "Trivial"
+;;                            :priority<= "E"
+;;                            :tag ("Trivial" "Unimportant")
+;;                            :todo ("SOMEDAY" )
+;;                            :order 90)
+;;                           (:discard (:tag ("Chore" "Routine" "Daily")))))))))))
 
 (setq global-org-pretty-table-mode t)
 
@@ -730,8 +731,12 @@ directory."
    :n "<left>" #'org-tree-slide-move-previous-tree))
 
 (use-package! org-krita
+  :defer
   :config
   (add-hook 'org-mode-hook 'org-krita-mode))
+
+(after! magit
+    (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
 
 (after! magit
   (magit-todos-mode t))
@@ -878,17 +883,18 @@ Affects behaviour of `emacs-anywhere--finalise-content'")
 
 (add-hook 'ea-popup-hook 'ea-popup-handler)
 
-(map! :leader
-      (:prefix-map ("v" . "verb")
-       :desc "send request"              "V" #'verb-send-request-on-point-other-window
-       :desc "send request other window" "v" #'verb-send-request-on-point-other-window-stay
-       :desc "re-send request"           "r" #'verb-re-send-request
-       (:prefix-map ("s" . "verb show")
-        :desc "show sent request" "r" #'verb-show-request
-        :desc "show headers"      "h" #'verb-toggle-show-headers
-        :desc "show vars"         "v" #'verb-show-vars
-        :desc "show logs"         "l" #'verb-show-logs
-        )))
+(after! verb
+    (map! :leader
+        (:prefix-map ("v" . "verb")
+        :desc "send request"              "V" #'verb-send-request-on-point-other-window
+        :desc "send request other window" "v" #'verb-send-request-on-point-other-window-stay
+        :desc "re-send request"           "r" #'verb-re-send-request
+        (:prefix-map ("s" . "verb show")
+            :desc "show sent request" "r" #'verb-show-request
+            :desc "show headers"      "h" #'verb-toggle-show-headers
+            :desc "show vars"         "v" #'verb-show-vars
+            :desc "show logs"         "l" #'verb-show-logs
+        ))))
 
 (setq +zen-window-divider-size 0
       +zen-text-scale 0.4)

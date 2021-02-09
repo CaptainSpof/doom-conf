@@ -6,19 +6,6 @@
 ;; (package! another-package :recipe (:host github :repo "username/repo"))
 ;; (package! builtin-package :disable t)
 
-;; (when (featurep! :completion company)
-  ;; (package! company-tabnine)
-  ;; (package! company-fuzzy)
-;; (package! company-tabnine ; tab9 autocomplete
-;;   :recipe (:host github :repo "TommyX12/company-tabnine"
-;;            :files ("company-tabnine.el" "fetch-binaries.sh")))
-;; )
-;; (use-package! company-tabnine
-;;   :after company
-;;   :config
-;;   (cl-pushnew 'company-tabnine (default-value 'company-backends)))
-;; )
-
 (package! verb)
 ;; (package! company-tabnine) ; tab9 autocomplete
 (package! groovy-mode)
@@ -29,7 +16,7 @@
 (package! exec-path-from-shell)
 (package! git-messenger)
 (package! company-fuzzy)
-(package! org-super-agenda)
+;; (package! org-super-agenda)
 (package! org-pretty-table-mode
   :recipe (:host github :repo "Fuco1/org-pretty-table") :pin "474ad84a8fe5377d67ab7e491e8e68dac6e37a11")
 (package! org-pretty-tags :pin "40fd72f3e701e31813f383fb429d30bb88cee769")
@@ -42,7 +29,6 @@
 ;; (package! solarized-theme)
 ;; (package! nano-emacs
 ;;   :recipe (:host github :repo "rougier/nano-emacs"))
-(package! nix-mode)
 (package! nov)
 (package! hide-lines)
 (package! org-krita
