@@ -735,8 +735,8 @@ directory."
   :config
   (add-hook 'org-mode-hook 'org-krita-mode))
 
-(after! magit
-    (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
+;; (after! magit
+;;     (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
 
 (after! magit
   (magit-todos-mode t))

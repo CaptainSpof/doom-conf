@@ -9,8 +9,8 @@
 (package! verb)
 (package! groovy-mode)
 (package! xterm-color :pin "d53a39a5af72cd340ebf686e59a37289b4cb6e8c")
-(package! magit-delta
-  :recipe (:host github :repo "dandavison/magit-delta" :files ("magit-delta.el")))
+;; (package! magit-delta
+;;   :recipe (:host github :repo "dandavison/magit-delta" :files ("magit-delta.el")))
 (package! exec-path-from-shell)
 (package! git-messenger)
 (package! company-fuzzy)

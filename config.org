@@ -1098,9 +1098,10 @@ Don't open backlinks pane automatically
 *** Magit
 **** magit-delta
 Enable delta mode.
+# FIXME: doesn't work
 #+begin_src emacs-lisp
-(after! magit
-    (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
+;; (after! magit
+;;     (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
 #+end_src
 **** todos
 #+BEGIN_SRC emacs-lisp
