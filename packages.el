@@ -6,8 +6,10 @@
 ;; (package! another-package :recipe (:host github :repo "username/repo"))
 ;; (package! builtin-package :disable t)
 
+(package! evil-snipe :disable t)
+
 (package! verb)
-(package! groovy-mode)
+;; (package! groovy-mode)
 (package! xterm-color :pin "d53a39a5af72cd340ebf686e59a37289b4cb6e8c")
 ;; (package! magit-delta
 ;;   :recipe (:host github :repo "dandavison/magit-delta" :files ("magit-delta.el")))
@@ -20,6 +22,7 @@
 (package! direnv)
 (package! nov)
 (package! hide-lines)
+(package! olivetti)
 (package! org-krita
   :recipe (:host github
            :repo "lepisma/org-krita"
@@ -36,3 +39,11 @@
 ;; (package! org-super-agenda)
 ;; (package! burly)
 ;; (package! sublimity)
+;; (package! nano-theme
+;;   :recipe (:host github :repo "rougier/nano-theme"))
+
+(package! org-ol-tree :recipe (:host github :repo "Townk/org-ol-tree")
+  :pin "207c748aa5fea8626be619e8c55bdb1c16118c25")
+
+(use-package! org-ol-tree
+  :commands org-ol-tree)
