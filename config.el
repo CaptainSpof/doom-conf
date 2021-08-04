@@ -22,6 +22,8 @@
                  (fboundp 'evil-jump-item)
                  #'evil-jump-item))
 
+(map! :i [tab] #'yas/expand)
+
 (map! :leader
       (:prefix-map ("t" . "toggle")
        :desc "Rainbow mode" :mvn "R" #'rainbow-delimiters-mode))
