@@ -2,6 +2,6 @@
 # name: commit-prefix
 # key: :
 # --
-${0:$$(emojify-insert-emoji)}${1:type$$(yas-choose-value '("fix" "feat" "hotfix" "add" "update" "change" "clean" "disable" "remove" "upgrade" "revert" "refactor"))}(${2:scope}): ${3:short message}
+${0:$$(emojify-insert-emoji)}${1:type$$(yas-choose-value '("🐛 fix" "✨ feat" "🚑 hotfix" "📦 build" "add" ":zap: update" "chore" "change" "enhancement" "clean" "disable" "remove" "upgrade" "revert" "🔨 refactor"))}(${2:scope}): ${3:short message}
 
 $4

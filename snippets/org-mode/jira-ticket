@@ -2,7 +2,7 @@
 # name: JIRA ticket
 # key: ticket                                                                                       
 # --
-[[https://jirabuild.keringapps.com/browse/ANI-${1:$$(upcase yas-text)}][ANI-$1]${0:$$(insert "]")} : ${3:title}
+[[https://projet-oxp.atlassian.net/browse/OXP-${1:$$(upcase yas-text)}][OXP-$1]${0:$$(insert "]")} : ${3:title}
 **** Description:
 #+begin_quote
 

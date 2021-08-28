@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: debug
+# key: d
+# condition: t
+# --
+debug!("$1", ${2:`%`});$0
