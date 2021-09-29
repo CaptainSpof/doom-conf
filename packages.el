@@ -37,6 +37,11 @@
 (use-package! org-ol-tree
   :commands org-ol-tree)
 
+(package! org-krita
+  :recipe (:host github
+           :repo "lepisma/org-krita"
+           :files ("resources" "resources" "*.el" "*.el")))
+
 ;; for org-tree-slide
 (package! hide-lines)
 (package! olivetti)
@@ -47,8 +52,8 @@
 ;; (package! direnv)
 
 ;; tree-sitter & completion
-(package! tree-sitter)
-(package! tree-sitter-langs)
+;; (package! tree-sitter)
+;; (package! tree-sitter-langs)
 (package! company-fuzzy)
 
 ;;

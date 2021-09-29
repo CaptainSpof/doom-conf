@@ -79,7 +79,7 @@
 (map! :nvmoi [C-tab] #'+workspace:switch-next
              [C-S tab] #'+workspace:switch-previous)
 
-(map! :i [tab] #'yas/expand)
+;; (map! :i [tab] #'yas/expand)
 
 (map! :leader
       (:prefix-map ("t" . "toggle")
@@ -1076,11 +1076,11 @@ directory."
 (after! tramp
   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
 
-(use-package! tree-sitter
-  :config
-  (require 'tree-sitter-langs)
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+;; (use-package! tree-sitter
+;;   :config
+;;   (require 'tree-sitter-langs)
+;;   (global-tree-sitter-mode)
+;;   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
 (after! company
   ;; (require 'company-tabnine)

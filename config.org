@@ -185,7 +185,7 @@ Use Ctrl + Tab to switch between workspace.
 #+RESULTS:
 
 #+begin_src emacs-lisp
-(map! :i [tab] #'yas/expand)
+;; (map! :i [tab] #'yas/expand)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1542,11 +1542,11 @@ Fix weird problems due to prompt, I don't know, wild c/c from google.
 #+END_SRC
 *** Tree-Sitter
 #+begin_src emacs-lisp
-(use-package! tree-sitter
-  :config
-  (require 'tree-sitter-langs)
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+;; (use-package! tree-sitter
+;;   :config
+;;   (require 'tree-sitter-langs)
+;;   (global-tree-sitter-mode)
+;;   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 #+end_src
 *** Company
 Tabnine
@@ -1699,9 +1699,6 @@ Affects behaviour of `emacs-anywhere--finalise-content'")
 )
 #+end_src
 
-#+RESULTS:
-: json-to-json
-
 **** Mapping
 #+begin_src emacs-lisp
 (after! verb
@@ -1724,9 +1721,6 @@ Affects behaviour of `emacs-anywhere--finalise-content'")
 (setq +zen-window-divider-size 1
       +zen-text-scale 1)
 #+end_src
-
-#+RESULTS:
-: 1
 
 *** Zoom
 **** Configuration
@@ -1820,6 +1814,3 @@ Toggles between: “all lower”, “Init Caps”, “ALL CAPS”."
        ;; :desc  "task runner"      "t" #'+taskrunner/project-tasks
 )
 #+end_src
-
-#+RESULTS:
-: +make/run
