@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: binouze
+# key: bibine!
+# condition: t
+# --
+
+*** ${1:Bar Name}
+**** ⭐ Avis
+${2:Description}
+
+***** The ~Good~, =the Bad= and the =Ugly=
++ 🍺 ${8: <sélection de bière>}
++ 🏠💺 ${9: <place en intérieur>}
++ 🥴🍔 ${10: <foncedalle>}
++ 💳 ${11: <minimum CB>}
++ 🤸🏿 ${12: <staf>}
++ 🍸 ${13: <sélection cocktail>}
++ 🌞 ${14: <terrasse>}
++ 📣 ${15: <niveau sonore>}
+
+***** 🍺 Bière
+
+| Binouze       | ✅ |
+
+***** 🗺 Lieu
+- *Adresse*: ${3:Address}
+- *Google Map*: [[${4:gmap link}][$1]${0:$$(insert "]")}
+***** 📙 Référence
+- [[${5:Bar link}][Site Web]${0:$$(insert "]")}
+- [[${6:JB link}][Jeudi Bière Meetup]${0:$$(insert "]")}
+- [[${7:Untappd link}][Untappd]${0:$$(insert "]")}

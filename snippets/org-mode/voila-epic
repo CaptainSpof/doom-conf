@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: Voilà Epic
+# key: epic!
+# condition: t
+# --
+* TODO ${0:title}
+
+** Overview
+*** 🧠 Problem Statement
+/Describe the problem your users are facing. Explain why you think it is valuable to solve it./
+
+*** 📜 Narrative
+/Describe what your users should do to solve their problem, and what benefits they will reach./
+
+*** 🏁 Acceptance Criteria
+/List the jobs to be done by your users for this problem to be considered soled/
+
+- [ ]
+
+*** ⚖ Impact Measurement
+/List the key success criteria measuring how users find this solution valuable/
+
+-
+
+** [%] Tasks
+
+- [ ]
+
+** Drafting
+
+** References

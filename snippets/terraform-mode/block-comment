@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: param
+# key: #-
+# --
+m.parameter :${1:arg},${1:$(make-string (- 14 (string-width text)) ?\
+                         )}:${2:type}$>

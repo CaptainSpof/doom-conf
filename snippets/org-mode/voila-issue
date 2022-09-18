@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Voilà Issue
+# key: issue!
+# condition: t
+# --
+
+* TODO ${1:title}
+
+** Description
+#+begin_quote
+${2:description}
+#+end_quote
+
+** [%] Tasks
+-
+
+** References
+-

@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: new JIRA ticket
+# key: nticket
+# --
+*** TODO [[https://projet-oxp.atlassian.net/browse/OXP-${1:$$(upcase yas-text)}][OXP-$1]${0:$$(insert "]")} : ${3:title}
+**** Description:
+#+begin_quote
+
+#+end_quote
+**** Comments:
+     1. ${4:author}
+    #+begin_quote
+        ${5:comment}
+    #+end_quote
+**** [/] Tasks:
+  - [ ]
+**** Dump:
+**** Troubleshoots:
+***** What's wrong ?
+***** What I tried ?
+***** What worked ?
+**** References:

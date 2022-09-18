@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: warn
+# key: w
+# condition: t
+# --
+warn!("$1", ${2:`%`});$0
