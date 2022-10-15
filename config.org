@@ -1,5 +1,4 @@
 :DOC-CONFIG:
-# Tangle by default to config.el, which is the most common case
 #+property: header-args:emacs-lisp :tangle config.el
 #+property: header-args :mkdirp yes :comments no
 #+startup: fold
@@ -27,8 +26,29 @@ fast.
 #+begin_src emacs-lisp
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 #+end_src
+** How this config is organized
+Well here's a good question. I didn't really think this through…
+
+The general idea is to organize the packages's configuration in their own
+subheading (see [[* Level 5: Phobos Lab · Packages][Level 5]]).
+
+Also if doom already configure a package in a module, extend that package
+configuration in a subheading that represent the module it originate from (it's
+in [[* Level 4: Command Control · Doom, but it's my personal hell][Level 4]]).
+
+In [[* Level 6: Central Processing · Lang stuff][Level 6]], I put language specific bits of configuration or helpful functions.
+
 ** Inspirations
+Here's a non exhaustive list of config that helped me write this one. Thanks to
+the authors🙏.
+
 - [[https://github.com/abougouffa/dotfiles/blob/main/dot_doom.d/config.org][Abdelhak Bougouffa's config]]
+- [[https://github.com/gtrunsec/nixos-flk/blob/main/users/dotfiles/doom-emacs/config.org][GTrunkSec's config]]
+- [[https://ruivieira.dev/doom-emacs.html][Rui Vieira's config]]
+- [[https://tecosaur.github.io/emacs-config/][Tecosaur's config]]
+- [[https://git.sr.ht/~gagbo/doom-config/tree][Gagbo's config]]
+- [[https://github.com/protesilaos/dotfiles/tree/master/emacs/.emacs.d][Prot's config]]
+- [[https://github.com/hlissner/.doom.d][Hlissner's config]]
 
 * Level 2: Nuclear Plant · Let's get personal
 Please allow me to introduce myself.
@@ -68,12 +88,12 @@ change it to something else, maybe a dedicated key on my keyboard…
 *** Configuration
 
 #+begin_src emacs-lisp :tangle packages.el
-(unpin! which-key)
+;; (unpin! which-key)
 #+end_src
 ~which-key~ could be a little tad bit quicker to show up.
 
 #+begin_src emacs-lisp
-;; (setq which-key-idle-delay 0.5) ;; I need the help, I really do
+(setq which-key-idle-delay 0.5) ;; I need the help, I really do
 #+end_src
 
 I also think that having evil- appear in so many popups is a bit too verbose,
@@ -84,7 +104,7 @@ let’s change that.
   (pushnew!
    which-key-replacement-alist
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "⫚-\\1"))
-   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "⋔\\1"))))
+   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "⋔-\\1"))))
 #+end_src
 ** Neat · 📷
 When using ~evil-mode~, you can rebind ~v~ to ~er/expand-region~, this is super
@@ -154,6 +174,7 @@ the associated key is pressed after the repeatable action is triggered."
                    (evil-window-decrease-width . "<"))
                  "Repeatable map for window resizing")
 #+end_src
+** Bépo :HACK:
 
 * Level 4: Command Control · Doom, but it's my personal hell
 Here, I'll put configuration for the module built-in ~doom~. Either grouped by
@@ -186,6 +207,10 @@ This might change from time to time, but currently I am rocking…
 #+begin_src emacs-lisp
 (setq doom-theme 'ef-duo-light)
 (setq ef-themes-to-toggle '(ef-duo-light ef-night))
+#+end_src
+
+#+begin_src emacs-lisp
+(set-face-foreground 'window-divider (face-background 'header-line))
 #+end_src
 *** Splash screen
 
@@ -275,44 +300,68 @@ Invert Switch workspace and Display tab bar mapping
 
 #+end_src
 ** Editor · ~:editor~
+*** ~evil~ · the necessary one
+As a Vim refugee, evil allows me to be somewhat productive in an editor, I
+should at least try to immerse myself in the default Emacs's binding, someday…
+
+**** Configuration
+
+When creating window splits, it's nice to jump straight to them.
+#+begin_src emacs-lisp
+(after! evil
+  (setq evil-split-window-below t
+        evil-vsplit-window-right t))
+#+end_src
+
+Save a few key strokes, open up ~dired~ while we're at it.
+
+#+begin_src emacs-lisp
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (dired-jump))
+#+end_src
+
+I like my ~s/../..~ to by global by default
+#+begin_src emacs-lisp
+(after! evil
+  (setq evil-ex-substitute-global t))
+#+end_src
+
+I use ~o~, ~O~ often, but not much for appending comments, let's disable that.
+#+begin_src emacs-lisp
+(after! evil
+  (setq +evil-want-o/O-to-continue-comments nil))
+#+end_src
+
+*** Mapping
+Habits die hard, I use ~q~ to close most things, I want to close buffer too.
+This mean ~macros~ should be relocated to ~Q~.
+#+begin_src emacs-lisp
+(with-eval-after-load 'evil-maps
+  (define-key evil-normal-state-map "q" 'evil-quit)
+  (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro))
+#+end_src
 *** ~fold~
 **** Mapping
-Quickly toggle fold
+Quickly toggle ~folds~.
 #+begin_src emacs-lisp
 (after! evil
   (map!
    :n "z <tab>" #'+fold/toggle))
 #+end_src
 *** ~lispy~
+~lispy~ and ~lispyville~ looks really great, take some use to, though. I'm still
+trying to get my head around it.
 **** Configuration
 #+begin_src emacs-lisp :tangle packages.el
-(unpin! lispyville)
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! lispyville
-;;   :when (modulep! :editor evil)
-;;   :hook (lispy-mode . lispyville-mode)
-;;   :init
-;;   (setq lispyville-key-theme
-;;         '((operators normal)
-;;           c-w
-;;           (prettify insert)
-;;           (atom-movement t)
-;;           slurp/barf-lispy
-;;           commentary
-;;           additional
-;;           additional-insert))
-;;   :config
-;;   (lispyville-set-key-theme)
-;;   (add-hook! 'evil-escape-inhibit-functions
-;;     (defun +lispy-inhibit-evil-escape-fn ()
-;;       (and lispy-mode (evil-insert-state-p)))))
+;; (unpin! lispyville)
 #+end_src
 
 ** Emacs · ~:emacs~ itself
 *** ~undo-fu~
 **** Configuration
+Undoing in region seems really great, I still have trouble to use it sometimes,
+though. The binding ~C-_~ is not really accessible with my layout unfortunately.
 #+begin_src emacs-lisp
 (setq undo-fu-allow-undo-in-region 't)
 #+end_src
@@ -397,7 +446,7 @@ Now lets put all this into a global binding, I'll use ~SPC e~.
 I write mostly bad code, so I need to jump to problems easily.
 
 #+begin_src emacs-lisp :tangle packages.el
-(unpin! flycheck)
+;; (unpin! flycheck)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -417,44 +466,18 @@ In situation when I need to quickly look a word definition to not look too dumb.
  (:when (modulep! :tools lookup)
    :n "z?" #'define-word-at-point))
 #+end_src
-** ~evil~ · the necessary one
-*** Configuration
-
-When creating window split, it's nice to jump straight to them.
-#+begin_src emacs-lisp
-(after! evil
-  (setq evil-split-window-below t
-        evil-vsplit-window-right t))
+*** ~lsp~
+**** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! lsp-mode)
 #+end_src
 
-Save a few key stroke, open up ~projecile-find-file~ while we're at it.
-
+Let's try to apply some performance recommendation regarding plists.
 #+begin_src emacs-lisp
-(defadvice! prompt-for-buffer (&rest _)
-  :after '(evil-window-split evil-window-vsplit)
-  (dired-jump))
+;; (setenv "LSP_USE_PLISTS" "1")
+;; (setq lsp-use-plists "true")
 #+end_src
 
-I like my s/../.. to by global by default
-#+begin_src emacs-lisp
-(after! evil
-  (setq evil-ex-substitute-global t))
-#+end_src
-
-I use ~o~, ~O~ often, but not much for amending comments, let's disable that.
-#+begin_src emacs-lisp
-(after! evil
-  (setq +evil-want-o/O-to-continue-comments nil))
-#+end_src
-
-*** Mapping
-Habits die hard, I use ~q~ to close most things, I want to close buffer too.
-This mean macro should be relocated to ~Q~.
-#+begin_src emacs-lisp
-(with-eval-after-load 'evil-maps
-  (define-key evil-normal-state-map "q" 'evil-quit)
-  (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro))
-#+end_src
 ** ~dired~ · « Our last resort, in these dire times »
 *** Mapping
 Conveniently Doom doesn't use ~SPC d~ and I use dired often, so let's add a few
@@ -841,6 +864,13 @@ let's obliged.
   :config
   (setq olivetti-body-width 90))
 #+end_src
+** ~focus~
+A package to dim everything that is not on focus.
+*** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+(package! focus)
+#+end_src
+
 ** ~logos~ · Focus mode
 *** Configuration
 #+begin_src emacs-lisp :tangle packages.el
@@ -898,7 +928,7 @@ let's obliged.
 #+end_src
 
 ** ~ef-themes~
-*** Configuration
+*** Configuration & Mapping
 Prot's at it again with another great package and great themes.
 #+begin_src emacs-lisp :tangle packages.el
 (package! ef-themes)
@@ -1038,6 +1068,10 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
            :default-weight semilight
            :default-height 260
            :bold-weight extrabold)
+          (merriweather
+           :default-family "Merriweather"
+           :variable-pitch-family "Merriweather"
+           :default-height 150)
           (ibm-plex-sans
            :default-family "IBM Plex Sans")
           (ibm-plex-mono
@@ -1125,6 +1159,45 @@ A nice little package which allows to rotate layout.
   (evil-define-key 'normal vterm-mode-map (kbd ",n")  #'multi-vterm-next)
   (evil-define-key 'normal vterm-mode-map (kbd ",p")  #'multi-vterm-prev))
 #+end_src
+** ~nov~
+*** Configuration
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! nov)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! nov
+  :mode ("\\.epub\\'" . nov-mode)
+  :hook (nov-mode . mixed-pitch-mode)
+  :hook (nov-mode . visual-line-mode)
+  :hook (nov-mode . visual-fill-column-mode)
+  :hook (nov-mode . hide-mode-line-mode)
+  :hook (nov-mode . (lambda () (hl-line-mode -1)))
+  :hook (nov-mode . (lambda ()
+                             (set (make-local-variable 'scroll-margin) 1)))
+
+  :config
+  (setq visual-fill-column-center-text t
+        nov-text-width t
+        nov-variable-pitch t))
+
+(defun daf/scroll-bottom-line-to-top ()
+  (interactive)
+  (evil-window-bottom)
+  (evil-scroll-line-to-top (line-number-at-pos))
+  (+nav-flash/blink-cursor))
+(defun daf/scroll-top-line-to-bottom ()
+  (interactive)
+  (evil-window-top)
+  (evil-scroll-line-to-bottom (line-number-at-pos))
+  (+nav-flash/blink-cursor))
+:init
+  (map!
+   :map nov-mode-map
+   :n "T" #'daf/scroll-bottom-line-to-top
+   :n "S" #'daf/scroll-top-line-to-bottom)
+#+end_src
 
 ** ~vundo~
 **** Configuration & Mapping
@@ -1156,6 +1229,7 @@ A nice little package which allows to rotate layout.
 #+begin_src emacs-lisp
 (use-package! verb
   :config
+  (setq verb-json-use-mode 'json-mode)
   (defun graphql-to-json (rs)
     ;; Modify RS and return it (RS is a request specification, type `verb-request-spec')
     (oset rs body (replace-regexp-in-string "\n" "" (format-message "{\"query\": \"%s\"}" (oref rs body))))
@@ -1212,12 +1286,33 @@ Ispell is nice, let’s have it in text, markdown, and GFM.
     company-files
     company-yasnippet))
 #+end_src
-** Javascript
+** Javascript / Typescript
 *** Configuration
 QUICKFIX
 #+begin_src emacs-lisp
 (advice-add #'add-node-modules-path :override #'ignore)
 #+end_src
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! ob-typescript)
+#+end_src
+
+
+Filter lsp diagnostic
+#+begin_src emacs-lisp
+  ;; (with-eval-after-load 'lsp-mode
+  ;;   (lsp-defun my/filter-typescript ((params &as &PublishDiagnosticsParams :diagnostics)
+  ;;                                    _workspace)
+  ;;              (lsp:set-publish-diagnostics-params-diagnostics
+  ;;               params
+  ;;               (or (seq-filter (-lambda ((&Diagnostic :source? :severity?))
+  ;;                                 (and (not (string= "typescript" source?))
+  ;;                                      (< severity? lsp/diagnostic-severity-information)))
+  ;;                               diagnostics)
+  ;;                   []))
+  ;;              params)
+
+  ;;   (setq lsp-diagnostic-filter 'my/filter-typescript))
+    #+end_src
 
 * Level x: Sewers · It never ends…
 « Confing » Emacs is a never ending story, I'll always have stuff to tweak, new
@@ -1226,9 +1321,18 @@ here.
 ** Known Issues
 - [ ] ~doom-modeline~ isn't happy about font profile switching
 - [X] (layout +bepo) isn't working
+- [ ] (layout +bepo) isn't working, take 2
+  I'm still experiencing issues, it seems that when using the ~+bepo~ module,
+  ~yas-snipet~ is loaded too often, which cause lags.
 - [X] ~company~ glitches with variable fonts (maybe?)
   ~+childframe~ seems to have fixed the issue.
 - [ ] emojis and symbols are giving me trouble
+  - [ ] can't disable specific symbols
+- [ ] ~flycheck~ is activated where it shouldn't
+  specifically the ~javascript-eslint~ checker, is activated in buffer (not
+  attached to a file) and complains about invalid syntax where it shouldn't. For
+  instance when merging javascript/typescript files in ediff, syntax is invalid,
+  because of the diff's block, this is expected.
 ** Todos
 - [X] migrate elogcat stuff for android
 - [-] finish font setup
@@ -1238,31 +1342,11 @@ here.
 - [ ] add ~verb.el~ maybe a private module?
 
 * Sandbox
-
+** nano-theme
 #+begin_src emacs-lisp :tangle packages.el
-(package! ts-comint)
+(package! nano-theme)
 #+end_src
-
 
 #+begin_src emacs-lisp
-(defun my-imenu-function ()
-  (interactive)
-  (imenu (imenu-choose-buffer-index "Jump to function: "
-                                    (alist-get "Function"
-                                               (imenu--make-index-alist)
-                                               nil
-                                               nil
-                                               'string=))))
-(defun my-imenu-class ()
-  (interactive)
-  (imenu (imenu-choose-buffer-index "Jump to class: "
-                                    (alist-get "Class"
-                                               (imenu--make-index-alist)
-                                               nil
-                                               nil
-                                               'string=))))
-#+end_src
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! imenu+)
+(load! "book-mode")
 #+end_src

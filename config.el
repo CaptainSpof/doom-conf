@@ -12,14 +12,14 @@
 (defvar daf/localleader-key "SPC ç"
   "The localleader prefix key, for major-mode specific commands.")
 
-;; (setq which-key-idle-delay 0.5) ;; I need the help, I really do
+(setq which-key-idle-delay 0.5) ;; I need the help, I really do
 
 (setq which-key-allow-multiple-replacements t)
 (after! which-key
   (pushnew!
    which-key-replacement-alist
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "⫚-\\1"))
-   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "⋔\\1"))))
+   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "⋔-\\1"))))
 
 (map!
  (:map 'override
@@ -83,6 +83,8 @@ the associated key is pressed after the repeatable action is triggered."
 (setq doom-theme 'ef-duo-light)
 (setq ef-themes-to-toggle '(ef-duo-light ef-night))
 
+(set-face-foreground 'window-divider (face-background 'header-line))
+
 (setq fancy-splash-image (expand-file-name "misc/splash-images/ferris.svg" doom-user-dir))
 
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
@@ -123,27 +125,26 @@ the associated key is pressed after the repeatable action is triggered."
        :desc "Display tab bar" :mvn "." #'+workspace/display))
 
 (after! evil
+  (setq evil-split-window-below t
+        evil-vsplit-window-right t))
+
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (dired-jump))
+
+(after! evil
+  (setq evil-ex-substitute-global t))
+
+(after! evil
+  (setq +evil-want-o/O-to-continue-comments nil))
+
+(with-eval-after-load 'evil-maps
+  (define-key evil-normal-state-map "q" 'evil-quit)
+  (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro))
+
+(after! evil
   (map!
    :n "z <tab>" #'+fold/toggle))
-
-;; (use-package! lispyville
-;;   :when (modulep! :editor evil)
-;;   :hook (lispy-mode . lispyville-mode)
-;;   :init
-;;   (setq lispyville-key-theme
-;;         '((operators normal)
-;;           c-w
-;;           (prettify insert)
-;;           (atom-movement t)
-;;           slurp/barf-lispy
-;;           commentary
-;;           additional
-;;           additional-insert))
-;;   :config
-;;   (lispyville-set-key-theme)
-;;   (add-hook! 'evil-escape-inhibit-functions
-;;     (defun +lispy-inhibit-evil-escape-fn ()
-;;       (and lispy-mode (evil-insert-state-p)))))
 
 (setq undo-fu-allow-undo-in-region 't)
 
@@ -203,23 +204,8 @@ the associated key is pressed after the repeatable action is triggered."
  (:when (modulep! :tools lookup)
    :n "z?" #'define-word-at-point))
 
-(after! evil
-  (setq evil-split-window-below t
-        evil-vsplit-window-right t))
-
-(defadvice! prompt-for-buffer (&rest _)
-  :after '(evil-window-split evil-window-vsplit)
-  (dired-jump))
-
-(after! evil
-  (setq evil-ex-substitute-global t))
-
-(after! evil
-  (setq +evil-want-o/O-to-continue-comments nil))
-
-(with-eval-after-load 'evil-maps
-  (define-key evil-normal-state-map "q" 'evil-quit)
-  (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro))
+;; (setenv "LSP_USE_PLISTS" "1")
+;; (setq lsp-use-plists "true")
 
 (map! :leader
       (:prefix-map ("d" . "dired")
@@ -596,6 +582,10 @@ The exact color values are taken from the active Ef theme."
            :default-weight semilight
            :default-height 260
            :bold-weight extrabold)
+          (merriweather
+           :default-family "Merriweather"
+           :variable-pitch-family "Merriweather"
+           :default-height 150)
           (ibm-plex-sans
            :default-family "IBM Plex Sans")
           (ibm-plex-mono
@@ -665,6 +655,37 @@ The exact color values are taken from the active Ef theme."
   (evil-define-key 'normal vterm-mode-map (kbd ",n")  #'multi-vterm-next)
   (evil-define-key 'normal vterm-mode-map (kbd ",p")  #'multi-vterm-prev))
 
+(use-package! nov
+  :mode ("\\.epub\\'" . nov-mode)
+  :hook (nov-mode . mixed-pitch-mode)
+  :hook (nov-mode . visual-line-mode)
+  :hook (nov-mode . visual-fill-column-mode)
+  :hook (nov-mode . hide-mode-line-mode)
+  :hook (nov-mode . (lambda () (hl-line-mode -1)))
+  :hook (nov-mode . (lambda ()
+                             (set (make-local-variable 'scroll-margin) 1)))
+
+  :config
+  (setq visual-fill-column-center-text t
+        nov-text-width t
+        nov-variable-pitch t))
+
+(defun daf/scroll-bottom-line-to-top ()
+  (interactive)
+  (evil-window-bottom)
+  (evil-scroll-line-to-top (line-number-at-pos))
+  (+nav-flash/blink-cursor))
+(defun daf/scroll-top-line-to-bottom ()
+  (interactive)
+  (evil-window-top)
+  (evil-scroll-line-to-bottom (line-number-at-pos))
+  (+nav-flash/blink-cursor))
+:init
+  (map!
+   :map nov-mode-map
+   :n "T" #'daf/scroll-bottom-line-to-top
+   :n "S" #'daf/scroll-top-line-to-bottom)
+
 (use-package! vundo
   :unless (modulep! +tree)
   :custom
@@ -680,6 +701,7 @@ The exact color values are taken from the active Ef theme."
 
 (use-package! verb
   :config
+  (setq verb-json-use-mode 'json-mode)
   (defun graphql-to-json (rs)
     ;; Modify RS and return it (RS is a request specification, type `verb-request-spec')
     (oset rs body (replace-regexp-in-string "\n" "" (format-message "{\"query\": \"%s\"}" (oref rs body))))
@@ -723,19 +745,18 @@ The exact color values are taken from the active Ef theme."
 
 (advice-add #'add-node-modules-path :override #'ignore)
 
-(defun my-imenu-function ()
-  (interactive)
-  (imenu (imenu-choose-buffer-index "Jump to function: "
-                                    (alist-get "Function"
-                                               (imenu--make-index-alist)
-                                               nil
-                                               nil
-                                               'string=))))
-(defun my-imenu-class ()
-  (interactive)
-  (imenu (imenu-choose-buffer-index "Jump to class: "
-                                    (alist-get "Class"
-                                               (imenu--make-index-alist)
-                                               nil
-                                               nil
-                                               'string=))))
+;; (with-eval-after-load 'lsp-mode
+;;   (lsp-defun my/filter-typescript ((params &as &PublishDiagnosticsParams :diagnostics)
+;;                                    _workspace)
+;;              (lsp:set-publish-diagnostics-params-diagnostics
+;;               params
+;;               (or (seq-filter (-lambda ((&Diagnostic :source? :severity?))
+;;                                 (and (not (string= "typescript" source?))
+;;                                      (< severity? lsp/diagnostic-severity-information)))
+;;                               diagnostics)
+;;                   []))
+;;              params)
+
+;;   (setq lsp-diagnostic-filter 'my/filter-typescript))
+
+(load! "book-mode")

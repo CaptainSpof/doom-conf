@@ -1,10 +1,12 @@
-(unpin! which-key)
+;; (unpin! which-key)
 
-(unpin! lispyville)
+;; (unpin! lispyville)
 
 (package! langtool :disable t)
 
-(unpin! flycheck)
+;; (unpin! flycheck)
+
+(unpin! lsp-mode)
 
 (package! org-appear) ;; https://github.com/awth13/org-appear
 
@@ -26,6 +28,8 @@
 
 (package! olivetti)
 
+(package! focus)
+
 (package! logos)
 
 (package! magit-pretty-graph
@@ -43,10 +47,12 @@
 (package! multi-vterm
   :recipe (:host github :repo "gagbo/multi-vterm" :branch "display_buffer"))
 
+(package! nov)
+
 (package! vundo)
 
 (package! verb)
 
-(package! ts-comint)
+;; (package! ob-typescript)
 
-(package! imenu+)
+(package! nano-theme)
