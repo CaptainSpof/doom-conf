@@ -1,5 +1,8 @@
 ;; (unpin! which-key)
 
+(package! doom-snippets :disable t)
+;; (unpin! doom-snippets)
+
 ;; (unpin! lispyville)
 
 (package! langtool :disable t)
@@ -9,6 +12,9 @@
 (unpin! lsp-mode)
 
 (package! org-appear) ;; https://github.com/awth13/org-appear
+
+(package! org-quick-peek
+  :recipe (:host github :repo "alphapapa/org-now"))
 
 (package! org-modern)
 
@@ -20,9 +26,14 @@
 
 (package! blamer) ;; https://github.com/Artawower/blamer.el
 
+(package! burly)
+
 (package! elogcat)
 
-;; (package! fancy-dabbrev)
+(package! jq-mode) ;; https://github.com/ljos/jq-mode
+
+(package! just-mode)
+(package! justl)
 
 (package! languagetool) ;; https://github.com/PillFall/languagetool.el
 
@@ -42,6 +53,10 @@
 
 (package! fontaine)
 
+(package! popper) ;; https://github.com/karthink/popper
+
+(package! puni)
+
 (package! rotate)
 
 (package! multi-vterm
@@ -53,6 +68,9 @@
 
 (package! verb)
 
-;; (package! ob-typescript)
-
 (package! nano-theme)
+
+(package! evil-fringe-mark)
+
+(package! pulsar)
+(package! beacon)

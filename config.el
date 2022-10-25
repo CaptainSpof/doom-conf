@@ -12,6 +12,16 @@
 (defvar daf/localleader-key "SPC ç"
   "The localleader prefix key, for major-mode specific commands.")
 
+(setq bookmark-default-file (expand-file-name "local/bookmarks" doom-user-dir)
+     projectile-known-projects-file (expand-file-name "local/projectile.projects" doom-user-dir))
+
+(setq +workspaces-switch-project-function #'dired)
+
+(setq +zen-text-scale 0)
+
+(after! tramp
+  (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
+
 (setq which-key-idle-delay 0.5) ;; I need the help, I really do
 
 (setq which-key-allow-multiple-replacements t)
@@ -29,19 +39,19 @@
 (setq doom-scratch-initial-major-mode 'lisp-interaction-mode)
 
 (after! embark
-(eval-when-compile
-  (defmacro my/embark-ace-action (fn)
-    `(defun ,(intern (concat "my/embark-ace-" (symbol-name fn))) ()
-       (interactive)
-       (with-demoted-errors "%s"
-         (require 'ace-window)
-         (let ((aw-dispatch-always t))
-           (aw-switch-to-window (aw-select nil))
-           (call-interactively (symbol-function ',fn)))))))
+  (eval-when-compile
+    (defmacro my/embark-ace-action (fn)
+      `(defun ,(intern (concat "my/embark-ace-" (symbol-name fn))) ()
+         (interactive)
+         (with-demoted-errors "%s"
+           (require 'ace-window)
+           (let ((aw-dispatch-always t))
+             (aw-switch-to-window (aw-select nil))
+             (call-interactively (symbol-function ',fn)))))))
 
-    (define-key embark-file-map     (kbd "o") (my/embark-ace-action find-file))
-    (define-key embark-buffer-map   (kbd "o") (my/embark-ace-action switch-to-buffer))
-    (define-key embark-bookmark-map (kbd "o") (my/embark-ace-action bookmark-jump)))
+  (define-key embark-file-map     (kbd "o") (my/embark-ace-action find-file))
+  (define-key embark-buffer-map   (kbd "o") (my/embark-ace-action switch-to-buffer))
+  (define-key embark-bookmark-map (kbd "o") (my/embark-ace-action bookmark-jump)))
 
 ;;;###autoload
 (defmacro daf/repeat-map! (map-name keys-alist &optional docstring)
@@ -60,13 +70,59 @@ the associated key is pressed after the repeatable action is triggered."
 
 (add-hook 'after-init-hook 'repeat-mode)
 
-(daf/repeat-map! my-window-resize-repeat-map
-                 '((evil-window-increase-height . "+")
-                   (evil-window-increase-height . "=")
-                   (evil-window-decrease-height . "-")
-                   (evil-window-increase-width . ">")
-                   (evil-window-decrease-width . "<"))
+(daf/repeat-map! daf-window-resize-repeat-map
+                 '((+evil-window-increase-height-by-three . "+")
+                   (+evil-window-increase-height-by-three . "=")
+                   (+evil-window-decrease-height-by-three . "-")
+                   (+evil-window-increase-width-by-five . "»")
+                   (+evil-window-increase-width-by-five . ">")
+                   (+evil-window-decrease-width-by-five . "«")
+                   (+evil-window-decrease-width-by-five . "<"))
                  "Repeatable map for window resizing")
+
+;;;###autoload
+(defun daf/window-toggle-lock-size ()
+  "Lock/unlock the current window size."
+  (interactive)
+  (let ((window (get-buffer-window)))
+    (cond ((or (window-size-fixed-p window)
+               (window-size-fixed-p window t))
+           (daf/window-unlock-size))
+          (t
+           (daf/window-lock-size)))))
+
+;;;###autoload
+(defun daf/window-lock-size ()
+  "Lock the current window size."
+  (interactive)
+  (window-preserve-size window t t)
+  (message "locking current window size"))
+
+;;;###autoload
+(defun daf/window-unlock-size ()
+  "Unlock the current window size."
+  (interactive)
+  (window-preserve-size window t nil)
+  (message "unlocking current window size"))
+
+;;;###autoload
+(defun daf/window-shrink-and-lock ()
+  "Shrink and lock the current window size."
+  (interactive)
+  (let* ((window (get-buffer-window))
+         (curr-h  (window-height window))
+         (curr-w  (window-width window))
+         (delta-h    (- 5 curr-h))
+         (delta-w    (- 5 curr-w)))
+    (save-excursion
+      (save-selected-window (select-window window)
+                            (enlarge-window delta-w delta-h)
+                            (daf/window-lock-size)))))
+
+(map! :leader
+        (:prefix "w"
+         :desc "daf/toggle-lock" "," #'daf/window-toggle-lock-size
+         :desc "daf/shrink" "." #'daf/window-shrink-and-lock))
 
 (after! company
   (setq
@@ -80,8 +136,21 @@ the associated key is pressed after the repeatable action is triggered."
 (map! [remap describe-bindings] #'embark-bindings
       "C-," #'embark-act)
 
+(after! vertico
+  (vertico-multiform-mode)
+
+  (setq vertico-multiform-commands
+        '((consult-line buffer)))
+  (setq vertico-multiform-categories
+        '((consult-grep buffer)))
+
+  (setq vertico-buffer-display-action
+        '(display-buffer-in-side-window
+          (side . left)
+          (window-width . 0.3))))
+
 (setq doom-theme 'ef-duo-light)
-(setq ef-themes-to-toggle '(ef-duo-light ef-night))
+(setq ef-themes-to-toggle '(ef-duo-light ef-tritanopia-dark))
 
 (set-face-foreground 'window-divider (face-background 'header-line))
 
@@ -142,9 +211,58 @@ the associated key is pressed after the repeatable action is triggered."
   (define-key evil-normal-state-map "q" 'evil-quit)
   (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro))
 
+(map! (:after evil-easymotion
+              (:prefix (",")
+               :n "," (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
+
+(map! (:after evil-easymotion
+       :m "gé" evilem-map
+       (:map evilem-map
+             "é" (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
+
+(defun +evil-window-increase-width-by-five (count)
+  "wrapper call associated function by step of five"
+  :repeat nil
+  (interactive "p")
+  (evil-window-increase-width (+ count 5)))
+
+(defun +evil-window-decrease-width-by-five (count)
+  "wrapper call associated function by step of five"
+  :repeat nil
+  (interactive "p")
+  (evil-window-decrease-width (+ count 5)))
+
+(defun +evil-window-increase-height-by-three (count)
+  "wrapper call associated function by step of three"
+  :repeat nil
+  (interactive "p")
+  (evil-window-increase-height (+ count 3)))
+
+(defun +evil-window-decrease-height-by-three (count)
+  "wrapper call associated function by step of three"
+  :repeat nil
+  (interactive "p")
+  (evil-window-decrease-height (+ count 3)))
+
+
+(map! (:map evil-window-map
+            "+" #'+evil-window-increase-height-by-three
+            "-" #'+evil-window-decrease-height-by-three
+            "«" #'+evil-window-decrease-width-by-five
+            "<" #'+evil-window-decrease-width-by-five
+            ">" #'+evil-window-increase-width-by-five
+            "»" #'+evil-window-increase-width-by-five))
+
 (after! evil
   (map!
    :n "z <tab>" #'+fold/toggle))
+
+(map!
+ (:prefix ("ç" . "daf")
+  :n "r" #'rotate-text))
+
+(after! rotate-text
+  (add-to-list 'rotate-text-words '("info" "warning" "error")))
 
 (setq undo-fu-allow-undo-in-region 't)
 
@@ -157,10 +275,34 @@ the associated key is pressed after the repeatable action is triggered."
 (defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
 (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
 
+(map! :leader
+      (:prefix-map ("d" . "dired")
+       :desc "Dired"                       "." #'dired
+       :desc "Dired jump to current"       "d" #'dired-jump
+       :desc "fd input to dired"           "f" #'fd-dired
+       :desc "Dired into project root"     "p" #'project-dired
+       :desc "open dired in another frame" "D" #'dired-other-window))
+
+;; (map! :leader
+;;       :prefix-map ("t" . "toggle")
+;;       :desc "Side bar" :mvn "s" #'dirvish-side)
+
+;; (map! :after dirvish
+;;       :map dirvish-mode-map
+;;       :n "S" #'dirvish-narrow
+;;       :n "F" #'dirvish-layout-toggle)
+
+(after! dired
+  (map!
+   :map dired-mode-map
+   :n "c" #'dired-up-directory
+   ;; :n "t" #'evil-next-line ;; HACK
+   :n "r" #'dired-find-file))
+
 ;; Use monospaced font faces in current buffer
 (defun +vterm-mode-setup ()
   "Sets a fixed width (monospace) font in current buffer"
-  (setq buffer-face-mode-face '(:family "IBM Plex Mono" :height 120))
+  (setq buffer-face-mode-face '(:family "IBM Plex Mono" :height 110))
   (face-remap-add-relative 'fixed-pitch)
   (buffer-face-mode))
 
@@ -207,25 +349,16 @@ the associated key is pressed after the repeatable action is triggered."
 ;; (setenv "LSP_USE_PLISTS" "1")
 ;; (setq lsp-use-plists "true")
 
-(map! :leader
-      (:prefix-map ("d" . "dired")
-       :desc "Dired"                       "." #'dired
-       :desc "Dired jump to current"       "d" #'dired-jump
-       :desc "fd input to dired"           "f" #'fd-dired
-       :desc "Dired into project root"     "p" #'project-dired
-       :desc "open dired in another frame" "D" #'dired-other-window))
-
-;; (map! :leader
-;;       :prefix-map ("t" . "toggle")
-;;       :desc "Side bar" :mvn "s" #'dirvish-side)
-
-;; (map! :after dirvish
-;;       :map dirvish-mode-map
-;;       :n "S" #'dirvish-narrow
-;;       :n "F" #'dirvish-layout-toggle)
-
 (setq org-directory "~/Sync/Org/"
       org-agenda-files (directory-files-recursively "~/Sync/Org/" "\\.org$"))
+
+(after! org
+  (setq org-todo-keywords '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "NEXT(n)" "REVIEW(r)" "WAIT(w)" "HOLD(h)" "MAYBE(m)" "IDEA(i)" "|" "DONE(d)" "KILL(k)" "DROP(D)")
+                            (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+                            (sequence "|" "OKAY(o)" "YES(y)" "NO(N)")))
+
+(custom-set-faces
+ '(org-code ((t (:inherit ef-themes-fixed-pitch :foreground "#9f4a00" :slant italic))))))
 
 (use-package! org-mouse)
 
@@ -263,25 +396,68 @@ the associated key is pressed after the repeatable action is triggered."
 (add-hook 'org-mode-hook 'org-appear-mode)
 
 (after! org
+  (defun transform-square-brackets-to-round-ones(string-to-transform)
+    "Transforms [ into ( and ] into ), other chars left unchanged."
+    (concat
+     (mapcar #'(lambda (c) (if (equal c ?\[) ?\( (if (equal c ?\]) ?\) c))) string-to-transform)))
+
+  (setq org-capture-templates `(
+                                ("x" "Protocol" entry (file+headline ,(concat org-directory "bookmarks.org") "Bookmarks")
+                                 "** %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
+                                ("L" "Protocol Link" entry (file+headline ,(concat org-directory "bookmarks.org") "Bookmarks")
+                                 "** %? [[%:link][%(transform-square-brackets-to-round-ones \"%:description\")]]\n")
+                                ("e" "Epic" entry (file ,(concat org-directory "Voilà/epics.org"))
+                                 "* TODO %?\n** Description\n** [%] Tasks\n")
+                                ("i" "Issue" entry (file ,(concat org-directory "Voilà/issues.org"))
+                                 "* TODO %?\n** Description\n** [%] Tasks\n")
+                                ("v" "Voilà note" entry (file+headline ,(concat org-directory "Voilà/notes.org") "Inbox")
+                                 "** [ ] %?\n")
+                                ("t" "Todo" entry (file+headline ,(concat org-directory "todo.org") "Inbox")
+                                 "** [ ] %?\n")
+                                )))
+
+(use-package! org-now
+  :custom
+  (org-now-default-cycle-level 'nil)
+  :hook (org-now . (lambda () (setq mode-line-format nil)))
+  :hook (org-now . (lambda () (face-remap-add-relative 'org-level-1 '(:height 100))))
+  :hook (org-now . (lambda () (face-remap-add-relative 'org-level-2 '(:height 130))))
+  :hook (org-now . (lambda () (face-remap-add-relative 'org-level-3 '(:height 130))))
+
+  :config
+  (setq org-now-location (list (expand-file-name "Voilà/notes.org" org-directory) "Inbox"))
+   (set-popup-rules!
+    '(("^\\*org-now"
+       :actions (display-buffer-in-side-window)
+       :slot 10 :vslot -1 :side right :size +popup-shrink-to-fit :quit nil)))
+  :init
+  (map!
+   :prefix daf/localleader-key
+   :n "n" #'org-now))
+
+(after! org
   (use-package! org-modern
     :hook (org-mode . org-modern-mode)
     :config
-    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+    (setq org-modern-star '("●" "◉" "○" "◆" "◈" "◇" "✤" "✿" "✜" "▶" "▷" "●" "◉" "○" "◆" "◈" "◇" "✤" "✿" "✜")
           org-modern-table-vertical 1
           org-modern-table-horizontal 0.2
-          org-modern-list '((43 . "➤")
-                            (45 . "–")
-                            (42 . "•"))
+          org-modern-list '((?+ . "+")
+                            (?- . "–")
+                            (?* . "•"))
           org-modern-todo-faces
 
           '(("TODO" :inverse-video t :inherit org-todo)
             ("PROJ" :inverse-video t :inherit +org-todo-project)
-            ("STRT" :inverse-video t :inherit +org-todo-active)
             ("[-]"  :inverse-video t :inherit +org-todo-active)
+            ("NEXT"  :inverse-video t :inherit +org-todo-active)
             ("HOLD" :inverse-video t :inherit +org-todo-onhold)
             ("WAIT" :inverse-video t :inherit +org-todo-onhold)
+            ("REVIEW" :inverse-video t :inherit +org-todo-onhold)
+            ("MAYBE" :inverse-video t :inherit +org-todo-onhold)
             ("[?]"  :inverse-video t :inherit +org-todo-onhold)
             ("KILL" :inverse-video t :inherit +org-todo-cancel)
+            ("DROP" :inverse-video t :inherit +org-todo-cancel)
             ("NO"   :inverse-video t :inherit +org-todo-cancel))
           org-modern-footnote
           (cons nil (cadr org-script-display))
@@ -344,6 +520,40 @@ the associated key is pressed after the repeatable action is triggered."
     :desc  "Blamer posframe commit info" "," #'blamer-show-posframe-commit-info
     :desc  "Blamer mode"                 ";" #'blamer-mode)))
 
+(use-package! burly
+  :config
+  (setq burly-bookmark-prefix "# ")
+
+  (defun +burly-before-quit ()
+    (message "burly: saving session")
+    (burly-bookmark-windows (format "## last session %s"
+                                    (format-time-string "%Y-%m-%d %H:%M")))
+    't))
+
+(defvar prompt-y-n-q '((?y "y" (lambda () 't))
+                       (?n "n" (lambda () nil))
+                       (?q "q" (lambda () (+burly-before-quit)))))
+
+(defun daf-quit-choose (prompt)
+  (let ((choice (read-char-choice (format "%s y/n/q (save session)" prompt)
+                                   (mapcar #'car prompt-y-n-q))))
+    (funcall (nth 2 (assoc choice prompt-y-n-q)))))
+
+(defun daf/doom-quit-p (&optional prompt)
+  (or (not (ignore-errors (doom-real-buffer-list)))
+      (daf-quit-choose (format "%s" (or prompt "Really quit Emacs?")))
+      (ignore (message "Aborted"))))
+
+(defun +daf/doom-quit-fn (&rest _)
+  (daf/doom-quit-p
+   (format "%s  %s"
+           (propertize (nth (random (length +doom-quit-messages))
+                            +doom-quit-messages)
+                       'face '(italic default))
+           "Really quit Emacs?")))
+
+(setq confirm-kill-emacs #'+daf/doom-quit-fn)
+
 (use-package! elogcat
   :config
   (defun daf/elogcat-set-tail ()
@@ -395,19 +605,14 @@ the associated key is pressed after the repeatable action is triggered."
   (dolist (emoji emojify-disabled-emojis)
     (remhash emoji emojify-emojis)))
 
-;; (use-package! fancy-dabbrev
-;;   :hook
-;;   (prog-mode . fancy-dabbrev-mode)
-;;   (org-mode . fancy-dabbrev-mode)
-;;   :config
-;;   ;; (setq fancy-dabbrev-preview-delay 0.1)
-;;   (setq fancy-dabbrev-preview-context 'before-non-word)
-;;   ;; Let dabbrev searches ignore case and expansions preserve case:
-;;   (setq dabbrev-case-distinction nil)
-;;   (setq dabbrev-case-fold-search t)
-;;   (setq dabbrev-case-replace nil)
-;;   (add-hook 'minibuffer-setup-hook (lambda () (fancy-dabbrev-mode 0)))
-;;   (add-hook 'minibuffer-exit-hook (lambda () (fancy-dabbrev-mode 1))))
+(use-package! justl)
+
+(defun daf/consult-just ()
+  "Prompt a list of just recipes from the project. Run the selected candidate."
+  (interactive)
+  (let (recipes)
+    (setq recipes (justl--get-recipies-with-desc (justl--find-justfiles (projectile-project-root))))
+    (justl--exec justl-executable (list (completing-read "Choose an action: " recipes)))))
 
 (use-package! languagetool
   :config
@@ -424,34 +629,38 @@ the associated key is pressed after the repeatable action is triggered."
     :n "~" #'languagetool-check)))
 
 (use-package olivetti
+  :custom
+  (olivetti-body-width 0.6)
   :config
-  (setq olivetti-body-width 90))
+  (setq olivetti-style 'fancy)
+  (setq olivetti-minimum-body-width 80)
+  :init
+    (map! :leader
+        (:prefix "t"
+         :desc "Olivetti" "o" #'olivetti-mode)))
 
 (use-package! logos
-  :after org-mode
+  :hook (logos-focus-mode . (lambda () (olivetti-mode 1)))
   :config
-  ;; ;; This is the default value for the outlines:
-  ;; (setq logos-outline-regexp-alist
-  ;;       `((emacs-lisp-mode . "^;;;+ ")
-  ;;         (org-mode . "^\\*+ +")
-  ;;         (markdown-mode . "^\\#+ +")
-  ;;         (t . ,(if (boundp 'outline-regexp) outline-regexp logos--page-delimiter))))
+  (setq logos-outline-regexp-alist
+        `((emacs-lisp-mode . ,(format "\\(^;;;+ \\|%s\\)" logos--page-delimiter))
+          (org-mode . ,(format "\\(^\\*\\{1,3\\} +\\|^-\\{5\\}$\\|%s\\)" logos--page-delimiter))))
 
   ;; These apply when `logos-focus-mode' is enabled.  Their value is
   ;; buffer-local.
   (setq-default logos-hide-cursor nil
-                logos-hide-mode-line t
+                logos-hide-mode-line nil
                 logos-hide-buffer-boundaries t
+                logos-outlines-are-pages t
                 logos-hide-fringe t
-                logos-variable-pitch nil
+                logos-variable-pitch t
                 logos-buffer-read-only nil
                 logos-scroll-lock nil
                 logos-olivetti t)
   :init
   (map! :leader
         (:prefix "t"
-         :desc "Logos" "L" #'logos-focus-mode))
-  )
+         :desc "Logos" "L" #'logos-focus-mode)))
 
 (use-package! magit-pretty-graph
   :after magit
@@ -471,16 +680,16 @@ the associated key is pressed after the repeatable action is triggered."
   (setq ef-themes-variable-pitch-ui t
         ef-themes-mixed-fonts t
         ef-themes-headings           ; read the manual's entry of the doc string
-        '((0 . (variable-pitch regular 1.7))
-          (1 . (variable-pitch regular 1.6))
-          (2 . (variable-pitch regular 1.5))
-          (3 . (variable-pitch regular 1.4))
-          (4 . (variable-pitch regular 1.3))
-          (5 . (variable-pitch regular 1.3)) ; absence of weight means `bold'
-          (6 . (variable-pitch regular 1.2))
+        '((0 . (variable-pitch regular 1.5)) ; absence of weight means `bold'
+          (1 . (variable-pitch regular 1.4))
+          (2 . (variable-pitch regular 1.3))
+          (3 . (variable-pitch regular 1.2))
+          (4 . (variable-pitch regular 1.1))
+          (5 . (variable-pitch regular 1.1))
+          (6 . (variable-pitch regular 1.1))
           (7 . (variable-pitch regular 1.1))
           (t . (variable-pitch regular 1.1))))
-  (defun my-ef-themes-hl-todo-faces ()
+  (defun daf/ef-themes-hl-todo-faces ()
     "Configure `hl-todo-keyword-faces' with Ef themes colors.
 The exact color values are taken from the active Ef theme."
     (ef-themes-with-colors
@@ -492,6 +701,7 @@ The exact color values are taken from the active Ef theme."
               ("PROG" . ,cyan-warmer)
               ("OKAY" . ,green-warmer)
               ("DONT" . ,yellow-warmer)
+              ("DROP" . ,red-warmer)
               ("FAIL" . ,red-warmer)
               ("BUG" . ,red-warmer)
               ("DONE" . ,green)
@@ -504,7 +714,7 @@ The exact color values are taken from the active Ef theme."
               ("REVIEW" . ,red)
               ("DEPRECATED" . ,yellow)))))
 
-  (add-hook 'ef-themes-post-load-hook #'my-ef-themes-hl-todo-faces)
+  (add-hook 'ef-themes-post-load-hook #'daf/ef-themes-hl-todo-faces)
   :init
   (map! :leader
         (:prefix-map ("t" . "toggle")
@@ -515,15 +725,15 @@ The exact color values are taken from the active Ef theme."
   (setq modus-themes-variable-pitch-ui t
         modus-themes-mixed-fonts t
         modus-themes-headings ; read the manual's entry of the doc string
-        '((0 . (variable-pitch light 1.7))
-          (1 . (variable-pitch light 1.6))
-          (2 . (variable-pitch regular 1.5))
-          (3 . (variable-pitch regular 1.4))
-          (4 . (variable-pitch regular 1.3))
-          (5 . (variable-pitch 1.2)) ; absence of weight means `bold'
-          (6 . (variable-pitch 1.1))
-          (7 . (variable-pitch 1.0))
-          (t . (variable-pitch 1.0)))))
+        '((0 . (variable-pitch regular 1.5)) ; absence of weight means `bold'
+          (1 . (variable-pitch regular 1.4))
+          (2 . (variable-pitch regular 1.3))
+          (3 . (variable-pitch regular 1.2))
+          (4 . (variable-pitch regular 1.1))
+          (5 . (variable-pitch regular 1.1))
+          (6 . (variable-pitch regular 1.1))
+          (7 . (variable-pitch regular 1.1))
+          (t . (variable-pitch regular 1.1)))))
 
 (use-package! fontaine
   :config
@@ -552,14 +762,14 @@ The exact color values are taken from the active Ef theme."
   (setq fontaine-presets
         '((smaller
            :default-family "Iosevka Comfy Wide Fixed"
-           :default-height 100
+           :default-height 90
            :variable-pitch-family "Iosevka Comfy Wide Duo")
           (small
            :default-family "Iosevka Comfy Wide Fixed"
-           :default-height 120
+           :default-height 100
            :variable-pitch-family "Iosevka Comfy Wide Duo")
           (regular
-           :default-height 140)
+           :default-height 120)
           (large
            :default-weight semilight
            :default-height 150
@@ -596,7 +806,7 @@ The exact color values are taken from the active Ef theme."
            ;; <https://protesilaos.com/emacs/fontaine>.
            :default-family "Iosevka Comfy"
            :default-weight regular
-           :default-height 140
+           :default-height 120
            :fixed-pitch-family nil ; falls back to :default-family
            :fixed-pitch-weight nil ; falls back to :default-weight
            :fixed-pitch-height 1.0
@@ -626,34 +836,129 @@ The exact color values are taken from the active Ef theme."
   (define-key global-map (kbd "C-c f") #'fontaine-set-preset)
   (define-key global-map (kbd "C-c F") #'fontaine-set-face-font))
 
+(use-package! popper
+  :config
+  (popper-mode +1)
+  (popper-echo-mode +1)
+  (setq popper-display-control nil)
+  (setq popper-group-function #'popper-group-by-projectile)
+  :init
+  (map!
+   :nv "C-<tab>" #'popper-cycle
+   :leader
+   (:prefix-map (">" . "popper")
+    :desc "Toggle latest popup"   "p" #'popper-toggle-latest
+    :desc "Toggle popup type"     "t" #'popper-toggle-type
+    :desc "Kill last popup"       "k" #'popper-kill-latest-popup
+    :desc "Cycle popups"          "n" #'popper-cycle))
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "\\*Warnings\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          compilation-mode
+          "^\\*just\\*"
+          "^\\*HTTP Response.*\\*"
+          "^\\*org-now\\*"
+          "^\\*eshell.*\\*$"                eshell-mode
+          "^\\*vterm.*\\*$"                 vterm-mode
+          "^\\*dedicated vterm.*\\*$"
+          "^\\*flycheck-list-errors.*\\*$"  flycheck-error-list-mode
+          "^\\*ibuffer.*\\*$"               ibuffer-mode
+          "^\\*helpful-comand.*\\*$"        helpful-mode
+          "^\\*helpful-variable.*\\*$"      helpful-mode
+          "^\\*helpful-callable.*\\*$"      helpful-mode
+          )))
+
+(daf/repeat-map! daf-popper-cycle-repeat-map
+                 '((popper-cycle            . "n")
+                   (popper-cycle            . "C-<tab>")
+                   (popper-toggle-type       . "T")
+                   (popper-kill-latest-popup . "k")
+                   (popper-toggle-latest     . "p"))
+                 "Repeatable map for cycling through popups")
+
+;; Use puni-mode globally and disable it for term-mode.
+(use-package! puni
+  :config
+
+  ;; custom function from the wiki
+  (defun daf/puni-kill-line ()
+    "Kill a line forward while keeping expressions balanced.
+If nothing can be deleted, kill backward.  If still nothing can be
+deleted, kill the pairs around point."
+    (interactive)
+    (let ((bounds (puni-bounds-of-list-around-point)))
+      (if (eq (car bounds) (cdr bounds))
+          (when-let ((sexp-bounds (puni-bounds-of-sexp-around-point)))
+            (puni-delete-region (car sexp-bounds) (cdr sexp-bounds) 'kill))
+        (if (eq (point) (cdr bounds))
+            (puni-backward-kill-line)
+          (puni-kill-line)))))
+  :init
+  (map!
+   :map puni-mode-map
+   (:prefix ("," . "puni")
+    :nv "v" #'puni-expand-region
+    :nv "s" #'puni-squeeze
+    :nv "t" #'puni-transpose
+    :nv "d" #'daf/puni-kill-line
+    :nv "D" #'puni-backward-kill-line
+    :nv "C" #'puni-beginning-of-sexp
+    :nv "B" #'puni-beginning-of-sexp
+    :nv "b" #'puni-backward-sexp
+    :nv "c" #'puni-backward-sexp
+    :nv "r" #'puni-forward-sexp
+    :nv "f" #'puni-forward-sexp
+    :nv "R" #'puni-end-of-sexp
+    :nv "F" #'puni-end-of-sexp
+    :nv "<" #'puni-slurp-backward
+    :nv ">" #'puni-slurp-forward
+    :nv "«" #'puni-slurp-backward
+    :nv "»" #'puni-slurp-forward))
+  ;; The autoloads of Puni are set up so you can enable `puni-mode` or
+  ;; `puni-global-mode` before `puni` is actually loaded. Only after you press
+  ;; any key that calls Puni commands, it's loaded.
+  (puni-global-mode)
+  (add-hook 'term-mode-hook #'puni-disable-puni-mode))
+
 (map! :map evil-window-map
       "SPC" #'rotate-layout)
 
 (use-package! multi-vterm
   :custom
-  (multi-vterm-buffer-name "Terminal")
+  ;; (multi-vterm-buffer-name "Terminal")
+  (multi-vterm-dedicated-buffer-name "dedicated vterminal")
   (multi-vterm-dedicated-window-side 'bottom)
-  (multi-vterm-dedicated-buffer-name "Popup terminal")
 
   :config
-  (map! :leader :desc "Dedicated terminal" "ot" #'multi-vterm-dedicated-toggle
-        :leader :desc "Open terminal" "p!" #'multi-vterm-project)
-  (map! (:map vterm-mode-map
-         :localleader
-         (:prefix ("m" . "Multi vterm")
-          :desc "Create" "c" #'multi-vterm
-          :desc "Previous" "p" #'multi-vterm-prev
-          :desc "Next" "n" #'multi-vterm-next)))
-
   (set-popup-rules!
-    '(("^\\*Terminal"
-       :actions (display-buffer-in-side-window)
-       :slot 2 :vslot -1 :side right :width 0.5 :quit nil)))
+    '(("^\\*vterm.*"
+       :slot 1 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)
+      ("^\\*dedicated vterminal.*"
+       :slot 2 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)))
 
   (evil-define-key 'normal vterm-mode-map (kbd "C-d") #'vterm--self-insert)
-  (evil-define-key 'normal vterm-mode-map (kbd ",c")  #'multi-vterm)
-  (evil-define-key 'normal vterm-mode-map (kbd ",n")  #'multi-vterm-next)
-  (evil-define-key 'normal vterm-mode-map (kbd ",p")  #'multi-vterm-prev))
+  (evil-define-key 'normal vterm-mode-map (kbd ";c")  #'multi-vterm-project)
+  (evil-define-key 'normal vterm-mode-map (kbd ";n")  #'multi-vterm-next)
+  (evil-define-key 'normal vterm-mode-map (kbd ";p")  #'multi-vterm-prev)
+  (evil-define-key 'normal vterm-mode-map (kbd ";r")  #'multi-vterm-rename-buffer)
+  (evil-define-key 'normal vterm-mode-map (kbd ";;")  #'multi-vterm-dedicated-select)
+
+  :init
+  (map! :leader
+        (:prefix-map ("o" . "open")
+         :desc "Dedicated terminal" "t" #'multi-vterm-dedicated-toggle
+         :desc "Dedicated terminal here" "T" #'multi-vterm-project))
+
+  (map! (:map vterm-mode-map
+         :localleader
+         :desc "Create" "c" #'multi-vterm-project
+         :desc "Rename" "r" #'multi-vterm-rename-buffer
+         :desc "Select" "," #'multi-vterm-dedicated-select
+         :desc "Previous" "p" #'multi-vterm-prev
+         :desc "Next" "n" #'multi-vterm-next)))
 
 (use-package! nov
   :mode ("\\.epub\\'" . nov-mode)
@@ -663,7 +968,7 @@ The exact color values are taken from the active Ef theme."
   :hook (nov-mode . hide-mode-line-mode)
   :hook (nov-mode . (lambda () (hl-line-mode -1)))
   :hook (nov-mode . (lambda ()
-                             (set (make-local-variable 'scroll-margin) 1)))
+                      (set (make-local-variable 'scroll-margin) 1)))
 
   :config
   (setq visual-fill-column-center-text t
@@ -681,10 +986,10 @@ The exact color values are taken from the active Ef theme."
   (evil-scroll-line-to-bottom (line-number-at-pos))
   (+nav-flash/blink-cursor))
 :init
-  (map!
-   :map nov-mode-map
-   :n "T" #'daf/scroll-bottom-line-to-top
-   :n "S" #'daf/scroll-top-line-to-bottom)
+(map!
+ :map nov-mode-map
+ :n "T" #'daf/scroll-bottom-line-to-top
+ :n "S" #'daf/scroll-top-line-to-bottom)
 
 (use-package! vundo
   :unless (modulep! +tree)
@@ -707,10 +1012,6 @@ The exact color values are taken from the active Ef theme."
     (oset rs body (replace-regexp-in-string "\n" "" (format-message "{\"query\": \"%s\"}" (oref rs body))))
     rs)
 
-  (defun json-to-json (rs)
-    ;; Modify RS and return it (RS is a request specification, type `verb-request-spec')
-    (message rs)
-    rs)
   :init
   (map!
    :leader
@@ -727,12 +1028,15 @@ The exact color values are taken from the active Ef theme."
      :desc "set var"           "s" #'verb-set-var
      :desc "unset vars"        "u" #'verb-unset-vars))))
 
-(after! lsp-mode
-  (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("nil"))
-                    :major-modes '(nix-mode)
-                    :server-id 'nix)))
+(set-popup-rules!
+ '(("^\\*HTTP Response.*" :quit t :side right :size 0.4 :modeline nil)))
+
+;; (after! lsp-mode
+;;   (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
+;;   (lsp-register-client
+;;    (make-lsp-client :new-connection (lsp-stdio-connection '("nil"))
+;;                     :major-modes '(nix-mode)
+;;                     :server-id 'nix)))
 
 (set-company-backend!
   '(text-mode
@@ -743,20 +1047,135 @@ The exact color values are taken from the active Ef theme."
     company-files
     company-yasnippet))
 
-(advice-add #'add-node-modules-path :override #'ignore)
-
-;; (with-eval-after-load 'lsp-mode
-;;   (lsp-defun my/filter-typescript ((params &as &PublishDiagnosticsParams :diagnostics)
-;;                                    _workspace)
-;;              (lsp:set-publish-diagnostics-params-diagnostics
-;;               params
-;;               (or (seq-filter (-lambda ((&Diagnostic :source? :severity?))
-;;                                 (and (not (string= "typescript" source?))
-;;                                      (< severity? lsp/diagnostic-severity-information)))
-;;                               diagnostics)
-;;                   []))
-;;              params)
-
-;;   (setq lsp-diagnostic-filter 'my/filter-typescript))
-
 (load! "book-mode")
+
+(after! savehist
+  (add-to-list 'savehist-additional-variables 'evil-markers-alist)
+  (add-hook! 'savehist-save-hook
+    (kill-local-variable 'evil-markers-alist)
+    (dolist (entry evil-markers-alist)
+      (when (markerp (cdr entry))
+        (setcdr entry (cons (file-truename (buffer-file-name (marker-buffer (cdr entry))))
+                            (marker-position (cdr entry)))))))
+  (add-hook! 'savehist-mode-hook
+    (setq-default evil-markers-alist evil-markers-alist)
+    (kill-local-variable 'evil-markers-alist)
+    (make-local-variable 'evil-markers-alist)))
+
+(use-package! evil-fringe-mark
+  :after evil
+  :config
+  ;; Use right fringe
+  (setq-default right-fringe-width 16)
+  (setq-default evil-fringe-mark-side 'right-fringe))
+:init
+(global-evil-fringe-mark-mode 1)
+
+(use-package! beacon
+  :config
+  (setq beacon-color 0.2)
+  (setq beacon-size 20)
+  (setq beacon-blink-delay 0.2)
+  (setq beacon-blink-duration 0.2)
+  ;; (setq beacon-blink-when-focused t)
+  (setq beacon-blink-when-point-moves-vertically t)
+
+  :init
+  (beacon-mode 1))
+
+(use-package! pulsar
+  :config
+  (setq pulsar-pulse t)
+  (setq pulsar-delay 0.06)
+  (setq pulsar-iterations 20)
+  (setq pulsar-face 'pulsar-blue)
+  (setq pulsar-highlight-face 'pulsar-red)
+
+
+  ;; (setq pulsar-pulse-functions
+  ;;     '(isearch-repeat-forward
+  ;;       isearch-repeat-backward
+  ;;       recenter-top-bottom
+  ;;       move-to-window-line-top-bottom
+  ;;       reposition-window
+  ;;       bookmark-jump
+  ;;       other-window
+  ;;       delete-window
+  ;;       delete-other-windows
+  ;;       forward-page
+  ;;       backward-page
+  ;;       scroll-up-command
+  ;;       scroll-down-command
+  ;;       evil-next-match
+  ;;       evil-scroll-line-to-top
+  ;;       evil-scroll-line-to-center
+  ;;       evil-scroll-line-to-bottom
+  ;;       evil-window-move-left
+  ;;       evil-window-move-right
+  ;;       evil-window-move-up
+  ;;       evil-window-move-down
+  ;;       evil-window-left
+  ;;       evil-window-right
+  ;;       evil-window-up
+  ;;       evil-window-down
+  ;;       evil-window-vsplit
+  ;;       evil-window-split
+  ;;       evil-ex-search-forward
+  ;;       evil-search-next
+  ;;       evil-search-previous
+  ;;       evil-ex-search-backward
+  ;;       evil-ex-search-next
+  ;;       evil-ex-search-previous
+  ;;       evil-goto-line
+  ;;       evil-goto-first-line
+  ;;       evil-goto-last-line
+  ;;       windmove-right
+  ;;       windmove-left
+  ;;       windmove-up
+  ;;       windmove-down
+  ;;       windmove-swap-states-right
+  ;;       windmove-swap-states-left
+  ;;       windmove-swap-states-up
+  ;;       windmove-swap-states-down
+  ;;       tab-new
+  ;;       tab-close
+  ;;       tab-next
+  ;;       org-next-visible-heading
+  ;;       org-previous-visible-heading
+  ;;       org-forward-heading-same-level
+  ;;       org-backward-heading-same-level
+  ;;       outline-backward-same-level
+  ;;       outline-forward-same-level
+  ;;       outline-next-visible-heading
+  ;;       outline-previous-visible-heading
+  ;;       outline-up-heading))
+
+  ;; (setq pulsar-pulse-functions
+  ;;       '(
+  ;;         evil-scroll-line-to-top
+  ;;         evil-scroll-line-to-center
+  ;;         evil-scroll-line-to-bottom
+
+  ;;         ))
+
+
+  ;; integration with the `consult' package:
+  ;; (add-hook 'consult-after-jump-hook #'pulsar-recenter-top)
+  ;; (add-hook 'consult-after-jump-hook #'pulsar-reveal-entry)
+  ;; (add-hook 'next-error-hook #'pulsar-pulse-line-red)
+  ;; (add-hook 'doom-switch-window-hook #'pulsar-pulse-line)
+  ;; (add-hook 'evil-jumps-post-jump-hook #'pulsar-pulse-line)
+  ;; (advice-add #'evil-window-top    :after #'pulsar-pulse-line)
+  ;; (advice-add #'evil-window-middle :after #'pulsar-pulse-line)
+  ;; (advice-add #'evil-window-bottom :after #'pulsar-pulse-line)
+  ;; (advice-add #'what-cursor-position :after #'pulsar-pulse-line)
+
+  ;; (add-hook! '(imenu-after-jump-hook
+  ;;              better-jumper-post-jump-hook
+  ;;              counsel-grep-post-action-hook
+  ;;              dumb-jump-after-jump-hook)
+  ;;            #'pulsar-pulse-line)
+
+
+  ;; (pulsar-global-mode 1)
+  )
