@@ -1,7 +1,6 @@
-;; -*- mode: org; mode: logos-focus; mode: olivetti; olivetti-body-width: 0.6; olivetti-margin-width: 50;  -*-
+;; -*- mode: org; mode: logos-focus; olivetti-margin-width: 80;  -*-
 :DOC-CONFIG:
-#+property: header-args:emacs-lisp :tangle config.el
-#+property: header-args :mkdirp yes :comments no
+#+property: header-args:emacs-lisp yes :comments no
 #+startup: fold
 :END:
 
@@ -20,6 +19,14 @@ will be generated to a nice Emacs config.
 
 Why literate? Well this allows me to have a nicely organized configuration, with
 lots of comments which helps to give a false sense of order and quality.
+
+Oh yeah, I almost forgot. The mandatory disclaimer. If by any chance someone
+other than me stumble across this repository. *BEWARE*. I mostly don't know what I
+am doing. I don't understand ~lisp~ very well, nor any intricacies of Emacs, such
+as load order and so on. I might be doing stuff incredibly wrong. That might
+cause you to experience: /itching/, /headache/, /internal bleeding/, /raise your taxes/
+and kill your cat… to name a few. So again, *BEWARE*.
+
 ** Before we start
 What better to kick off this configuration than putting a line of code that I
 have no idea what it does? Apparently it helps things running faster, me like
@@ -31,13 +38,13 @@ fast.
 Well here's a good question. I didn't really think this through…
 
 The general idea is to organize the packages's configuration in their own
-subheading (see [[* Level 5: Phobos Lab · Packages][Level 5]]).
+subheading (see [[* Level 5: Phobos Lab · /Packages/][Level 5]]).
 
 Also if doom already configure a package in a module, extend that package
 configuration in a subheading that represent the module it originate from (it's
-in [[* Level 4: Command Control · Doom, but it's my personal hell][Level 4]]).
+in [[* Level 4: Command Control · /Doom, but it's _my_ personal hell/][Level 4]]).
 
-In [[* Level 6: Central Processing · Lang stuff][Level 6]], I put language specific bits of configuration or helpful functions.
+In [[* Level 6: Central Processing · /Lang stuff/][Level 6]], I put language specific bits of configuration or helpful functions.
 
 ** Inspirations
 Here's a non exhaustive list of config that helped me write this one. Thanks to
@@ -51,24 +58,31 @@ the authors🙏.
 - [[https://github.com/protesilaos/dotfiles/tree/master/emacs/.emacs.d][Prot's config]]
 - [[https://github.com/hlissner/.doom.d][Hlissner's config]]
 
+  -----
+
 * Level 2: Nuclear Plant · /Let's get personal/
+
 Please allow me to introduce myself.
+
 #+begin_src emacs-lisp
 (setq user-full-name "Cédric Da Fonseca"
       user-mail-address "captain.spof@gmail.com")
 #+end_src
 
-* Level 3: Toxin Refinery · /Defaults be bad/
-This is the customary browsing through the game settings to change the default
-parameters…
+-----
 
-I often use ~zt~, ~zz~ and ~zb~ to scroll through my window, this help to keep a
-tiny bit of context above and bellow the current line.
+* Level 3: Toxin Refinery · /Defaults be bad/
+
+This is the customary « /browsing through the game settings to change the default
+parameters…/ »
+
+I often use ~zt~, ~zz~ and ~zb~ to scroll through my window, this help to keep a tiny
+bit of context above and bellow the current line.
 #+begin_src emacs-lisp
 (setq-default scroll-margin 3)
 #+end_src
 
-I found these settings somewhere, they're supposed to help with «performance»,
+I found these settings somewhere, they're supposed to help with « /performance/ »,
 so it must be good, right?
 
 #+begin_src emacs-lisp
@@ -78,7 +92,7 @@ so it must be good, right?
 #+end_src
 
 The =leader= and =localleader= keys are great, but I want my own, this way, I am
-sure my key bindings won't interfer with anythings. I chose =SPC ç=, but I might
+sure my key bindings won't interfer with anythings. I chose ~SPC ç~, but I might
 change it to something else, maybe a dedicated key on my keyboard…
 
 #+begin_src emacs-lisp
@@ -86,12 +100,13 @@ change it to something else, maybe a dedicated key on my keyboard…
   "The localleader prefix key, for major-mode specific commands.")
 #+end_src
 
-Me dumb, when Emacs broky, me ~rm -rf emacs/.local~ this lead to losing some
-useful stuff, like bookmarks and ~projectile~'s known projects, let's put them elsewhere.
+Me dumb, when Emacs broky, me ~rm -rf emacs/.local~. This lead to losing some
+useful stuff, like bookmarks and ~projectile~'s known projects, let's put them
+elsewhere.
 
 #+begin_src emacs-lisp
 (setq bookmark-default-file (expand-file-name "local/bookmarks" doom-user-dir)
-     projectile-known-projects-file (expand-file-name "local/projectile.projects" doom-user-dir))
+      projectile-known-projects-file (expand-file-name "local/projectile.projects" doom-user-dir))
 #+end_src
 
 When switching to project, I'd rather have ~dired~ open to the project's root,
@@ -102,31 +117,69 @@ rather than the default ~find-file~ action.
 #+end_src
 
 I don't see a correlation between being zen and being blind.
+
 #+begin_src emacs-lisp
 (setq +zen-text-scale 0)
 #+end_src
 
 
 Fix weird problems due to prompt, I don't know, wild c/c from google.
+
 #+BEGIN_SRC emacs-lisp
 (after! tramp
   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
 #+END_SRC
 
+Emacs 29 introduced pixel scrolling. Let's make its V1 single threaded engine
+roar!
+
+#+begin_src emacs-lisp
+(pixel-scroll-precision-mode 1)
+#+end_src
+
+#+begin_quote
+We are in France, we speak French… Ok?
+
+―Chabal
+#+end_quote
+
+Week starts on a Monday.
+
+#+begin_src emacs-lisp
+(setq calendar-week-start-day 1)
+#+end_src
+
+#+begin_quote
+Now let me get it straight, you put the line in config(.el), nut
+
+―The ~doom doctor~
+#+end_quote
+
+To make fish happy, I guess. Which in turn makes me “content comme un poisson
+dans l'eau” /sigh/.
+
+#+begin_src emacs-lisp
+(setq shell-file-name (executable-find "bash"))
+
+(setq-default vterm-shell (executable-find "fish"))
+#+end_src
+
 ** ~which-key~
 *** Configuration
 
 #+begin_src emacs-lisp :tangle packages.el
-;; (unpin! which-key)
+(unpin! which-key)
 #+end_src
+
 ~which-key~ could be a little tad bit quicker to show up.
 
 #+begin_src emacs-lisp
 (setq which-key-idle-delay 0.5) ;; I need the help, I really do
 #+end_src
 
-I also think that having evil- appear in so many popups is a bit too verbose,
+I also think that having ~evil-~ appear in so many popups is a bit too verbose,
 let’s change that.
+
 #+begin_src emacs-lisp
 (setq which-key-allow-multiple-replacements t)
 (after! which-key
@@ -135,9 +188,12 @@ let’s change that.
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "⫚-\\1"))
    '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "⋔-\\1"))))
 #+end_src
+
 ** Neat · 📷
+
 When using ~evil-mode~, you can rebind ~v~ to ~er/expand-region~, this is super
 useful, keep hitting ~v~ to further expand the selection!
+
 #+begin_src emacs-lisp
 (map!
  (:map 'override
@@ -149,7 +205,7 @@ When I bring up Doom's scratch buffer with SPC x, it's often to play with elisp
 or note something down (that isn't worth an entry in my notes). I can do both in
 `lisp-interaction-mode'.
 
----hlissner
+―hlissner
 #+end_quote
 
 #+begin_src emacs-lisp
@@ -177,6 +233,7 @@ or note something down (that isn't worth an entry in my notes). I can do both in
 
 Resizing window pixel per pixel is tiresome, lets make it easier to resize by
 maintaining the key pressed.
+
 #+begin_src emacs-lisp
 ;;;###autoload
 (defmacro daf/repeat-map! (map-name keys-alist &optional docstring)
@@ -207,6 +264,7 @@ the associated key is pressed after the repeatable action is triggered."
 #+end_src
 
 I often need to lock/unlock a window size, let's have an interactive function.
+
 #+begin_src emacs-lisp
 ;;;###autoload
 (defun daf/window-toggle-lock-size ()
@@ -249,44 +307,89 @@ I often need to lock/unlock a window size, let's have an interactive function.
 #+end_src
 
 And add some bindings.
+
 #+begin_src emacs-lisp
 (map! :leader
-        (:prefix "w"
-         :desc "daf/toggle-lock" "," #'daf/window-toggle-lock-size
-         :desc "daf/shrink" "." #'daf/window-shrink-and-lock))
+      (:prefix "w"
+       :desc "daf/toggle-lock" "," #'daf/window-toggle-lock-size
+       :desc "daf/shrink" "." #'daf/window-shrink-and-lock))
 #+end_src
 
 
 ** Bépo :HACK:
 
+-----
+
 * Level 4: Command Control · /Doom, but it's _my_ personal hell/
-Here, I'll put configuration for the module built-in ~doom~. Either grouped by
-package, or by category.
+
+/Here, I'll put configuration for the modules built-in ~doom~. Either grouped by
+package, or by category./
+
 ** Completion · ~:completion~
-*** ~company~
+*** ~company~ ⚰
 **** Configuration
 #+begin_src emacs-lisp
-(after! company
-  (setq
-   company-show-quick-access 'left
-   company-quick-access-keys '("b" "é" "p" "o" "w")
-   company-quick-access-modifier 'control
-   company-dabbrev-other-buffers t)
+;; (after! company
+;;   (setq
+;;    company-show-quick-access 'left
+;;    company-quick-access-keys '("b" "é" "p" "o" "w")
+;;    company-quick-access-modifier 'control
+;;    company-dabbrev-other-buffers t)
 
-  (set-company-backend! 'prog-mode '(company-capf company-dabbrev company-dabbrev-code)))
+;;   (set-company-backend! 'prog-mode '(company-capf company-dabbrev company-dabbrev-code)))
+#+end_src
+*** ~corfu~
+**** Configuration & Mapping
+#+begin_src emacs-lisp :tangle packages.el
+;; (unpin! corfu)
+;; (unpin! cape)
+;; (unpin! corfu-terminal)
+;; (unpin! corfu-doc-terminal)
+;; (unpin! corfu-doc)
+;; (unpin! kind-icon)
+#+end_src
+
+#+begin_src emacs-lisp
+(custom-set-variables
+ '(kind-icon-default-style
+   '(:padding 0 :stroke 0 :margin 0 :radius 0 :height 0.8 :scale 1.0))
+ '(package-selected-packages '(kind-icon corfu)))
+
+(use-package! cape
+  :general (:prefix "M-c"               ; Particular completion function
+                    "p" 'completion-at-point
+                    "t" 'complete-tag           ; etags
+                    "d" 'cape-dabbrev           ; or dabbrev-completion
+                    "f" 'cape-file
+                    "k" 'cape-keyword
+                    "s" 'cape-symbol
+                    "a" 'cape-abbrev
+                    "i" 'cape-ispell
+                    "l" 'cape-line
+                    "w" 'cape-dict
+                    "\\"' cape-tex
+                    "_" 'cape-tex
+                    "^" 'cape-tex
+                    "&" 'cape-sgml
+                    "r" 'cape-rfc1345))
 #+end_src
 
 *** ~embark~
 **** Mapping
+
 ~C-;~ is three key presses in a bépo keyboard, let's add a more accessible
 binding.
+
 #+begin_src emacs-lisp
 (map! [remap describe-bindings] #'embark-bindings
       "C-," #'embark-act)
 #+end_src
 *** ~vertico~
 **** Configuration
-~vertico~ allows us to choose which completion style we want for various commands/categories.
+
+~vertico~ allows us to choose which completion style we want for various
+commands/categories.
+
 #+begin_src emacs-lisp
 (after! vertico
   (vertico-multiform-mode)
@@ -295,32 +398,46 @@ binding.
         '((consult-line buffer)))
   (setq vertico-multiform-categories
         '((consult-grep buffer)))
+  (setq vertico-mouse-mode 't)
 
   (setq vertico-buffer-display-action
         '(display-buffer-in-side-window
           (side . left)
           (window-width . 0.3))))
-
 #+end_src
 
 ** Themes · pretty little thing ~:ui~
 
 This might change from time to time, but currently I am rocking…
+
 #+begin_src emacs-lisp
-(setq doom-theme 'ef-duo-light)
-(setq ef-themes-to-toggle '(ef-duo-light ef-tritanopia-dark))
+(setq doom-theme 'ef-elea-dark)
+(setq ef-themes-to-toggle '(ef-elea-dark ef-elea-light))
 #+end_src
 
 #+begin_src emacs-lisp
 (set-face-foreground 'window-divider (face-background 'header-line))
 #+end_src
+
+We'll setup some font stuff here too. But the ~fontaine~ package is used to setup most of it.
+Also, there's a fix to some shenanigan happening with the emojis.
+#+begin_src emacs-lisp
+;; (setq doom-font (font-spec :family "Sarasa Term J" :size 12.0)
+;;       doom-variable-pitch-font (font-spec :family "Sarasa Term Slab TC" :size 12.0)
+;;       doom-unicode-font nil)
+;; (add-to-list 'doom-symbol-fallback-font-families "Symbols Nerd Font")
+#+end_src
+
 *** Splash screen
 
 Ferris is just too cute, I need to see him everyday…
+
 #+begin_src emacs-lisp
 (setq fancy-splash-image (expand-file-name "misc/splash-images/ferris.svg" doom-user-dir))
 #+end_src
+
 …and only him, remove the dashboard shortcuts, I'll customize them later anyway.
+
 #+begin_src emacs-lisp
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 #+end_src
@@ -333,8 +450,9 @@ When using the dashboard, there are often a small number of actions I will take.
 As the dashboard is it's own major mode, there is no need to suffer the tyranny
 of unnecessary keystrokes --- we can simply bind common actions to a single key!
 
----Tecosaur
+―Tecosaur
 #+end_quote
+
 ☝ What he says, also adding some shortcuts of my own.
 
 #+begin_src emacs-lisp
@@ -367,7 +485,7 @@ this is still quite nice overall.
 
 Now that the dashboard is so convenient, I'll want to make it easier to get to.
 
----Tecosaur
+―Tecosaur
 #+end_quote
 
 #+begin_src emacs-lisp
@@ -384,7 +502,8 @@ What is that little ball in the left bottom doing anyway? Remove it!
 #+begin_quote
 However, by default red text is used in the modeline, so let’s make that orange
 so I don’t feel like something’s gone wrong when editing files.
----Tecosaur
+
+―Tecosaur
 #+end_quote
 
 #+begin_src emacs-lisp
@@ -406,17 +525,19 @@ Invert Switch workspace and Display tab bar mapping
 ~doom-snippets~ is causing me trouble, let's try to disable it.
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! doom-snippets :disable t)
+;; (package! doom-snippets :disable t)
 ;; (unpin! doom-snippets)
 #+end_src
 
 *** ~evil~ · the necessary one
-As a Vim refugee, evil allows me to be somewhat productive in an editor, I
-should at least try to immerse myself in the default Emacs's binding, someday…
+
+/As a Vim refugee, evil allows me to be somewhat productive in an editor, I
+should at least try to immerse myself in the default Emacs's binding, someday…/
 
 **** Configuration
 
 When creating window splits, it's nice to jump straight to them.
+
 #+begin_src emacs-lisp
 (after! evil
   (setq evil-split-window-below t
@@ -432,31 +553,37 @@ Save a few key strokes, open up ~dired~ while we're at it.
 #+end_src
 
 I like my ~s/../..~ to by global by default
+
 #+begin_src emacs-lisp
 (after! evil
   (setq evil-ex-substitute-global t))
 #+end_src
 
 I use ~o~, ~O~ often, but not much for appending comments, let's disable that.
+
 #+begin_src emacs-lisp
 (after! evil
   (setq +evil-want-o/O-to-continue-comments nil))
 #+end_src
 
-**** TODO Mapping » cleanup
-Habits die hard, I use ~q~ to close most things, I want to close buffer too.
-This mean ~macros~ should be relocated to ~Q~.
+**** TODO Mapping
+
+Habits die hard. I use ~q~ to close most things. I want to close buffer too. This
+means ~macros~ should be mapped to ~Q~.
+
 #+begin_src emacs-lisp
 (with-eval-after-load 'evil-maps
   (define-key evil-normal-state-map "q" 'evil-quit)
   (define-key evil-motion-state-map (kbd "Q") 'evil-record-macro))
 #+end_src
 
-~avy-goto-char-timer~ is one of the most useful things ever, let's make it more accessible.
+~avy-goto-char-timer~ is one of the most useful things ever, let's make it more
+accessible.
+
 #+begin_src emacs-lisp
 (map! (:after evil-easymotion
               (:prefix (",")
-               :n "," (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
+               :desc "avy-goto-char-timer" :n "," (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
 
 (map! (:after evil-easymotion
        :m "gé" evilem-map
@@ -464,8 +591,10 @@ This mean ~macros~ should be relocated to ~Q~.
              "é" (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
 #+end_src
 
-#+begin_src  emacs-lisp
+I like to resize pane, but I don't like to repeat the same key sequence a bunch.
+So let's make it repeatable.
 
+#+begin_src  emacs-lisp
 (defun +evil-window-increase-width-by-five (count)
   "wrapper call associated function by step of five"
   :repeat nil
@@ -499,28 +628,35 @@ This mean ~macros~ should be relocated to ~Q~.
             ">" #'+evil-window-increase-width-by-five
             "»" #'+evil-window-increase-width-by-five))
 #+end_src
-
 *** ~fold~
 **** Mapping
+
 Quickly toggle ~folds~.
+
 #+begin_src emacs-lisp
 (after! evil
   (map!
    :n "z <tab>" #'+fold/toggle))
 #+end_src
-*** ~lispy~
+*** ~lispy~ ⚰
+
 ~lispy~ and ~lispyville~ looks really great, take some use to, though. I'm still
 trying to get my head around it.
+
 **** Configuration
 #+begin_src emacs-lisp :tangle packages.el
 ;; (unpin! lispyville)
 #+end_src
+
 *** ~rotate-text~
 **** Configuration & Mapping
-I can't be ask to remember all usefull bindings! That's why there is the ~~
+
+I can't be ask to remember all useful bindings! That's why there is the ~~
+
 #+begin_src emacs-lisp
 (map!
  (:prefix ("ç" . "daf")
+  :n "ç" #'rotate-text
   :n "r" #'rotate-text))
 #+end_src
 
@@ -528,20 +664,25 @@ And we add some common rotations.
 
 #+begin_src emacs-lisp
 (after! rotate-text
-  (add-to-list 'rotate-text-words '("info" "warning" "error")))
+  (add-to-list 'rotate-text-words '("info" "warning" "error"))
+  (add-to-list 'rotate-text-words '("enabled" "disabled")))
 #+end_src
 
 ** Emacs · ~:emacs~ itself
 *** ~undo-fu~
 **** Configuration
+
 Undoing in region seems really great, I still have trouble to use it sometimes,
 though. The binding ~C-_~ is not really accessible with my layout unfortunately.
+
 #+begin_src emacs-lisp
 (setq undo-fu-allow-undo-in-region 't)
 #+end_src
 *** ~ediff~
 **** Configuration
+
 Take A or B, why not both ?
+
 #+begin_src emacs-lisp
 (defun ediff-copy-both-to-C ()
   (interactive)
@@ -553,8 +694,23 @@ Take A or B, why not both ?
 (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
 #+end_src
 *** ~dired~ · « Our last resort, in these dire times »
+**** Configuration
+
+Open file with external application from dired.
+
+#+begin_src emacs-lisp
+(defun dired-open-file ()
+  "In dired, open the file named on this line."
+  (interactive)
+  (let* ((file (dired-get-filename nil t)))
+    (message "Opening %s..." file)
+    (call-process "xdg-open" nil 0 nil file)
+    (message "Opening %s done" file)))
+#+end_src
+
 **** Mapping
-Conveniently Doom doesn't use ~SPC d~ and I use dired often, so let's add a few
+
+Conveniently, Doom doesn't use =SPC d= and I use dired often, so let's add a few
 key bindings.
 
 #+begin_src emacs-lisp
@@ -569,6 +725,7 @@ key bindings.
 
 ~dirvish~ makes navigating directories so much pleasant! Let's change a bit of key
 bindings.
+
 #+begin_src emacs-lisp
 ;; (map! :leader
 ;;       :prefix-map ("t" . "toggle")
@@ -583,54 +740,77 @@ bindings.
   (map!
    :map dired-mode-map
    :n "c" #'dired-up-directory
-   ;; :n "t" #'evil-next-line ;; HACK
+   :n "M-RET" #'dired-open-file
+   :n "R" #'dired-do-rename
+   :n "L" #'dired-do-copy
    :n "r" #'dired-find-file))
 #+end_src
 
 ** Term · ~:term~
+
 I still need to learn to *stay* in Emacs when in comes to shell, but luckily we
 have ~eshell~ and ~vterm~ for that. I am still undecided between the two, so I use
 them both!
 
-*** ~vterm~
-**** Configuration & Mapping
-I had some visual issue with my default font when rendering some symbols in the
-prompt. So lets set a specific font for ~vterm~.
-#+begin_src emacs-lisp
-;; Use monospaced font faces in current buffer
-(defun +vterm-mode-setup ()
-  "Sets a fixed width (monospace) font in current buffer"
-  (setq buffer-face-mode-face '(:family "IBM Plex Mono" :height 110))
-  (face-remap-add-relative 'fixed-pitch)
-  (buffer-face-mode))
-
-(add-hook 'vterm-mode-hook #'+vterm-mode-setup)
+*** ~eshell~
+**** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+(package! aweshell
+  :recipe (:host github
+           :repo "manateelazycat/aweshell"))
 #+end_src
 
-~eshell~ has helpfull functions to open a split right and bellow, lets do the same
+#+begin_src emacs-lisp
+(use-package! aweshell
+  :defer t
+  :commands (aweshell-new aweshell-dedicated-open))
+#+end_src
+
+*** ~vterm~
+**** Configuration & Mapping
+
+I had some visual issue with my default font when rendering some symbols in the
+prompt. So lets set a specific font for ~vterm~.
+
+#+begin_src emacs-lisp
+(when (modulep! :term vterm)
+  ;; Use monospaced font faces in current buffer
+  (defun +vterm-mode-setup ()
+    "Sets a fixed width (monospace) font in current buffer"
+    (setq buffer-face-mode-face '(:family "Iosevka Nerd Font" :height 110))
+    (face-remap-add-relative 'fixed-pitch)
+    (buffer-face-mode))
+
+  (add-hook 'vterm-mode-hook #'+vterm-mode-setup))
+#+end_src
+
+~eshell~ has helpful functions to open a split right and bellow, lets do the same
 for ~vterm~.
 
 #+begin_src emacs-lisp
-(defun +vterm/split-right ()
-  "Create a new vterm window to the right of the current one."
-  (interactive)
-  (let* ((ignore-window-parameters t)
-         (dedicated-p (window-dedicated-p)))
-    (select-window (split-window-horizontally))
-    (+vterm/here default-directory)))
+(when (modulep! :term vterm)
+  (defun +vterm/split-right ()
+    "Create a new vterm window to the right of the current one."
+    (interactive)
+    (let* ((ignore-window-parameters t)
+           (dedicated-p (window-dedicated-p)))
+      (select-window (split-window-horizontally))
+      (+vterm/here default-directory)))
 
-(defun +vterm/split-below ()
-  "Create a new vterm window below the current one."
-  (interactive)
-  (let* ((ignore-window-parameters t)
-         (dedicated-p (window-dedicated-p)))
-    (select-window (split-window-vertically))
-    (+vterm/here default-directory)))
+  (defun +vterm/split-below ()
+    "Create a new vterm window below the current one."
+    (interactive)
+    (let* ((ignore-window-parameters t)
+           (dedicated-p (window-dedicated-p)))
+      (select-window (split-window-vertically))
+      (+vterm/here default-directory))))
 #+end_src
 
 Now lets put all this into a global binding, I'll use ~SPC e~.
+
 #+begin_src emacs-lisp
 (map! :leader
+      :when (modulep! :term vterm)
       (:prefix-map ("e" . "(e)shell")
        :desc "toggle eshell popup"           "E" #'+eshell/toggle
        :desc "open eshell here"              "e" #'+eshell/here
@@ -643,19 +823,78 @@ Now lets put all this into a global binding, I'll use ~SPC e~.
        :desc "vterm right"                   "v" #'+vterm/split-right))
 #+end_src
 
+*** ~eat~
+**** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! eat) ;; https://codeberg.org/akib/emacs-eat
+#+end_src
+
+#+begin_src emacs-lisp
+  ;; Use monospaced font faces in current buffer
+  (defun +eat-mode-setup ()
+    "Sets a fixed width (monospace) font in current buffer"
+    (setq buffer-face-mode-face '(:family "Iosevka Nerd Font" :height 110))
+    (face-remap-add-relative 'fixed-pitch)
+    (buffer-face-mode))
+
+  (add-hook 'eat-mode-hook #'+eat-mode-setup)
+#+end_src
+
+~eshell~ has helpful functions to open a split right and bellow, lets do the same
+for ~vterm~.
+
+#+begin_src emacs-lisp
+  (defun +eat/split-right ()
+    "Create a new eat window to the right of the current one."
+    (interactive)
+    (let* ((ignore-window-parameters t)
+           (dedicated-p (window-dedicated-p)))
+      (select-window (split-window-horizontally))
+      (eat default-directory)))
+
+  (defun +eat/split-below ()
+    "Create a new eat window below the current one."
+    (interactive)
+    (let* ((ignore-window-parameters t)
+           (dedicated-p (window-dedicated-p)))
+      (select-window (split-window-vertically))
+      (eat default-directory)))
+#+end_src
+
+Now lets put all this into a global binding, I'll use ~SPC e~.
+
+#+begin_src emacs-lisp
+(map! :leader
+      :unless (modulep! :term vterm)
+      (:prefix-map ("e" . "(e)shell")
+       :desc "toggle eshell popup"           "E" #'+eshell/toggle
+       :desc "open eshell here"              "e" #'+eshell/here
+       :desc "open eshell in project root"   "p" #'project-eshell
+       :desc "eshell below"                  "K" #'+eshell/split-below
+       :desc "eshell right"                  "V" #'+eshell/split-right
+       :desc "toggle eat popup"            "T" #'+eat/toggle
+       :desc "open eat here"               "t" #'eat
+       :desc "eat below"                   "k" #'+eat/split-below
+       :desc "eat right"                   "v" #'+eat/split-right))
+#+end_src
+
 ** Checkers · ~:check(er)~ mate
 *** ~langtool~
 **** Configuration
+
 ~langtool~ isn't cutting it for me, I'll setup ~languagetool.el~ latter on.
+
 #+begin_src emacs-lisp :tangle packages.el
 (package! langtool :disable t)
 #+end_src
 *** ~flycheck~
 **** Configuration & Mapping
+
 I write mostly bad code, so I need to jump to problems easily.
 
 #+begin_src emacs-lisp :tangle packages.el
-;; (unpin! flycheck)
+(unpin! flycheck)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -665,11 +904,29 @@ I write mostly bad code, so I need to jump to problems easily.
                "M-n" #'flycheck-next-error
                "M-p" #'flycheck-previous-error)))
 #+end_src
+*** ~flymake~
+**** Configuration & Mapping
+
+I write mostly bad code, so I need to jump to problems easily.
+
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! flymake)
+#+end_src
+
+#+begin_src emacs-lisp
+(map!
+ (:after flymake
+         (:map flymake-mode-map
+               "M-n" #'flymake-goto-next-error
+               "M-p" #'flymake-goto-prev-error)))
+#+end_src
 
 ** Tools · the sharpest ~:tool~ in the shed
 *** ~lookup~ · « Ahh we used to look up at the sky and wonder…»
 **** Mapping
+
 In situation when I need to quickly look a word definition to not look too dumb.
+
 #+begin_src emacs-lisp
 (map!
  (:when (modulep! :tools lookup)
@@ -681,17 +938,36 @@ In situation when I need to quickly look a word definition to not look too dumb.
 (unpin! lsp-mode)
 #+end_src
 
-Let's try to apply some performance recommendation regarding plists.
+Let's try to apply some performance recommendation regarding =plists=.
+
 #+begin_src emacs-lisp
 ;; (setenv "LSP_USE_PLISTS" "1")
 ;; (setq lsp-use-plists "true")
+#+end_src
+*** ~magit~
+**** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! magit)
+(package! with-editor)
+#+end_src
+
+Show a list of TODO and other keywords in the ~magit~ status view.
+
+#+begin_src emacs-lisp
+(after! magit
+  (magit-todos-mode t))
 #+end_src
 
 ** ~org~ ·
 *** Configuration
 
+#+begin_src emacs-lisp :tangle packages.el
+;; (unpin! org) ;; REVIEW: why did I unpin it?
+#+end_src
+
 I use ~syncthing~ to share files between my computers, it's also handy to sync
 org files to my phone. Let's setup the org directory.
+
 #+BEGIN_SRC emacs-lisp
 (setq org-directory "~/Sync/Org/"
       org-agenda-files (directory-files-recursively "~/Sync/Org/" "\\.org$"))
@@ -699,23 +975,25 @@ org files to my phone. Let's setup the org directory.
 
 Let's customize the ~org-todo-keywords~ list. Also, make ~org-code~ verbatim italic.
 
-
 #+begin_src emacs-lisp
 (after! org
   (setq org-todo-keywords '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "NEXT(n)" "REVIEW(r)" "WAIT(w)" "HOLD(h)" "MAYBE(m)" "IDEA(i)" "|" "DONE(d)" "KILL(k)" "DROP(D)")
                             (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
                             (sequence "|" "OKAY(o)" "YES(y)" "NO(N)")))
 
-(custom-set-faces
- '(org-code ((t (:inherit ef-themes-fixed-pitch :foreground "#9f4a00" :slant italic))))))
+  (custom-set-faces
+   '(org-code ((t (:inherit ef-themes-fixed-pitch :foreground "#9f4a00" :slant italic))))))
 #+end_src
 
 Sometimes it is nice to be able to use the mouse.
+
 #+begin_src emacs-lisp
-(use-package! org-mouse)
+(use-package! org-mouse
+  :defer t)
+(require 'org-mouse)
 #+end_src
 
-~org~ is pretty great and with ~org-modern~ that'll setup later, it's pretty
+~org~ is pretty great and with ~org-modern~ that I'll setup later, it's pretty
 pretty, but let's change some visual stuff anyway.
 
 #+begin_src emacs-lisp
@@ -733,7 +1011,9 @@ pretty, but let's change some visual stuff anyway.
 #+end_src
 
 
-Some ~or-babel~ blocks might take too much space, so let's have a way to specify hidden block.
+Some ~or-babel~ blocks might take too much space, so let's have a way to specify
+hidden block.
+
 #+BEGIN_SRC emacs-lisp :hidden
 (defun individual-visibility-source-blocks ()
   "Fold some blocks in the current buffer."
@@ -757,6 +1037,59 @@ Some ~or-babel~ blocks might take too much space, so let's have a way to specify
  (function individual-visibility-source-blocks))
 #+END_SRC
 
+
+#+BEGIN_SRC emacs-lisp
+(after! org
+  ;; Import ox-latex to get org-latex-classes and other funcitonality
+  ;; for exporting to LaTeX from org
+  (use-package! ox-latex
+    :init
+    ;; code here will run immediately
+    :config
+    ;; code here will run after the package is loaded
+    (setq org-latex-pdf-process
+          '("pdflatex -interaction nonstopmode -output-directory %o %f"
+            "bibtex %b"
+            "pdflatex -interaction nonstopmode -output-directory %o %f"
+            "pdflatex -interaction nonstopmode -output-directory %o %f"))
+    (setq org-latex-with-hyperref nil) ;; stop org adding hypersetup{author..} to latex export
+    ;; (setq org-latex-prefer-user-labels t)
+
+    ;; deleted unwanted file extensions after latexMK
+    (setq org-latex-logfiles-extensions
+          (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl" "xmpi" "run.xml" "bcf" "acn" "acr" "alg" "glg" "gls" "ist")))
+
+    (unless (boundp 'org-latex-classes)
+      (setq org-latex-classes nil)))
+
+  (use-package! ox-extra
+    :config
+    (ox-extras-activate '(latex-header-blocks ignore-headlines))))
+#+END_SRC
+
+*** ~denote~
+**** Configuration & Mapping
+#+begin_src emacs-lisp :tangle packages.el
+(package! denote) ;; https://github.com/protesilaos/denote
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! denote
+  :defer t)
+#+end_src
+*** ~mermaid-mode~
+**** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+(package! ob-mermaid) ;; https://github.com/
+#+end_src
+
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+    'org-babel-load-languages
+    '((mermaid . t)
+      (scheme . t)))
+#+end_src
+
 *** ~org-appear~
 #+begin_quote
 Make invisible parts of Org elements appear visible.
@@ -768,6 +1101,7 @@ Make invisible parts of Org elements appear visible.
 #+end_src
 
 Add a hook to ~org-mode~.
+
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook 'org-appear-mode)
 #+end_src
@@ -788,12 +1122,49 @@ Add a hook to ~org-mode~.
                                  "* TODO %?\n** Description\n** [%] Tasks\n")
                                 ("i" "Issue" entry (file ,(concat org-directory "Voilà/issues.org"))
                                  "* TODO %?\n** Description\n** [%] Tasks\n")
-                                ("v" "Voilà note" entry (file+headline ,(concat org-directory "Voilà/notes.org") "Inbox")
+                                ("T" "Todo" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
                                  "** [ ] %?\n")
                                 ("t" "Todo" entry (file+headline ,(concat org-directory "todo.org") "Inbox")
                                  "** [ ] %?\n")
                                 )))
 #+END_SRC
+*** ~org-cv~
+**** Configuration & Mapping
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-cv
+  :recipe (:host gitlab :repo "Titan-C/org-cv"))
+#+end_src
+*** ~org-gtd~
+**** Configuration & Mapping
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-gtd)
+#+end_src
+
+#+begin_src emacs-lisp
+(after! org
+  (setq org-gtd-update-ack "3.0.0")
+  (use-package! org-gtd
+    :defer t
+    :demand t
+    :custom
+    (org-gtd-directory "~/Sync/Org/org-gtd")
+    (org-agenda-property-list '("DELEGATED_TO"))
+    (org-edna-use-inheritance t)
+    :config
+    (org-edna-load))
+  (require 'org-gtd))
+#+end_src
+
+*** ~org-noter~
+**** Configuration & Mapping
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-noter) ;; https://github.com/org-noter/org-noter
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! org-noter
+  :defer t)
+#+end_src
 *** ~org-now~
 **** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
@@ -803,6 +1174,7 @@ Add a hook to ~org-mode~.
 
 #+begin_src emacs-lisp
 (use-package! org-now
+  :defer t
   :custom
   (org-now-default-cycle-level 'nil)
   :hook (org-now . (lambda () (setq mode-line-format nil)))
@@ -811,15 +1183,16 @@ Add a hook to ~org-mode~.
   :hook (org-now . (lambda () (face-remap-add-relative 'org-level-3 '(:height 130))))
 
   :config
-  (setq org-now-location (list (expand-file-name "Voilà/notes.org" org-directory) "Inbox"))
-   (set-popup-rules!
+  (setq org-now-location (list (expand-file-name "notes.org" org-directory) "Inbox"))
+  (set-popup-rules!
     '(("^\\*org-now"
        :actions (display-buffer-in-side-window)
        :slot 10 :vslot -1 :side right :size +popup-shrink-to-fit :quit nil)))
   :init
   (map!
    :prefix daf/localleader-key
-   :n "n" #'org-now))
+   :n "n" #'org-now
+   :n "ç" #'org-now))
 #+end_src
 *** ~org-modern~
 **** Configuration
@@ -828,12 +1201,12 @@ Add a hook to ~org-mode~.
 Fontifying org-mode buffers to be as pretty as possible is of paramount
 importance, and Minad’s lovely org-modern goes a long way in this regard.
 
----Tecosaur
+―Tecosaur
 #+end_quote
 
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! org-modern)
+(package! org-modern) ;; https://github.com/minad/org-modern
 #+end_src
 
 This is shamelessly stolen from Tecosaur's, I'll need to customize more to my
@@ -842,14 +1215,17 @@ liking and remove the things I don't use.
 #+begin_src emacs-lisp
 (after! org
   (use-package! org-modern
+    :defer t
     :hook (org-mode . org-modern-mode)
     :config
+    ;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+    ;; (custom-set-variables '(org-modern-table nil))
     (setq org-modern-star '("●" "◉" "○" "◆" "◈" "◇" "✤" "✿" "✜" "▶" "▷" "●" "◉" "○" "◆" "◈" "◇" "✤" "✿" "✜")
           org-modern-table-vertical 1
           org-modern-table-horizontal 0.2
-          org-modern-list '((?+ . "+")
+          org-modern-list '((?+ . "•")
                             (?- . "–")
-                            (?* . "•"))
+                            (?* . "+"))
           org-modern-todo-faces
 
           '(("TODO" :inverse-video t :inherit org-todo)
@@ -869,7 +1245,7 @@ liking and remove the things I don't use.
           org-modern-block-fringe nil
           org-modern-block-name
           '((t . t)
-            ("src" "»" "«")
+            ("src" "» " "«")
             ("example" "»–" "–«")
             ("quote" "❝" "❞")
             ("export" "⏩" "⏪"))
@@ -878,35 +1254,37 @@ liking and remove the things I don't use.
           org-modern-horizontal-rule (make-string 36 ?─)
           org-modern-keyword
           '((t . t)
-            ("title" . "𝙏")
-            ("subtitle" . "𝙩")
-            ("author" . "𝘼")
-            ("email" . #("" 0 1 (display (raise -0.14))))
-            ("date" . "𝘿")
-            ("property" . "☸")
-            ("options" . "⌥")
-            ("startup" . "⏻")
-            ("macro" . "𝓜")
-            ("bind" . #("" 0 1 (display (raise -0.1))))
-            ("include" . "⇤")
+            ("title"     . "𝙏")
+            ("subtitle"  . "𝙩")
+            ("author"    . "𝘼")
+            ("email"     . #("" 0 1 (display (raise -0.14))))
+            ("date"      . "𝘿")
+            ("property"  . "⎈")
+            ("options"   . "⌥")
+            ("startup"   . "⏻")
+            ("bind"      . #("" 0 1 (display (raise -0.1))))
+            ("include"   . "⇤")
             ("setupfile" . "⇚")
-            ("name" . "⁍")
-            ("header" . "›")
-            ("caption" . "☰")
-            ("RESULTS" . "🠶")))
+            ("name"      . "⁍")
+            ("header"    . "›")
+            ("caption"   . "☰")
+            ("RESULTS"   . "⥱")))
     (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo))))
 #+end_src
 
 *** ~org-modern-indent~
 #+begin_quote
 org-modern and org-indent, working together
----jdtsmith
+
+―jdtsmith
 #+end_quote
 
 **** Configuration
+
 Indenting headings in ~org-mode~ helps me find my way, so I was a bit sad when I
 learned that it wasn't possible to see the nice block style with ~org-modern~.
 ~org-modern-indent~ to the rescue.
+
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-modern-indent
   :recipe (:host github :repo "jdtsmith/org-modern-indent"))
@@ -914,15 +1292,37 @@ learned that it wasn't possible to see the nice block style with ~org-modern~.
 
 #+begin_src  emacs-lisp
 (use-package! org-modern-indent
+  :defer t
   :hook
   (org-indent-mode . org-modern-indent-mode))
 #+end_src
+*** ~org-remark~
+**** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-remark) ;; https://github.com/nobiot/org-remark
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! org-remark
+   :defer t
+   :init
+   (map! :g "C-c n m" #'org-remark-mark
+         (:after org-remark
+          (:map org-remap-mode-map
+           (:prefix "C-c n"
+            :g "o" #'org-remark-open
+            :g "]" #'org-remark-view-next
+            :g "[" #'org-remark-view-previous
+            :g "r" #'org-remark-remove)))))
+#+end_src
+
 *** ~org-roam~
 **** Configuration
 #+begin_src emacs-lisp
 (setq org-roam-directory "~/Sync/Org")
 #+end_src
 *** ~image-popup~
+
 Viewing image in org buffer is nice, but I'd rather have a small thumbnail with
 a popup image, rather than configuring for every image its size.
 
@@ -935,15 +1335,182 @@ a popup image, rather than configuring for every image its size.
 
 #+begin_src emacs-lisp
 (use-package! image-popup
+  :defer t
   :init
   (map!
    :map org-mode-map
-   :prefix daf/localleader-key
-   :n "i" #'image-popup-display-image-at-point))
+   (:prefix ("ç" . "daf")
+    :n "i" #'image-popup-display-image-at-point)))
+#+end_src
+*** ~valign~ ⚰
+**** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! valign)
 #+end_src
 
+#+begin_src emacs-lisp
+;; (use-package! valign
+;;   :defer t
+;;   :config
+;;   (add-hook 'org-mode-hook #'valign-mode)
+;;   (setq valign-fancy-bar t)
+;;   (valign-mode 1))
+#+end_src
+*** ~svg-tag-mode~
+**** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+(package! svg-tag-mode) ;; https://github.com/rougier/svg-tag-mode
+#+end_src
+
+#+begin_src emacs-lisp
+(require 'svg-tag-mode)
+
+(defconst date-re "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}")
+(defconst time-re "[0-9]\\{2\\}:[0-9]\\{2\\}")
+(defconst day-re "[A-Za-z]\\{3\\}")
+(defconst day-time-re (format "\\(%s\\)? ?\\(%s\\)?" day-re time-re))
+
+(defun svg-progress-percent (value)
+  (svg-image (svg-lib-concat
+              (svg-lib-progress-bar (/ (string-to-number value) 100.0)
+                                nil :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+              (svg-lib-tag (concat value "%")
+                           nil :stroke 0 :margin 0)) :ascent 'center))
+
+(defun svg-progress-count (value)
+  (let* ((seq (mapcar #'string-to-number (split-string value "/")))
+         (count (float (car seq)))
+         (total (float (cadr seq))))
+  (svg-image (svg-lib-concat
+              (svg-lib-progress-bar (/ count total) nil
+                                    :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+              (svg-lib-tag value nil
+                           :stroke 0 :margin 0)) :ascent 'center)))
+
+(setq svg-tag-tags
+      `(
+        ;; Org tags
+        (":\\([A-Za-z0-9]+\\)" . ((lambda (tag) (svg-tag-make tag))))
+        (":\\([A-Za-z0-9]+[ \-]\\)" . ((lambda (tag) tag)))
+
+        ;; Task priority
+        ("\\[#[A-Z]\\]" . ( (lambda (tag)
+                              (svg-tag-make tag :face 'org-priority
+                                            :beg 2 :end -1 :margin 0))))
+
+        ;; Progress
+        ("\\(\\[[0-9]\\{1,3\\}%\\]\\)" . ((lambda (tag)
+                                            (svg-progress-percent (substring tag 1 -2)))))
+        ("\\(\\[[0-9]+/[0-9]+\\]\\)" . ((lambda (tag)
+                                          (svg-progress-count (substring tag 1 -1)))))
+
+        ;; TODO / DONE
+        ("TODO" . ((lambda (tag) (svg-tag-make "TODO" :face 'org-todo :inverse t :margin 0))))
+        ("DONE" . ((lambda (tag) (svg-tag-make "DONE" :face 'org-done :margin 0))))
+
+
+        ;; Citation of the form [cite:@Knuth:1984]
+        ("\\(\\[cite:@[A-Za-z]+:\\)" . ((lambda (tag)
+                                          (svg-tag-make tag
+                                                        :inverse t
+                                                        :beg 7 :end -1
+                                                        :crop-right t))))
+        ("\\[cite:@[A-Za-z]+:\\([0-9]+\\]\\)" . ((lambda (tag)
+                                                (svg-tag-make tag
+                                                              :end -1
+                                                              :crop-left t))))
+
+
+        ;; Active date (with or without day name, with or without time)
+        (,(format "\\(<%s>\\)" date-re) .
+         ((lambda (tag)
+            (svg-tag-make tag :beg 1 :end -1 :margin 0))))
+        (,(format "\\(<%s \\)%s>" date-re day-time-re) .
+         ((lambda (tag)
+            (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0))))
+        (,(format "<%s \\(%s>\\)" date-re day-time-re) .
+         ((lambda (tag)
+            (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0))))
+
+        ;; Inactive date  (with or without day name, with or without time)
+         (,(format "\\(\\[%s\\]\\)" date-re) .
+          ((lambda (tag)
+             (svg-tag-make tag :beg 1 :end -1 :margin 0 :face 'org-date))))
+         (,(format "\\(\\[%s \\)%s\\]" date-re day-time-re) .
+          ((lambda (tag)
+             (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0 :face 'org-date))))
+         (,(format "\\[%s \\(%s\\]\\)" date-re day-time-re) .
+          ((lambda (tag)
+             (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0 :face 'org-date))))))
+
+#+end_src
+
+-----
+
 * Level 5: Phobos Lab · /Packages/
-Next up, configuration for packages not managed by ~Doom~.
+
+/Next up, configuration for packages not managed by ~Doom~./
+
+** ~avy~
+*** Configuration & Mapping
+
+[[https://karthinks.com/software/avy-can-do-anything/][Avy can do anything.]]
+
+/He delet/
+
+#+begin_src emacs-lisp
+(defun avy-action-kill-whole-line (pt)
+  (save-excursion
+    (goto-char pt)
+    (kill-whole-line))
+  (select-window
+   (cdr
+    (ring-ref avy-ring 0)))
+  t)
+
+(after! avy
+  (setf (alist-get ?d avy-dispatch-alist) 'avy-action-kill-stay
+        (alist-get ?D avy-dispatch-alist) 'avy-action-kill-whole-line))
+#+end_src
+
+/He duplicat/
+
+#+begin_src emacs-lisp
+(defun avy-action-copy-whole-line (pt)
+  (save-excursion
+    (goto-char pt)
+    (cl-destructuring-bind (start . end)
+        (bounds-of-thing-at-point 'line)
+      (copy-region-as-kill start end)))
+  (select-window
+   (cdr
+    (ring-ref avy-ring 0)))
+  t)
+
+(defun avy-action-yank-whole-line (pt)
+  (avy-action-copy-whole-line pt)
+  (save-excursion (yank))
+  t)
+
+(after! avy
+  (setf (alist-get ?y avy-dispatch-alist) 'avy-action-yank
+        (alist-get ?w avy-dispatch-alist) 'avy-action-copy
+        (alist-get ?W avy-dispatch-alist) 'avy-action-copy-whole-line
+        (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line))
+#+end_src
+
+/He teleport/
+
+#+begin_src emacs-lisp
+(defun avy-action-teleport-whole-line (pt)
+    (avy-action-kill-whole-line pt)
+    (save-excursion (yank)) t)
+
+(after! avy
+ (setf (alist-get ?m avy-dispatch-alist) 'avy-action-teleport
+       (alist-get ?M avy-dispatch-alist) 'avy-action-teleport-whole-line))
+#+end_src
+
 ** ~blamer~ · who wrote that crap!? (probably me.)
 /Get git commit info at a glance./
 *** Configuration & Mapping
@@ -956,6 +1523,7 @@ by showing commit information at a glance.
 #+end_src
 
 Let's customize the face and add a few key bindings.
+
 #+begin_src emacs-lisp
 (use-package! blamer
   :defer 20
@@ -964,7 +1532,7 @@ Let's customize the face and add a few key bindings.
   (blamer-min-offset 70)
   :custom-face
   (blamer-face ((t :foreground "#7a88cf"
-                   :background nil
+                   :background unspecified
                    :italic t)))
   :init
   (map!
@@ -977,49 +1545,57 @@ Let's customize the face and add a few key bindings.
 /Save windows and frames layouts as bookmark./
 *** TODO Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
-(package! burly)
+;; (package! burly) ;; https://github.com/alphapapa/burly.el
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! burly
-  :config
-  (setq burly-bookmark-prefix "# ")
+;; (use-package! burly
+;;   :defer t
+;;   :config
+;;   (setq burly-bookmark-prefix "# ")
 
-  (defun +burly-before-quit ()
-    (message "burly: saving session")
-    (burly-bookmark-windows (format "## last session %s"
-                                    (format-time-string "%Y-%m-%d %H:%M")))
-    't))
+;;   (defun +burly-before-quit ()
+;;     (message "burly: saving session")
+;;     (burly-bookmark-windows (format "## last session %s"
+;;                                     (format-time-string "%Y-%m-%d %H:%M")))
+;;     't))
 #+end_src
+
 TODO: Move out
-A febril attempt to interactively save windows layout (frames are broken) when quitting Emacs (by pressing =q= instead of =y=).
+A febrile attempt to interactively save windows layout (frames
+are broken) when quitting Emacs (by pressing =q= instead of =y=).
+
 #+begin_src emacs-lisp
-(defvar prompt-y-n-q '((?y "y" (lambda () 't))
-                       (?n "n" (lambda () nil))
-                       (?q "q" (lambda () (+burly-before-quit)))))
+;; (defvar prompt-y-n-q '((?y "y" (lambda () 't))
+;;                        (?n "n" (lambda () nil))
+;;                        (?q "q" (lambda () (+burly-before-quit)))))
 
-(defun daf-quit-choose (prompt)
-  (let ((choice (read-char-choice (format "%s y/n/q (save session)" prompt)
-                                   (mapcar #'car prompt-y-n-q))))
-    (funcall (nth 2 (assoc choice prompt-y-n-q)))))
+;; (defun daf-quit-choose (prompt)
+;;   (let ((choice (read-char-choice (format "%s y/n/q (save session)" prompt)
+;;                                   (mapcar #'car prompt-y-n-q))))
+;;     (funcall (nth 2 (assoc choice prompt-y-n-q)))))
 
-(defun daf/doom-quit-p (&optional prompt)
-  (or (not (ignore-errors (doom-real-buffer-list)))
-      (daf-quit-choose (format "%s" (or prompt "Really quit Emacs?")))
-      (ignore (message "Aborted"))))
+;; (defun daf/doom-quit-p (&optional prompt)
+;;   (or (not (ignore-errors (doom-real-buffer-list)))
+;;       (daf-quit-choose (format "%s" (or prompt "Really quit Emacs?")))
+;;       (ignore (message "Aborted"))))
 
-(defun +daf/doom-quit-fn (&rest _)
-  (daf/doom-quit-p
-   (format "%s  %s"
-           (propertize (nth (random (length +doom-quit-messages))
-                            +doom-quit-messages)
-                       'face '(italic default))
-           "Really quit Emacs?")))
+;; (defun +daf/doom-quit-fn (&rest _)
+;;   (daf/doom-quit-p
+;;    (format "%s  %s"
+;;            (propertize (nth (random (length +doom-quit-messages))
+;;                             +doom-quit-messages)
+;;                        'face '(italic default))
+;;            "Really quit Emacs?")))
 
-(setq confirm-kill-emacs #'+daf/doom-quit-fn)
+;; (setq confirm-kill-emacs #'+daf/doom-quit-fn)
 #+end_src
-
-** ~elogcat~
+** ~combobulate~
+*** TODO Configuration & Mapping
+#+begin_src emacs-lisp :tangle packages.el
+(package! combobulate) ;; https://github.com/mickeynp/combobulate
+#+end_src
+** ~elogcat~ ⚰
 /Manage Android logs./
 
 Occasionally (only happen once to be honest), I need to debug an Android app,
@@ -1027,46 +1603,49 @@ Occasionally (only happen once to be honest), I need to debug an Android app,
 
 *** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
-(package! elogcat)
+;; (package! elogcat) ;; https://github.com/youngker/elogcat.el
 #+end_src
 
 I wrote some ugly function to add filters to ~logcat~.
-#+begin_src emacs-lisp
-(use-package! elogcat
-  :config
-  (defun daf/elogcat-set-tail ()
-    "Add a limit of line to the command"
-    (interactive)
-    (setq elogcat-logcat-command (concat elogcat-logcat-command " -T 50")))
 
-  (defun daf/elogcat-set-include-filter-pid ()
-    "Try to determine a PID from an input, and set it as a filter"
-    (interactive)
-    (elogcat-set-include-filter (substring
-                                 (shell-command-to-string
-                                  (format "adb shell ps | grep -F %s | tr -s '[:space:]' ' ' | cut -d' ' -f2" (read-string "app namespace: ")))
-                                 0 -1)))
-  :init
-  (map! :map elogcat-mode-map
-        :localleader
-        "i" #'elogcat-set-include-filter
-        "I" #'elogcat-clear-include-filter
-        "x" #'elogcat-set-exclude-filter
-        "X" #'elogcat-clear-exclude-filter
-        "p" #'daf/elogcat-set-include-filter-pid
-        "t" #'daf/elogcat-set-tail
-        "g" #'elogcat-show-status
-        "m" #'elogcat-toggle-main
-        "s" #'elogcat-toggle-system
-        "e" #'elogcat-toggle-events
-        "r" #'elogcat-toggle-radio
-        "k" #'elogcat-toggle-kernel
-        "c" #'elogcat-erase-buffer))
+#+begin_src emacs-lisp
+;; (use-package! elogcat
+;;   :defer t
+;;   :config
+;;   (defun daf/elogcat-set-tail ()
+;;     "Add a limit of line to the command"
+;;     (interactive)
+;;     (setq elogcat-logcat-command (concat elogcat-logcat-command " -T 50")))
+
+;;   (defun daf/elogcat-set-include-filter-pid ()
+;;     "Try to determine a PID from an input, and set it as a filter"
+;;     (interactive)
+;;     (elogcat-set-include-filter (substring
+;;                                  (shell-command-to-string
+;;                                   (format "adb shell ps | grep -F %s | tr -s '[:space:]' ' ' | cut -d' ' -f2" (read-string "app namespace: ")))
+;;                                  0 -1)))
+;;   :init
+;;   (map! :map elogcat-mode-map
+;;         :localleader
+;;         "i" #'elogcat-set-include-filter
+;;         "I" #'elogcat-clear-include-filter
+;;         "x" #'elogcat-set-exclude-filter
+;;         "X" #'elogcat-clear-exclude-filter
+;;         "p" #'daf/elogcat-set-include-filter-pid
+;;         "t" #'daf/elogcat-set-tail
+;;         "g" #'elogcat-show-status
+;;         "m" #'elogcat-toggle-main
+;;         "s" #'elogcat-toggle-system
+;;         "e" #'elogcat-toggle-events
+;;         "r" #'elogcat-toggle-radio
+;;         "k" #'elogcat-toggle-kernel
+;;         "c" #'elogcat-erase-buffer))
 #+end_src
 ** ~emojify~ · 🐂
 /Emojy in Emacs./
 *** Configuration
-Gotta love those emoji, right?
+
+Gotta love those emojis, right? 🤔
 
 #+begin_src emacs-lisp
 (setq emojify-display-style 'unicode)
@@ -1081,7 +1660,7 @@ mode, such as checkbox state, and a few other miscellaneous cases.
 We can accommodate our preferences by deleting those entries from the emoji hash
 table
 
----Tecosaur
+―Tecosaur
 #+end_quote
 
 #+begin_src emacs-lisp
@@ -1109,8 +1688,9 @@ table
 #+begin_src emacs-lisp :tangle packages.el
 (package! jq-mode) ;; https://github.com/ljos/jq-mode
 #+end_src
-** ~just~
-/like Makefile, but easier to grasp./
+
+** ~just~ · Just do it
+/Like Makefile, but easier to grasp./
 *** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
 (package! just-mode)
@@ -1118,7 +1698,8 @@ table
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! justl)
+(use-package! justl
+  :defer t)
 
 (defun daf/consult-just ()
   "Prompt a list of just recipes from the project. Run the selected candidate."
@@ -1126,7 +1707,6 @@ table
   (let (recipes)
     (setq recipes (justl--get-recipies-with-desc (justl--find-justfiles (projectile-project-root))))
     (justl--exec justl-executable (list (completing-read "Choose an action: " recipes)))))
-
 #+end_src
 
 ** ~languagetool~ · Squiggly line my prose
@@ -1141,8 +1721,10 @@ Doom's ship ~Emacs-langtool~ but I prefer ~languagetool.el~, let's set it up.
 
 ~languagetool~ being a Java program, it needs to be shown the way to its .jar,
 let's obliged.
+
 #+begin_src emacs-lisp
 (use-package! languagetool
+  :defer t
   :config
   (setq languagetool-java-arguments '("-Dfile.encoding=UTF-8")
         languagetool-correction-language "en-US"  ;; 'auto' seems to target "en", which isn't working as well as 'en-US'
@@ -1160,37 +1742,39 @@ let's obliged.
 /Center buffer content./
 *** Configuration
 #+begin_src emacs-lisp :tangle packages.el
-(package! olivetti)
+(package! olivetti) ;; https://github.com/rnkn/olivetti
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package olivetti
+  :defer t
   :custom
   (olivetti-body-width 0.6)
   :config
   (setq olivetti-style 'fancy)
   (setq olivetti-minimum-body-width 80)
   :init
-    (map! :leader
+  (map! :leader
         (:prefix "t"
          :desc "Olivetti" "o" #'olivetti-mode)))
 #+end_src
-** ~focus~
+NO** ~focus~
 /A package to dim everything that is not in focus./
 *** Configuration
 #+begin_src emacs-lisp :tangle packages.el
-(package! focus)
+(package! focus) ;; https://github.com/larstvei/Focus
 #+end_src
 
 ** ~logos~ · Focus mode
 /Navigate documents by jumping to pages/outlines./
 *** Configuration
 #+begin_src emacs-lisp :tangle packages.el
-(package! logos)
+(package! logos) ;; https://github.com/protesilaos/logos
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! logos
+  :defer t
   :hook (logos-focus-mode . (lambda () (olivetti-mode 1)))
   :config
   (setq logos-outline-regexp-alist
@@ -1213,6 +1797,7 @@ let's obliged.
         (:prefix "t"
          :desc "Logos" "L" #'logos-focus-mode)))
 #+end_src
+
 ** ~magit-pretty-graph~
 /Prettier ~git log~ graph./
 *** Configuration & Mapping
@@ -1224,6 +1809,7 @@ let's obliged.
 
 #+begin_src emacs-lisp
 (use-package! magit-pretty-graph
+  :defer t
   :after magit
   :init
   (setq magit-pg-command
@@ -1242,12 +1828,13 @@ let's obliged.
 *** Configuration & Mapping
 Prot's at it again with another great package and great themes.
 #+begin_src emacs-lisp :tangle packages.el
-(package! ef-themes)
+(package! ef-themes) ;; https://github.com/protesilaos/ef-themes
 #+end_src
 
 We want our ~org~ headings to be of different size to be more distinguishable.
 #+begin_src emacs-lisp
 (use-package! ef-themes
+  :defer t
   :config
   (setq ef-themes-variable-pitch-ui t
         ef-themes-mixed-fonts t
@@ -1265,26 +1852,26 @@ We want our ~org~ headings to be of different size to be more distinguishable.
     "Configure `hl-todo-keyword-faces' with Ef themes colors.
 The exact color values are taken from the active Ef theme."
     (ef-themes-with-colors
-      (setq hl-todo-keyword-faces
-            `(("HOLD" . ,yellow)
-              ("TODO" . ,red)
-              ("NEXT" . ,blue)
-              ("THEM" . ,magenta)
-              ("PROG" . ,cyan-warmer)
-              ("OKAY" . ,green-warmer)
-              ("DONT" . ,yellow-warmer)
-              ("DROP" . ,red-warmer)
-              ("FAIL" . ,red-warmer)
-              ("BUG" . ,red-warmer)
-              ("DONE" . ,green)
-              ("NOTE" . ,blue-warmer)
-              ("KLUDGE" . ,cyan)
-              ("HACK" . ,cyan)
-              ("TEMP" . ,red)
-              ("FIXME" . ,red-warmer)
-              ("XXX+" . ,red-warmer)
-              ("REVIEW" . ,red)
-              ("DEPRECATED" . ,yellow)))))
+     (setq hl-todo-keyword-faces
+           `(("HOLD" . ,yellow)
+             ("TODO" . ,red)
+             ("NEXT" . ,blue)
+             ("THEM" . ,magenta)
+             ("PROG" . ,cyan-warmer)
+             ("OKAY" . ,green-warmer)
+             ("DONT" . ,yellow-warmer)
+             ("DROP" . ,red-warmer)
+             ("FAIL" . ,red-warmer)
+             ("BUG" . ,red-warmer)
+             ("DONE" . ,green)
+             ("NOTE" . ,blue-warmer)
+             ("KLUDGE" . ,cyan)
+             ("HACK" . ,cyan)
+             ("TEMP" . ,red)
+             ("FIXME" . ,red-warmer)
+             ("XXX+" . ,red-warmer)
+             ("REVIEW" . ,red)
+             ("DEPRECATED" . ,yellow)))))
 
   (add-hook 'ef-themes-post-load-hook #'daf/ef-themes-hl-todo-faces)
   :init
@@ -1296,13 +1883,19 @@ The exact color values are taken from the active Ef theme."
 ** ~modus-themes~
 /Two highly readable themes./
 *** Configuration
-The ~modus-themes~ are builtin to Emacs, they are that great! But I want the latest version possible.
+
+The ~modus-themes~ are builtin to Emacs, they are that great! But I want the
+latest version possible.
+
 #+begin_src emacs-lisp :tangle packages.el
-(package! modus-themes)
+(package! modus-themes) ;; https://github.com/protesilaos/modus-themes
 #+end_src
+
 Also, let's set it up in a similar fashion that we did with ~ef-themes~.
+
 #+begin_src emacs-lisp
 (use-package! modus-themes
+  :defer t
   :config
   (setq modus-themes-variable-pitch-ui t
         modus-themes-mixed-fonts t
@@ -1318,114 +1911,148 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
           (t . (variable-pitch regular 1.1)))))
 #+end_src
 
+** ~lambda-themes~ ⚰
+*** Configuration
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! lambda-themes
+;;   :recipe (:host github
+;;            :repo "lambda-emacs/lambda-themes"))
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package! lambda-themes
+;;   :custom
+;;   (lambda-themes-set-italic-comments t)
+;;   (lambda-themes-set-italic-keywords t)
+;;   (lambda-themes-set-variable-pitch t)
+;;   :config
+;;   ;; load preferred theme
+;;   (load-theme 'lambda-light))
+#+end_src
+
 ** ~fontaine~ · Maître Corbeau, sur un arbre perché
 /Faces preset./
+/The Quick Brown Fox Jumps Over The Lazy Dog/
 *** Configuration
 #+begin_src emacs-lisp :tangle packages.el
-(package! fontaine)
+(package! fontaine) ;; https://github.com/protesilaos/fontaine
 #+end_src
+
+And now, for the configuration, which is largely copied from the repo's
+instruction.
+
 #+begin_src emacs-lisp
-(use-package! fontaine
-  :config
-  ;; This is defined in Emacs C code: it belongs to font settings.
-  (setq x-underline-at-descent-line nil)
+;; (use-package! fontaine
+;;   :config
+;;   ;; This is defined in Emacs C code: it belongs to font settings.
+;;   (setq x-underline-at-descent-line nil)
 
-  ;; And this is for Emacs28.
-  (setq-default text-scale-remap-header-line t)
+;;   ;; And this is for Emacs28.
+;;   (setq-default text-scale-remap-header-line t)
 
-  ;; This is the default value.  Just including it here for
-  ;; completeness.
-  (setq fontaine-latest-state-file (locate-user-emacs-file "fontaine-latest-state.eld"))
+;;   ;; This is the default value.  Just including it here for
+;;   ;; completeness.
+;;   (setq fontaine-latest-state-file (locate-user-emacs-file "fontaine-latest-state.eld"))
 
-  ;; Iosevka Comfy is my highly customised build of Iosevka with
-  ;; monospaced and duospaced (quasi-proportional) variants as well as
-  ;; support or no support for ligatures:
-  ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
-  ;;
-  ;; Iosevka Comfy            == monospaced, supports ligatures
-  ;; Iosevka Comfy Fixed      == monospaced, no ligatures
-  ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
-  ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
-  ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
-  ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
-  ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
-  (setq fontaine-presets
-        '((smaller
-           :default-family "Iosevka Comfy Wide Fixed"
-           :default-height 90
-           :variable-pitch-family "Iosevka Comfy Wide Duo")
-          (small
-           :default-family "Iosevka Comfy Wide Fixed"
-           :default-height 100
-           :variable-pitch-family "Iosevka Comfy Wide Duo")
-          (regular
-           :default-height 120)
-          (large
-           :default-weight semilight
-           :default-height 150
-           :bold-weight extrabold)
-          (larger
-           :default-weight semilight
-           :default-height 160
-           :bold-weight extrabold)
-          (code-demo
-           :default-family "Iosevka Comfy Fixed"
-           :default-weight semilight
-           :default-height 190
-           :variable-pitch-family "Iosevka Comfy Duo"
-           :bold-weight extrabold)
-          (presentation
-           :default-weight semilight
-           :default-height 220
-           :bold-weight extrabold)
-          (legally-blind
-           :default-weight semilight
-           :default-height 260
-           :bold-weight extrabold)
-          (merriweather
-           :default-family "Merriweather"
-           :variable-pitch-family "Merriweather"
-           :default-height 150)
-          (ibm-plex-sans
-           :default-family "IBM Plex Sans")
-          (ibm-plex-mono
-           :default-family "IBM Plex Mono")
-          (t
-           ;; I keep all properties for didactic purposes, but most can be
-           ;; omitted.  See the fontaine manual for the technicalities:
-           ;; <https://protesilaos.com/emacs/fontaine>.
-           :default-family "Iosevka Comfy"
-           :default-weight regular
-           :default-height 120
-           :fixed-pitch-family nil ; falls back to :default-family
-           :fixed-pitch-weight nil ; falls back to :default-weight
-           :fixed-pitch-height 1.0
-           :fixed-pitch-serif-family nil ; falls back to :default-family
-           :fixed-pitch-serif-weight nil ; falls back to :default-weight
-           :fixed-pitch-serif-height 1.0
-           :variable-pitch-family "Iosevka Comfy Motion Duo"
-           :variable-pitch-weight nil
-           :variable-pitch-height 1.0
-           :bold-family nil ; use whatever the underlying face has
-           :bold-weight bold
-           :italic-family nil
-           :italic-slant italic
-           :line-spacing nil)))
+;;   ;; Iosevka Comfy is my highly customised build of Iosevka with
+;;   ;; monospaced and duospaced (quasi-proportional) variants as well as
+;;   ;; support or no support for ligatures:
+;;   ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
+;;   ;;
+;;   ;; Iosevka Comfy            == monospaced, supports ligatures
+;;   ;; Iosevka Comfy Fixed      == monospaced, no ligatures
+;;   ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
+;;   ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
+;;   ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
+;;   ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
+;;   ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
+;;   (setq fontaine-presets
+;;         '((smaller
+;;            :default-family "Iosevka Comfy Wide Fixed"
+;;            :default-height 90
+;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
+;;           (small
+;;            :default-family "Iosevka Comfy Wide Fixed"
+;;            :default-height 100
+;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
+;;           (regular
+;;            :default-height 120)
+;;           (large
+;;            :default-weight semilight
+;;            :default-height 150
+;;            :bold-weight extrabold)
+;;           (larger
+;;            :default-weight semilight
+;;            :default-height 160
+;;            :bold-weight extrabold)
+;;           (code-demo
+;;            :default-family "Iosevka Comfy Fixed"
+;;            :default-weight semilight
+;;            :default-height 190
+;;            :variable-pitch-family "Iosevka Comfy Duo"
+;;            :bold-weight extrabold)
+;;           (presentation
+;;            :default-weight semilight
+;;            :default-height 220
+;;            :bold-weight extrabold)
+;;           (legally-blind
+;;            :default-weight semilight
+;;            :default-height 260
+;;            :bold-weight extrabold)
+;;           (merriweather
+;;            :default-family "Merriweather"
+;;            :variable-pitch-family "Merriweather"
+;;            :default-height 150)
+;;           (iosevka-nerd-font
+;;            :default-family "Iosevka Nerd Font")
+;;           (sarasa
+;;            :default-family "Sarasa Term J"
+;;            :variable-pitch-family "Sarasa Term Slab TC")
+;;           (ibm-plex-sans
+;;            :default-family "IBM Plex Sans")
+;;           (ibm-plex-mono
+;;            :default-family "IBM Plex Mono")
+;;           (t
+;;            ;; I keep all properties for didactic purposes, but most can be
+;;            ;; omitted.  See the fontaine manual for the technicalities:
+;;            ;; <https://protesilaos.com/emacs/fontaine>.
+;;            :default-family "Iosevka Comfy"
+;;            :default-weight regular
+;;            :default-height 120
+;;            :fixed-pitch-family nil      ; falls back to :default-family
+;;            :fixed-pitch-weight nil      ; falls back to :default-weight
+;;            :fixed-pitch-height 1.0
+;;            :fixed-pitch-serif-family nil ; falls back to :default-family
+;;            :fixed-pitch-serif-weight nil ; falls back to :default-weight
+;;            :fixed-pitch-serif-height 1.0
+;;            :variable-pitch-family "Iosevka Comfy Motion Duo"
+;;            :variable-pitch-weight nil
+;;            :variable-pitch-height 1.0
+;;            :bold-family nil             ; use whatever the underlying face has
+;;            :bold-weight bold
+;;            :italic-family nil
+;;            :italic-slant italic
+;;            :line-spacing nil)))
 
-  ;; Set last preset or fall back to desired style from `fontaine-presets'.
-  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+;;   ;; Set last preset or fall back to desired style from `fontaine-presets'.
+;;   (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
 
-  ;; The other side of `fontaine-restore-latest-preset'.
-  (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
+;;   ;; The other side of `fontaine-restore-latest-preset'.
+;;   (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
 
-  ;; Persist font configurations while switching themes (doing it with
-  ;; my `modus-themes' and `ef-themes' via the hooks they provide).
-  (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
-    (add-hook hook #'fontaine-apply-current-preset))
+;;   ;; Persist font configurations while switching themes (doing it with
+;;   ;; my `modus-themes' and `ef-themes' via the hooks they provide).
+;;   (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
+;;     (add-hook hook #'fontaine-apply-current-preset))
 
-  (define-key global-map (kbd "C-c f") #'fontaine-set-preset)
-  (define-key global-map (kbd "C-c F") #'fontaine-set-face-font))
+;;   :init
+;;   (map! :leader
+;;         (:prefix-map ("ç" . "daf")
+;;                      "F" #'fontaine-set-face-font
+;;                      "f" #'fontaine-set-preset)))
 #+end_src
+
 ** ~popper~
 /Manage popups./
 *** Configuration & Mapping
@@ -1480,48 +2107,48 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
                  "Repeatable map for cycling through popups")
 
 #+end_src
+
 ** ~puni~
 /Structured editing à la ~ParEdit~ / ~Lispy~ for a bunch of languages./
 *** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
-(package! puni)
+(package! puni) ;; https://github.com/AmaiKinono/puni
 #+end_src
 
 #+begin_src emacs-lisp
 ;; Use puni-mode globally and disable it for term-mode.
 (use-package! puni
+  :defer t
   :config
 
   ;; custom function from the wiki
-  (defun daf/puni-kill-line ()
-    "Kill a line forward while keeping expressions balanced.
+ (defun daf/puni-kill-line ()
+  "Kill a line forward while keeping expressions balanced.
 If nothing can be deleted, kill backward.  If still nothing can be
 deleted, kill the pairs around point."
-    (interactive)
-    (let ((bounds (puni-bounds-of-list-around-point)))
-      (if (eq (car bounds) (cdr bounds))
-          (when-let ((sexp-bounds (puni-bounds-of-sexp-around-point)))
-            (puni-delete-region (car sexp-bounds) (cdr sexp-bounds) 'kill))
-        (if (eq (point) (cdr bounds))
-            (puni-backward-kill-line)
-          (puni-kill-line)))))
+  (interactive)
+  (let ((bounds (puni-bounds-of-list-around-point)))
+    (if (eq (car bounds) (cdr bounds))
+        (when-let ((sexp-bounds (puni-bounds-of-sexp-around-point)))
+          (puni-delete-region (car sexp-bounds) (cdr sexp-bounds) 'kill))
+      (if (eq (point) (cdr bounds))
+          (puni-backward-kill-line)
+        (puni-kill-line)))))
   :init
   (map!
    :map puni-mode-map
    (:prefix ("," . "puni")
     :nv "v" #'puni-expand-region
     :nv "s" #'puni-squeeze
+    :nv "S" #'puni-split
     :nv "t" #'puni-transpose
     :nv "d" #'daf/puni-kill-line
     :nv "D" #'puni-backward-kill-line
-    :nv "C" #'puni-beginning-of-sexp
-    :nv "B" #'puni-beginning-of-sexp
-    :nv "b" #'puni-backward-sexp
-    :nv "c" #'puni-backward-sexp
-    :nv "r" #'puni-forward-sexp
-    :nv "f" #'puni-forward-sexp
-    :nv "R" #'puni-end-of-sexp
-    :nv "F" #'puni-end-of-sexp
+    :nv "C" #'puni-convolute
+    :nv "p" #'puni-backward-sexp
+    :nv "P" #'puni-beginning-of-sexp
+    :nv "n" #'puni-forward-sexp
+    :nv "N" #'puni-end-of-sexp
     :nv "<" #'puni-slurp-backward
     :nv ">" #'puni-slurp-forward
     :nv "«" #'puni-slurp-backward
@@ -1532,18 +2159,67 @@ deleted, kill the pairs around point."
   (puni-global-mode)
   (add-hook 'term-mode-hook #'puni-disable-puni-mode))
 #+end_src
+
 ** ~rotate~
 /Rotate windows' layout./
 *** Configuration & Mapping
 A nice little package which allows to rotate layout.
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! rotate)
+(package! rotate) ;; https://github.com/daichirata/emacs-rotate
 #+end_src
 
 #+begin_src emacs-lisp
 (map! :map evil-window-map
       "SPC" #'rotate-layout)
+#+end_src
+** ~tempel~
+*** Configuration & Mapping
+#+begin_src emacs-lisp :tangle packages.el
+(package! tempel)
+(package! tempel-collection)
+#+end_src
+
+#+begin_src emacs-lisp
+;; Configure Tempel
+(use-package! tempel
+  ;; Require trigger prefix before template name when completing.
+  ;; :custom
+  ;; (tempel-trigger-prefix "<")
+
+  :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+         ("M-*" . tempel-insert))
+
+  :init
+
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+
+  (setq tempel-path (expand-file-name "templates/*" doom-user-dir))
+
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
+  ;; (global-tempel-abbrev-mode)
+)
+
+;; Optional: Add tempel-collection.
+;; The package is young and doesn't have comprehensive coverage.
+(use-package! tempel-collection)
 #+end_src
 
 ** ~multi-vterm~
@@ -1556,6 +2232,7 @@ A nice little package which allows to rotate layout.
 
 #+begin_src emacs-lisp
 (use-package! multi-vterm
+  :defer t
   :custom
   ;; (multi-vterm-buffer-name "Terminal")
   (multi-vterm-dedicated-buffer-name "dedicated vterminal")
@@ -1589,16 +2266,18 @@ A nice little package which allows to rotate layout.
          :desc "Previous" "p" #'multi-vterm-prev
          :desc "Next" "n" #'multi-vterm-next)))
 #+end_src
+
 ** ~nov~
 /Ebook reader in Emacs./
 *** Configuration
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! nov)
+(package! nov) ;; https://depp.brause.cc/nov.el/
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! nov
+  :defer t
   :mode ("\\.epub\\'" . nov-mode)
   :hook (nov-mode . mixed-pitch-mode)
   :hook (nov-mode . visual-line-mode)
@@ -1629,16 +2308,22 @@ A nice little package which allows to rotate layout.
  :n "T" #'daf/scroll-bottom-line-to-top
  :n "S" #'daf/scroll-top-line-to-bottom)
 #+end_src
+** ~nushell~
+*** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+(package! nushell-mode :recipe (:host github :repo "mrkkrp/nushell-mode")) ;; https://github.com/mrkkrp/nushell-mode
+#+end_src
 
 ** ~vundo~
 /Show undos in a tree./
 **** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
-(package! vundo)
+(package! vundo) ;; https://github.com/casouri/vundo
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! vundo
+  :defer t
   :unless (modulep! +tree)
   :custom
   (vundo-glyph-alist vundo-unicode-symbols)
@@ -1656,11 +2341,12 @@ A nice little package which allows to rotate layout.
 /Send HTTP requests in ~org-mode~./
 *** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
-(package! verb)
+(package! verb) ;; https://github.com/federicotdn/verb
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! verb
+  :defer t
   :config
   (setq verb-json-use-mode 'json-mode)
   (defun graphql-to-json (rs)
@@ -1688,11 +2374,15 @@ A nice little package which allows to rotate layout.
  '(("^\\*HTTP Response.*" :quit t :side right :size 0.4 :modeline nil)))
 #+end_src
 
+-----
+
 * Level 6: Central Processing · /Lang stuff/
-** nix
+** nix ⚰
 *** Configuration
+
 I am currently trying « ~nil~ » (yeah it's confusing) as nix's lsp server. Let's
 set it up with ~lsp-mode~.
+
 #+begin_src emacs-lisp
 ;; (after! lsp-mode
 ;;   (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
@@ -1707,7 +2397,7 @@ set it up with ~lsp-mode~.
 
 #+begin_quote
 Ispell is nice, let’s have it in text, markdown, and GFM.
----Tecosaur
+―Tecosaur
 #+end_quote
 
 #+begin_src emacs-lisp
@@ -1721,36 +2411,35 @@ Ispell is nice, let’s have it in text, markdown, and GFM.
     company-yasnippet))
 #+end_src
 
+
+-----
+
 * Level 7: Computer Station · /When you need a little ~powerup~ to survive Doom/
+
 The /Doom/ world is massive, it can be daunting to remember every combo move,
-secret passage and so on. I can't keep up, so I'll try to keep a /cheat sheet/,
+secret passage and so on. I can't keep up, so I'll try to write a /cheat sheet/,
 some sort of wiki in this level.
+
 ** Mark · It's like nightcrawler in an editor
 *** Mapping
 
 
-| Description                          | Scope  | Mapping |
-|--------------------------------------+--------+---------|
+| _Description_                          | _Scope_  | _Mapping_ |
 | Create a ~mark~ bound to a register    | ~:nv~    | ~m [a-Z]~ |
 | Jump to a ~mark~ bound to a register   | ~:nv~    | ~' [a-Z]~ |
 | Show all ~marks~ in a completion menu: | leader | ~SPC s r~ |
-|                                      |        |         |
+
+-----
 
 * Level 9: Military Base · /Secret experiments/
-We go straight to level 9, skipping level 8 altogether.
+#+begin_quote
+/We go straight to level 9, skipping level 8 altogether./
 
 Welcome to the *Military Base* where we conduct experimentation with unstable
-~elisp~ code. When we are satisfied with the potency of the experiment, it will be
-moved to the relevant level.
+~elisp~ code. Then, when we are satisfied with the potency of the experiment, it
+will be moved to the relevant level.
+#+end_quote
 
-** nano-theme
-#+begin_src emacs-lisp :tangle packages.el
-(package! nano-theme)
-#+end_src
-
-#+begin_src emacs-lisp
-(load! "book-mode")
-#+end_src
 ** evil mark
 *** persist mark
 #+BEGIN_SRC emacs-lisp
@@ -1769,13 +2458,14 @@ moved to the relevant level.
 #+end_src
 
 **** ~evil-fringe-mark~
-**** Configuration
+***** Configuration
 #+begin_src emacs-lisp :tangle packages.el
 (package! evil-fringe-mark)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
 (use-package! evil-fringe-mark
+  :defer t
   :after evil
   :config
   ;; Use right fringe
@@ -1784,128 +2474,122 @@ moved to the relevant level.
 :init
 (global-evil-fringe-mark-mode 1)
 #+END_SRC
-** ~pulsar~ / ~beacon~
+** ~pulsar~
 *** Configuration
 #+begin_src emacs-lisp :tangle packages.el
-(package! pulsar)
-(package! beacon)
+;; (package! pulsar)
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! beacon
-  :config
-  (setq beacon-color 0.2)
-  (setq beacon-size 20)
-  (setq beacon-blink-delay 0.2)
-  (setq beacon-blink-duration 0.2)
-  ;; (setq beacon-blink-when-focused t)
-  (setq beacon-blink-when-point-moves-vertically t)
-
-  :init
-  (beacon-mode 1))
-
-(use-package! pulsar
-  :config
-  (setq pulsar-pulse t)
-  (setq pulsar-delay 0.06)
-  (setq pulsar-iterations 20)
-  (setq pulsar-face 'pulsar-blue)
-  (setq pulsar-highlight-face 'pulsar-red)
+;; (use-package! pulsar
+;;   :defer t
+;;   :config
+;;   (setq pulsar-pulse t)
+;;   (setq pulsar-delay 0.06)
+;;   (setq pulsar-iterations 20)
+;;   (setq pulsar-face 'pulsar-blue)
+;;   (setq pulsar-highlight-face 'pulsar-red)
 
 
-  ;; (setq pulsar-pulse-functions
-  ;;     '(isearch-repeat-forward
-  ;;       isearch-repeat-backward
-  ;;       recenter-top-bottom
-  ;;       move-to-window-line-top-bottom
-  ;;       reposition-window
-  ;;       bookmark-jump
-  ;;       other-window
-  ;;       delete-window
-  ;;       delete-other-windows
-  ;;       forward-page
-  ;;       backward-page
-  ;;       scroll-up-command
-  ;;       scroll-down-command
-  ;;       evil-next-match
-  ;;       evil-scroll-line-to-top
-  ;;       evil-scroll-line-to-center
-  ;;       evil-scroll-line-to-bottom
-  ;;       evil-window-move-left
-  ;;       evil-window-move-right
-  ;;       evil-window-move-up
-  ;;       evil-window-move-down
-  ;;       evil-window-left
-  ;;       evil-window-right
-  ;;       evil-window-up
-  ;;       evil-window-down
-  ;;       evil-window-vsplit
-  ;;       evil-window-split
-  ;;       evil-ex-search-forward
-  ;;       evil-search-next
-  ;;       evil-search-previous
-  ;;       evil-ex-search-backward
-  ;;       evil-ex-search-next
-  ;;       evil-ex-search-previous
-  ;;       evil-goto-line
-  ;;       evil-goto-first-line
-  ;;       evil-goto-last-line
-  ;;       windmove-right
-  ;;       windmove-left
-  ;;       windmove-up
-  ;;       windmove-down
-  ;;       windmove-swap-states-right
-  ;;       windmove-swap-states-left
-  ;;       windmove-swap-states-up
-  ;;       windmove-swap-states-down
-  ;;       tab-new
-  ;;       tab-close
-  ;;       tab-next
-  ;;       org-next-visible-heading
-  ;;       org-previous-visible-heading
-  ;;       org-forward-heading-same-level
-  ;;       org-backward-heading-same-level
-  ;;       outline-backward-same-level
-  ;;       outline-forward-same-level
-  ;;       outline-next-visible-heading
-  ;;       outline-previous-visible-heading
-  ;;       outline-up-heading))
+;;   (setq pulsar-pulse-functions
+;;         '(isearch-repeat-forward
+;;           isearch-repeat-backward
+;;           recenter-top-bottom
+;;           move-to-window-line-top-bottom
+;;           reposition-window
+;;           bookmark-jump
+;;           other-window
+;;           delete-window
+;;           delete-other-windows
+;;           forward-page
+;;           backward-page
+;;           scroll-up-command
+;;           scroll-down-command
+;;           evil-next-match
+;;           evil-scroll-line-to-top
+;;           evil-scroll-line-to-center
+;;           evil-scroll-line-to-bottom
+;;           evil-window-move-left
+;;           evil-window-move-right
+;;           evil-window-move-up
+;;           evil-window-move-down
+;;           evil-window-left
+;;           evil-window-right
+;;           evil-window-up
+;;           evil-window-down
+;;           evil-window-vsplit
+;;           evil-window-split
+;;           evil-ex-search-forward
+;;           evil-search-next
+;;           evil-search-previous
+;;           evil-ex-search-backward
+;;           evil-ex-search-next
+;;           evil-ex-search-previous
+;;           evil-goto-line
+;;           evil-goto-first-line
+;;           evil-goto-last-line
+;;           windmove-right
+;;           windmove-left
+;;           windmove-up
+;;           windmove-down
+;;           windmove-swap-states-right
+;;           windmove-swap-states-left
+;;           windmove-swap-states-up
+;;           windmove-swap-states-down
+;;           tab-new
+;;           tab-close
+;;           tab-next
+;;           org-next-visible-heading
+;;           org-previous-visible-heading
+;;           org-forward-heading-same-level
+;;           org-backward-heading-same-level
+;;           outline-backward-same-level
+;;           outline-forward-same-level
+;;           outline-next-visible-heading
+;;           outline-previous-visible-heading
+;;           outline-up-heading))
 
-  ;; (setq pulsar-pulse-functions
-  ;;       '(
-  ;;         evil-scroll-line-to-top
-  ;;         evil-scroll-line-to-center
-  ;;         evil-scroll-line-to-bottom
-
-  ;;         ))
+;;   (setq pulsar-pulse-functions
+;;         '(evil-scroll-line-to-top
+;;           evil-scroll-line-to-center
+;;           evil-scroll-line-to-bottom))
 
 
-  ;; integration with the `consult' package:
-  ;; (add-hook 'consult-after-jump-hook #'pulsar-recenter-top)
-  ;; (add-hook 'consult-after-jump-hook #'pulsar-reveal-entry)
-  ;; (add-hook 'next-error-hook #'pulsar-pulse-line-red)
-  ;; (add-hook 'doom-switch-window-hook #'pulsar-pulse-line)
-  ;; (add-hook 'evil-jumps-post-jump-hook #'pulsar-pulse-line)
-  ;; (advice-add #'evil-window-top    :after #'pulsar-pulse-line)
-  ;; (advice-add #'evil-window-middle :after #'pulsar-pulse-line)
-  ;; (advice-add #'evil-window-bottom :after #'pulsar-pulse-line)
-  ;; (advice-add #'what-cursor-position :after #'pulsar-pulse-line)
+;;   integration with the `consult' package:
+;;   (add-hook 'consult-after-jump-hook #'pulsar-recenter-top)
+;;   (add-hook 'consult-after-jump-hook #'pulsar-reveal-entry)
+;;   (add-hook 'next-error-hook #'pulsar-pulse-line-red)
+;;   (add-hook 'doom-switch-window-hook #'pulsar-pulse-line)
+;;   (add-hook 'evil-jumps-post-jump-hook #'pulsar-pulse-line)
+;;   (advice-add #'evil-window-top    :after #'pulsar-pulse-line)
+;;   (advice-add #'evil-window-middle :after #'pulsar-pulse-line)
+;;   (advice-add #'evil-window-bottom :after #'pulsar-pulse-line)
+;;   (advice-add #'what-cursor-position :after #'pulsar-pulse-line)
 
-  ;; (add-hook! '(imenu-after-jump-hook
-  ;;              better-jumper-post-jump-hook
-  ;;              counsel-grep-post-action-hook
-  ;;              dumb-jump-after-jump-hook)
-  ;;            #'pulsar-pulse-line)
+;;   (add-hook! '(imenu-after-jump-hook
+;;                better-jumper-post-jump-hook
+;;                counsel-grep-post-action-hook
+;;                dumb-jump-after-jump-hook)
+;;              #'pulsar-pulse-line)
 
 
-  ;; (pulsar-global-mode 1)
-  )
+;;   (pulsar-global-mode 1))
+#+end_src
+
+-----
+** gnus-bookmark
+
+#+begin_src emacs-lisp
+;; (require 'gnus-bookmark)
 #+end_src
 
 * Level x: Sewers · /It never ends…/
+#+begin_quote
 « /Confing/ » Emacs is a never ending story. I'll always have stuff to tweak, new
 packages to try out, bug or unsatisfactory workflow… I'll try to remember to
 reference all that here.
+#+end_quote
+
 ** Known Issues [2/6]
 - [ ] ~doom-modeline~ isn't happy about font profile switching
 - [X] (layout +bepo) isn't working
@@ -1921,16 +2605,19 @@ reference all that here.
   attached to a file) and complains about invalid syntax where it shouldn't. For
   instance when merging javascript/typescript files in ediff, syntax is invalid,
   because of the diff's block, this is expected.
-** Todos [3/6]
+** Todos [5/6]
 - [X] migrate elogcat stuff for android
-- [-] finish font setup
+- [X] finish font setup
   - [X] Iosevka Comfy Wide Duo isn't available on my system
-  - [ ] setup Overpass font (to try it out)
+  - [X] setup Overpass font (to try it out)
 - [X] add ~nov.el~ maybe a private module?
 - [X] add ~verb.el~ maybe a private module?
-- [ ] setup ~burly.el~
-  - [ ] bookmarks not persisted
+- [X] setup ~burly.el~
+  - [X] bookmarks not persisted
 - [ ] try to make a custom function to prompt ~rotate:layout~
   maybe use ~consult--read~ for previewing result?
 ** Check it out!
 - [ ] guess-language.el
+- [ ] tempel
+
+  -----

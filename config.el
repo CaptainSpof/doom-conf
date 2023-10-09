@@ -13,7 +13,7 @@
   "The localleader prefix key, for major-mode specific commands.")
 
 (setq bookmark-default-file (expand-file-name "local/bookmarks" doom-user-dir)
-     projectile-known-projects-file (expand-file-name "local/projectile.projects" doom-user-dir))
+      projectile-known-projects-file (expand-file-name "local/projectile.projects" doom-user-dir))
 
 (setq +workspaces-switch-project-function #'dired)
 
@@ -21,6 +21,14 @@
 
 (after! tramp
   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
+
+(pixel-scroll-precision-mode 1)
+
+(setq calendar-week-start-day 1)
+
+(setq shell-file-name (executable-find "bash"))
+
+(setq-default vterm-shell (executable-find "fish"))
 
 (setq which-key-idle-delay 0.5) ;; I need the help, I really do
 
@@ -120,18 +128,41 @@ the associated key is pressed after the repeatable action is triggered."
                             (daf/window-lock-size)))))
 
 (map! :leader
-        (:prefix "w"
-         :desc "daf/toggle-lock" "," #'daf/window-toggle-lock-size
-         :desc "daf/shrink" "." #'daf/window-shrink-and-lock))
+      (:prefix "w"
+       :desc "daf/toggle-lock" "," #'daf/window-toggle-lock-size
+       :desc "daf/shrink" "." #'daf/window-shrink-and-lock))
 
-(after! company
-  (setq
-   company-show-quick-access 'left
-   company-quick-access-keys '("b" "é" "p" "o" "w")
-   company-quick-access-modifier 'control
-   company-dabbrev-other-buffers t)
+;; (after! company
+;;   (setq
+;;    company-show-quick-access 'left
+;;    company-quick-access-keys '("b" "é" "p" "o" "w")
+;;    company-quick-access-modifier 'control
+;;    company-dabbrev-other-buffers t)
 
-  (set-company-backend! 'prog-mode '(company-capf company-dabbrev company-dabbrev-code)))
+;;   (set-company-backend! 'prog-mode '(company-capf company-dabbrev company-dabbrev-code)))
+
+(custom-set-variables
+ '(kind-icon-default-style
+   '(:padding 0 :stroke 0 :margin 0 :radius 0 :height 0.8 :scale 1.0))
+ '(package-selected-packages '(kind-icon corfu)))
+
+(use-package! cape
+  :general (:prefix "M-c"               ; Particular completion function
+                    "p" 'completion-at-point
+                    "t" 'complete-tag           ; etags
+                    "d" 'cape-dabbrev           ; or dabbrev-completion
+                    "f" 'cape-file
+                    "k" 'cape-keyword
+                    "s" 'cape-symbol
+                    "a" 'cape-abbrev
+                    "i" 'cape-ispell
+                    "l" 'cape-line
+                    "w" 'cape-dict
+                    "\\"' cape-tex
+                    "_" 'cape-tex
+                    "^" 'cape-tex
+                    "&" 'cape-sgml
+                    "r" 'cape-rfc1345))
 
 (map! [remap describe-bindings] #'embark-bindings
       "C-," #'embark-act)
@@ -143,16 +174,22 @@ the associated key is pressed after the repeatable action is triggered."
         '((consult-line buffer)))
   (setq vertico-multiform-categories
         '((consult-grep buffer)))
+  (setq vertico-mouse-mode 't)
 
   (setq vertico-buffer-display-action
         '(display-buffer-in-side-window
           (side . left)
           (window-width . 0.3))))
 
-(setq doom-theme 'ef-duo-light)
-(setq ef-themes-to-toggle '(ef-duo-light ef-tritanopia-dark))
+(setq doom-theme 'ef-elea-dark)
+(setq ef-themes-to-toggle '(ef-elea-dark ef-elea-light))
 
 (set-face-foreground 'window-divider (face-background 'header-line))
+
+;; (setq doom-font (font-spec :family "Sarasa Term J" :size 12.0)
+;;       doom-variable-pitch-font (font-spec :family "Sarasa Term Slab TC" :size 12.0)
+;;       doom-unicode-font nil)
+;; (add-to-list 'doom-symbol-fallback-font-families "Symbols Nerd Font")
 
 (setq fancy-splash-image (expand-file-name "misc/splash-images/ferris.svg" doom-user-dir))
 
@@ -213,7 +250,7 @@ the associated key is pressed after the repeatable action is triggered."
 
 (map! (:after evil-easymotion
               (:prefix (",")
-               :n "," (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
+               :desc "avy-goto-char-timer" :n "," (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
 
 (map! (:after evil-easymotion
        :m "gé" evilem-map
@@ -259,10 +296,12 @@ the associated key is pressed after the repeatable action is triggered."
 
 (map!
  (:prefix ("ç" . "daf")
+  :n "ç" #'rotate-text
   :n "r" #'rotate-text))
 
 (after! rotate-text
-  (add-to-list 'rotate-text-words '("info" "warning" "error")))
+  (add-to-list 'rotate-text-words '("info" "warning" "error"))
+  (add-to-list 'rotate-text-words '("enabled" "disabled")))
 
 (setq undo-fu-allow-undo-in-region 't)
 
@@ -274,6 +313,14 @@ the associated key is pressed after the repeatable action is triggered."
                     (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
 (defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
 (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
+
+(defun dired-open-file ()
+  "In dired, open the file named on this line."
+  (interactive)
+  (let* ((file (dired-get-filename nil t)))
+    (message "Opening %s..." file)
+    (call-process "xdg-open" nil 0 nil file)
+    (message "Opening %s done" file)))
 
 (map! :leader
       (:prefix-map ("d" . "dired")
@@ -296,35 +343,44 @@ the associated key is pressed after the repeatable action is triggered."
   (map!
    :map dired-mode-map
    :n "c" #'dired-up-directory
-   ;; :n "t" #'evil-next-line ;; HACK
+   :n "M-RET" #'dired-open-file
+   :n "R" #'dired-do-rename
+   :n "L" #'dired-do-copy
    :n "r" #'dired-find-file))
 
-;; Use monospaced font faces in current buffer
-(defun +vterm-mode-setup ()
-  "Sets a fixed width (monospace) font in current buffer"
-  (setq buffer-face-mode-face '(:family "IBM Plex Mono" :height 110))
-  (face-remap-add-relative 'fixed-pitch)
-  (buffer-face-mode))
+(use-package! aweshell
+  :defer t
+  :commands (aweshell-new aweshell-dedicated-open))
 
-(add-hook 'vterm-mode-hook #'+vterm-mode-setup)
+(when (modulep! :term vterm)
+  ;; Use monospaced font faces in current buffer
+  (defun +vterm-mode-setup ()
+    "Sets a fixed width (monospace) font in current buffer"
+    (setq buffer-face-mode-face '(:family "Iosevka Nerd Font" :height 110))
+    (face-remap-add-relative 'fixed-pitch)
+    (buffer-face-mode))
 
-(defun +vterm/split-right ()
-  "Create a new vterm window to the right of the current one."
-  (interactive)
-  (let* ((ignore-window-parameters t)
-         (dedicated-p (window-dedicated-p)))
-    (select-window (split-window-horizontally))
-    (+vterm/here default-directory)))
+  (add-hook 'vterm-mode-hook #'+vterm-mode-setup))
 
-(defun +vterm/split-below ()
-  "Create a new vterm window below the current one."
-  (interactive)
-  (let* ((ignore-window-parameters t)
-         (dedicated-p (window-dedicated-p)))
-    (select-window (split-window-vertically))
-    (+vterm/here default-directory)))
+(when (modulep! :term vterm)
+  (defun +vterm/split-right ()
+    "Create a new vterm window to the right of the current one."
+    (interactive)
+    (let* ((ignore-window-parameters t)
+           (dedicated-p (window-dedicated-p)))
+      (select-window (split-window-horizontally))
+      (+vterm/here default-directory)))
+
+  (defun +vterm/split-below ()
+    "Create a new vterm window below the current one."
+    (interactive)
+    (let* ((ignore-window-parameters t)
+           (dedicated-p (window-dedicated-p)))
+      (select-window (split-window-vertically))
+      (+vterm/here default-directory))))
 
 (map! :leader
+      :when (modulep! :term vterm)
       (:prefix-map ("e" . "(e)shell")
        :desc "toggle eshell popup"           "E" #'+eshell/toggle
        :desc "open eshell here"              "e" #'+eshell/here
@@ -336,6 +392,44 @@ the associated key is pressed after the repeatable action is triggered."
        :desc "vterm below"                   "k" #'+vterm/split-below
        :desc "vterm right"                   "v" #'+vterm/split-right))
 
+;; Use monospaced font faces in current buffer
+(defun +eat-mode-setup ()
+  "Sets a fixed width (monospace) font in current buffer"
+  (setq buffer-face-mode-face '(:family "Iosevka Nerd Font" :height 110))
+  (face-remap-add-relative 'fixed-pitch)
+  (buffer-face-mode))
+
+(add-hook 'eat-mode-hook #'+eat-mode-setup)
+
+(defun +eat/split-right ()
+  "Create a new eat window to the right of the current one."
+  (interactive)
+  (let* ((ignore-window-parameters t)
+         (dedicated-p (window-dedicated-p)))
+    (select-window (split-window-horizontally))
+    (eat default-directory)))
+
+(defun +eat/split-below ()
+  "Create a new eat window below the current one."
+  (interactive)
+  (let* ((ignore-window-parameters t)
+         (dedicated-p (window-dedicated-p)))
+    (select-window (split-window-vertically))
+    (eat default-directory)))
+
+(map! :leader
+      :unless (modulep! :term vterm)
+      (:prefix-map ("e" . "(e)shell")
+       :desc "toggle eshell popup"           "E" #'+eshell/toggle
+       :desc "open eshell here"              "e" #'+eshell/here
+       :desc "open eshell in project root"   "p" #'project-eshell
+       :desc "eshell below"                  "K" #'+eshell/split-below
+       :desc "eshell right"                  "V" #'+eshell/split-right
+       :desc "toggle eat popup"            "T" #'+eat/toggle
+       :desc "open eat here"               "t" #'eat
+       :desc "eat below"                   "k" #'+eat/split-below
+       :desc "eat right"                   "v" #'+eat/split-right))
+
 (map!
  (:after flycheck
          (:map flycheck-mode-map
@@ -343,11 +437,20 @@ the associated key is pressed after the repeatable action is triggered."
                "M-p" #'flycheck-previous-error)))
 
 (map!
+ (:after flymake
+         (:map flymake-mode-map
+               "M-n" #'flymake-goto-next-error
+               "M-p" #'flymake-goto-prev-error)))
+
+(map!
  (:when (modulep! :tools lookup)
    :n "z?" #'define-word-at-point))
 
 ;; (setenv "LSP_USE_PLISTS" "1")
 ;; (setq lsp-use-plists "true")
+
+(after! magit
+  (magit-todos-mode t))
 
 (setq org-directory "~/Sync/Org/"
       org-agenda-files (directory-files-recursively "~/Sync/Org/" "\\.org$"))
@@ -357,10 +460,12 @@ the associated key is pressed after the repeatable action is triggered."
                             (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
                             (sequence "|" "OKAY(o)" "YES(y)" "NO(N)")))
 
-(custom-set-faces
- '(org-code ((t (:inherit ef-themes-fixed-pitch :foreground "#9f4a00" :slant italic))))))
+  (custom-set-faces
+   '(org-code ((t (:inherit ef-themes-fixed-pitch :foreground "#9f4a00" :slant italic))))))
 
-(use-package! org-mouse)
+(use-package! org-mouse
+  :defer t)
+(require 'org-mouse)
 
 (setq org-hide-emphasis-markers t
       org-fontify-quote-and-verse-blocks t ;; make quotes blocks /italic/
@@ -393,6 +498,41 @@ the associated key is pressed after the repeatable action is triggered."
  'org-mode-hook
  (function individual-visibility-source-blocks))
 
+(after! org
+  ;; Import ox-latex to get org-latex-classes and other funcitonality
+  ;; for exporting to LaTeX from org
+  (use-package! ox-latex
+    :init
+    ;; code here will run immediately
+    :config
+    ;; code here will run after the package is loaded
+    (setq org-latex-pdf-process
+          '("pdflatex -interaction nonstopmode -output-directory %o %f"
+            "bibtex %b"
+            "pdflatex -interaction nonstopmode -output-directory %o %f"
+            "pdflatex -interaction nonstopmode -output-directory %o %f"))
+    (setq org-latex-with-hyperref nil) ;; stop org adding hypersetup{author..} to latex export
+    ;; (setq org-latex-prefer-user-labels t)
+
+    ;; deleted unwanted file extensions after latexMK
+    (setq org-latex-logfiles-extensions
+          (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl" "xmpi" "run.xml" "bcf" "acn" "acr" "alg" "glg" "gls" "ist")))
+
+    (unless (boundp 'org-latex-classes)
+      (setq org-latex-classes nil)))
+
+  (use-package! ox-extra
+    :config
+    (ox-extras-activate '(latex-header-blocks ignore-headlines))))
+
+(use-package! denote
+  :defer t)
+
+(org-babel-do-load-languages
+    'org-babel-load-languages
+    '((mermaid . t)
+      (scheme . t)))
+
 (add-hook 'org-mode-hook 'org-appear-mode)
 
 (after! org
@@ -410,13 +550,30 @@ the associated key is pressed after the repeatable action is triggered."
                                  "* TODO %?\n** Description\n** [%] Tasks\n")
                                 ("i" "Issue" entry (file ,(concat org-directory "Voilà/issues.org"))
                                  "* TODO %?\n** Description\n** [%] Tasks\n")
-                                ("v" "Voilà note" entry (file+headline ,(concat org-directory "Voilà/notes.org") "Inbox")
+                                ("T" "Todo" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
                                  "** [ ] %?\n")
                                 ("t" "Todo" entry (file+headline ,(concat org-directory "todo.org") "Inbox")
                                  "** [ ] %?\n")
                                 )))
 
+(after! org
+  (setq org-gtd-update-ack "3.0.0")
+  (use-package! org-gtd
+    :defer t
+    :demand t
+    :custom
+    (org-gtd-directory "~/Sync/Org/org-gtd")
+    (org-agenda-property-list '("DELEGATED_TO"))
+    (org-edna-use-inheritance t)
+    :config
+    (org-edna-load))
+  (require 'org-gtd))
+
+(use-package! org-noter
+  :defer t)
+
 (use-package! org-now
+  :defer t
   :custom
   (org-now-default-cycle-level 'nil)
   :hook (org-now . (lambda () (setq mode-line-format nil)))
@@ -425,26 +582,30 @@ the associated key is pressed after the repeatable action is triggered."
   :hook (org-now . (lambda () (face-remap-add-relative 'org-level-3 '(:height 130))))
 
   :config
-  (setq org-now-location (list (expand-file-name "Voilà/notes.org" org-directory) "Inbox"))
-   (set-popup-rules!
+  (setq org-now-location (list (expand-file-name "notes.org" org-directory) "Inbox"))
+  (set-popup-rules!
     '(("^\\*org-now"
        :actions (display-buffer-in-side-window)
        :slot 10 :vslot -1 :side right :size +popup-shrink-to-fit :quit nil)))
   :init
   (map!
    :prefix daf/localleader-key
-   :n "n" #'org-now))
+   :n "n" #'org-now
+   :n "ç" #'org-now))
 
 (after! org
   (use-package! org-modern
+    :defer t
     :hook (org-mode . org-modern-mode)
     :config
+    ;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+    ;; (custom-set-variables '(org-modern-table nil))
     (setq org-modern-star '("●" "◉" "○" "◆" "◈" "◇" "✤" "✿" "✜" "▶" "▷" "●" "◉" "○" "◆" "◈" "◇" "✤" "✿" "✜")
           org-modern-table-vertical 1
           org-modern-table-horizontal 0.2
-          org-modern-list '((?+ . "+")
+          org-modern-list '((?+ . "•")
                             (?- . "–")
-                            (?* . "•"))
+                            (?* . "+"))
           org-modern-todo-faces
 
           '(("TODO" :inverse-video t :inherit org-todo)
@@ -464,7 +625,7 @@ the associated key is pressed after the repeatable action is triggered."
           org-modern-block-fringe nil
           org-modern-block-name
           '((t . t)
-            ("src" "»" "«")
+            ("src" "» " "«")
             ("example" "»–" "–«")
             ("quote" "❝" "❞")
             ("export" "⏩" "⏪"))
@@ -473,36 +634,179 @@ the associated key is pressed after the repeatable action is triggered."
           org-modern-horizontal-rule (make-string 36 ?─)
           org-modern-keyword
           '((t . t)
-            ("title" . "𝙏")
-            ("subtitle" . "𝙩")
-            ("author" . "𝘼")
-            ("email" . #("" 0 1 (display (raise -0.14))))
-            ("date" . "𝘿")
-            ("property" . "☸")
-            ("options" . "⌥")
-            ("startup" . "⏻")
-            ("macro" . "𝓜")
-            ("bind" . #("" 0 1 (display (raise -0.1))))
-            ("include" . "⇤")
+            ("title"     . "𝙏")
+            ("subtitle"  . "𝙩")
+            ("author"    . "𝘼")
+            ("email"     . #("" 0 1 (display (raise -0.14))))
+            ("date"      . "𝘿")
+            ("property"  . "⎈")
+            ("options"   . "⌥")
+            ("startup"   . "⏻")
+            ("bind"      . #("" 0 1 (display (raise -0.1))))
+            ("include"   . "⇤")
             ("setupfile" . "⇚")
-            ("name" . "⁍")
-            ("header" . "›")
-            ("caption" . "☰")
-            ("RESULTS" . "🠶")))
+            ("name"      . "⁍")
+            ("header"    . "›")
+            ("caption"   . "☰")
+            ("RESULTS"   . "⥱")))
     (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo))))
 
 (use-package! org-modern-indent
+  :defer t
   :hook
   (org-indent-mode . org-modern-indent-mode))
+
+(use-package! org-remark
+   :defer t
+   :init
+   (map! :g "C-c n m" #'org-remark-mark
+         (:after org-remark
+          (:map org-remap-mode-map
+           (:prefix "C-c n"
+            :g "o" #'org-remark-open
+            :g "]" #'org-remark-view-next
+            :g "[" #'org-remark-view-previous
+            :g "r" #'org-remark-remove)))))
 
 (setq org-roam-directory "~/Sync/Org")
 
 (use-package! image-popup
+  :defer t
   :init
   (map!
    :map org-mode-map
-   :prefix daf/localleader-key
-   :n "i" #'image-popup-display-image-at-point))
+   (:prefix ("ç" . "daf")
+    :n "i" #'image-popup-display-image-at-point)))
+
+;; (use-package! valign
+;;   :defer t
+;;   :config
+;;   (add-hook 'org-mode-hook #'valign-mode)
+;;   (setq valign-fancy-bar t)
+;;   (valign-mode 1))
+
+(require 'svg-tag-mode)
+
+(defconst date-re "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}")
+(defconst time-re "[0-9]\\{2\\}:[0-9]\\{2\\}")
+(defconst day-re "[A-Za-z]\\{3\\}")
+(defconst day-time-re (format "\\(%s\\)? ?\\(%s\\)?" day-re time-re))
+
+(defun svg-progress-percent (value)
+  (svg-image (svg-lib-concat
+              (svg-lib-progress-bar (/ (string-to-number value) 100.0)
+                                nil :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+              (svg-lib-tag (concat value "%")
+                           nil :stroke 0 :margin 0)) :ascent 'center))
+
+(defun svg-progress-count (value)
+  (let* ((seq (mapcar #'string-to-number (split-string value "/")))
+         (count (float (car seq)))
+         (total (float (cadr seq))))
+  (svg-image (svg-lib-concat
+              (svg-lib-progress-bar (/ count total) nil
+                                    :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+              (svg-lib-tag value nil
+                           :stroke 0 :margin 0)) :ascent 'center)))
+
+(setq svg-tag-tags
+      `(
+        ;; Org tags
+        (":\\([A-Za-z0-9]+\\)" . ((lambda (tag) (svg-tag-make tag))))
+        (":\\([A-Za-z0-9]+[ \-]\\)" . ((lambda (tag) tag)))
+
+        ;; Task priority
+        ("\\[#[A-Z]\\]" . ( (lambda (tag)
+                              (svg-tag-make tag :face 'org-priority
+                                            :beg 2 :end -1 :margin 0))))
+
+        ;; Progress
+        ("\\(\\[[0-9]\\{1,3\\}%\\]\\)" . ((lambda (tag)
+                                            (svg-progress-percent (substring tag 1 -2)))))
+        ("\\(\\[[0-9]+/[0-9]+\\]\\)" . ((lambda (tag)
+                                          (svg-progress-count (substring tag 1 -1)))))
+
+        ;; TODO / DONE
+        ("TODO" . ((lambda (tag) (svg-tag-make "TODO" :face 'org-todo :inverse t :margin 0))))
+        ("DONE" . ((lambda (tag) (svg-tag-make "DONE" :face 'org-done :margin 0))))
+
+
+        ;; Citation of the form [cite:@Knuth:1984]
+        ("\\(\\[cite:@[A-Za-z]+:\\)" . ((lambda (tag)
+                                          (svg-tag-make tag
+                                                        :inverse t
+                                                        :beg 7 :end -1
+                                                        :crop-right t))))
+        ("\\[cite:@[A-Za-z]+:\\([0-9]+\\]\\)" . ((lambda (tag)
+                                                (svg-tag-make tag
+                                                              :end -1
+                                                              :crop-left t))))
+
+
+        ;; Active date (with or without day name, with or without time)
+        (,(format "\\(<%s>\\)" date-re) .
+         ((lambda (tag)
+            (svg-tag-make tag :beg 1 :end -1 :margin 0))))
+        (,(format "\\(<%s \\)%s>" date-re day-time-re) .
+         ((lambda (tag)
+            (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0))))
+        (,(format "<%s \\(%s>\\)" date-re day-time-re) .
+         ((lambda (tag)
+            (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0))))
+
+        ;; Inactive date  (with or without day name, with or without time)
+         (,(format "\\(\\[%s\\]\\)" date-re) .
+          ((lambda (tag)
+             (svg-tag-make tag :beg 1 :end -1 :margin 0 :face 'org-date))))
+         (,(format "\\(\\[%s \\)%s\\]" date-re day-time-re) .
+          ((lambda (tag)
+             (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0 :face 'org-date))))
+         (,(format "\\[%s \\(%s\\]\\)" date-re day-time-re) .
+          ((lambda (tag)
+             (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0 :face 'org-date))))))
+
+(defun avy-action-kill-whole-line (pt)
+  (save-excursion
+    (goto-char pt)
+    (kill-whole-line))
+  (select-window
+   (cdr
+    (ring-ref avy-ring 0)))
+  t)
+
+(after! avy
+  (setf (alist-get ?d avy-dispatch-alist) 'avy-action-kill-stay
+        (alist-get ?D avy-dispatch-alist) 'avy-action-kill-whole-line))
+
+(defun avy-action-copy-whole-line (pt)
+  (save-excursion
+    (goto-char pt)
+    (cl-destructuring-bind (start . end)
+        (bounds-of-thing-at-point 'line)
+      (copy-region-as-kill start end)))
+  (select-window
+   (cdr
+    (ring-ref avy-ring 0)))
+  t)
+
+(defun avy-action-yank-whole-line (pt)
+  (avy-action-copy-whole-line pt)
+  (save-excursion (yank))
+  t)
+
+(after! avy
+  (setf (alist-get ?y avy-dispatch-alist) 'avy-action-yank
+        (alist-get ?w avy-dispatch-alist) 'avy-action-copy
+        (alist-get ?W avy-dispatch-alist) 'avy-action-copy-whole-line
+        (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line))
+
+(defun avy-action-teleport-whole-line (pt)
+    (avy-action-kill-whole-line pt)
+    (save-excursion (yank)) t)
+
+(after! avy
+ (setf (alist-get ?m avy-dispatch-alist) 'avy-action-teleport
+       (alist-get ?M avy-dispatch-alist) 'avy-action-teleport-whole-line))
 
 (use-package! blamer
   :defer 20
@@ -511,7 +815,7 @@ the associated key is pressed after the repeatable action is triggered."
   (blamer-min-offset 70)
   :custom-face
   (blamer-face ((t :foreground "#7a88cf"
-                   :background nil
+                   :background unspecified
                    :italic t)))
   :init
   (map!
@@ -520,70 +824,72 @@ the associated key is pressed after the repeatable action is triggered."
     :desc  "Blamer posframe commit info" "," #'blamer-show-posframe-commit-info
     :desc  "Blamer mode"                 ";" #'blamer-mode)))
 
-(use-package! burly
-  :config
-  (setq burly-bookmark-prefix "# ")
+;; (use-package! burly
+;;   :defer t
+;;   :config
+;;   (setq burly-bookmark-prefix "# ")
 
-  (defun +burly-before-quit ()
-    (message "burly: saving session")
-    (burly-bookmark-windows (format "## last session %s"
-                                    (format-time-string "%Y-%m-%d %H:%M")))
-    't))
+;;   (defun +burly-before-quit ()
+;;     (message "burly: saving session")
+;;     (burly-bookmark-windows (format "## last session %s"
+;;                                     (format-time-string "%Y-%m-%d %H:%M")))
+;;     't))
 
-(defvar prompt-y-n-q '((?y "y" (lambda () 't))
-                       (?n "n" (lambda () nil))
-                       (?q "q" (lambda () (+burly-before-quit)))))
+;; (defvar prompt-y-n-q '((?y "y" (lambda () 't))
+;;                        (?n "n" (lambda () nil))
+;;                        (?q "q" (lambda () (+burly-before-quit)))))
 
-(defun daf-quit-choose (prompt)
-  (let ((choice (read-char-choice (format "%s y/n/q (save session)" prompt)
-                                   (mapcar #'car prompt-y-n-q))))
-    (funcall (nth 2 (assoc choice prompt-y-n-q)))))
+;; (defun daf-quit-choose (prompt)
+;;   (let ((choice (read-char-choice (format "%s y/n/q (save session)" prompt)
+;;                                   (mapcar #'car prompt-y-n-q))))
+;;     (funcall (nth 2 (assoc choice prompt-y-n-q)))))
 
-(defun daf/doom-quit-p (&optional prompt)
-  (or (not (ignore-errors (doom-real-buffer-list)))
-      (daf-quit-choose (format "%s" (or prompt "Really quit Emacs?")))
-      (ignore (message "Aborted"))))
+;; (defun daf/doom-quit-p (&optional prompt)
+;;   (or (not (ignore-errors (doom-real-buffer-list)))
+;;       (daf-quit-choose (format "%s" (or prompt "Really quit Emacs?")))
+;;       (ignore (message "Aborted"))))
 
-(defun +daf/doom-quit-fn (&rest _)
-  (daf/doom-quit-p
-   (format "%s  %s"
-           (propertize (nth (random (length +doom-quit-messages))
-                            +doom-quit-messages)
-                       'face '(italic default))
-           "Really quit Emacs?")))
+;; (defun +daf/doom-quit-fn (&rest _)
+;;   (daf/doom-quit-p
+;;    (format "%s  %s"
+;;            (propertize (nth (random (length +doom-quit-messages))
+;;                             +doom-quit-messages)
+;;                        'face '(italic default))
+;;            "Really quit Emacs?")))
 
-(setq confirm-kill-emacs #'+daf/doom-quit-fn)
+;; (setq confirm-kill-emacs #'+daf/doom-quit-fn)
 
-(use-package! elogcat
-  :config
-  (defun daf/elogcat-set-tail ()
-    "Add a limit of line to the command"
-    (interactive)
-    (setq elogcat-logcat-command (concat elogcat-logcat-command " -T 50")))
+;; (use-package! elogcat
+;;   :defer t
+;;   :config
+;;   (defun daf/elogcat-set-tail ()
+;;     "Add a limit of line to the command"
+;;     (interactive)
+;;     (setq elogcat-logcat-command (concat elogcat-logcat-command " -T 50")))
 
-  (defun daf/elogcat-set-include-filter-pid ()
-    "Try to determine a PID from an input, and set it as a filter"
-    (interactive)
-    (elogcat-set-include-filter (substring
-                                 (shell-command-to-string
-                                  (format "adb shell ps | grep -F %s | tr -s '[:space:]' ' ' | cut -d' ' -f2" (read-string "app namespace: ")))
-                                 0 -1)))
-  :init
-  (map! :map elogcat-mode-map
-        :localleader
-        "i" #'elogcat-set-include-filter
-        "I" #'elogcat-clear-include-filter
-        "x" #'elogcat-set-exclude-filter
-        "X" #'elogcat-clear-exclude-filter
-        "p" #'daf/elogcat-set-include-filter-pid
-        "t" #'daf/elogcat-set-tail
-        "g" #'elogcat-show-status
-        "m" #'elogcat-toggle-main
-        "s" #'elogcat-toggle-system
-        "e" #'elogcat-toggle-events
-        "r" #'elogcat-toggle-radio
-        "k" #'elogcat-toggle-kernel
-        "c" #'elogcat-erase-buffer))
+;;   (defun daf/elogcat-set-include-filter-pid ()
+;;     "Try to determine a PID from an input, and set it as a filter"
+;;     (interactive)
+;;     (elogcat-set-include-filter (substring
+;;                                  (shell-command-to-string
+;;                                   (format "adb shell ps | grep -F %s | tr -s '[:space:]' ' ' | cut -d' ' -f2" (read-string "app namespace: ")))
+;;                                  0 -1)))
+;;   :init
+;;   (map! :map elogcat-mode-map
+;;         :localleader
+;;         "i" #'elogcat-set-include-filter
+;;         "I" #'elogcat-clear-include-filter
+;;         "x" #'elogcat-set-exclude-filter
+;;         "X" #'elogcat-clear-exclude-filter
+;;         "p" #'daf/elogcat-set-include-filter-pid
+;;         "t" #'daf/elogcat-set-tail
+;;         "g" #'elogcat-show-status
+;;         "m" #'elogcat-toggle-main
+;;         "s" #'elogcat-toggle-system
+;;         "e" #'elogcat-toggle-events
+;;         "r" #'elogcat-toggle-radio
+;;         "k" #'elogcat-toggle-kernel
+;;         "c" #'elogcat-erase-buffer))
 
 (setq emojify-display-style 'unicode)
 (setq emojify-emoji-styles '(unicode))
@@ -605,7 +911,8 @@ the associated key is pressed after the repeatable action is triggered."
   (dolist (emoji emojify-disabled-emojis)
     (remhash emoji emojify-emojis)))
 
-(use-package! justl)
+(use-package! justl
+  :defer t)
 
 (defun daf/consult-just ()
   "Prompt a list of just recipes from the project. Run the selected candidate."
@@ -615,6 +922,7 @@ the associated key is pressed after the repeatable action is triggered."
     (justl--exec justl-executable (list (completing-read "Choose an action: " recipes)))))
 
 (use-package! languagetool
+  :defer t
   :config
   (setq languagetool-java-arguments '("-Dfile.encoding=UTF-8")
         languagetool-correction-language "en-US"  ;; 'auto' seems to target "en", which isn't working as well as 'en-US'
@@ -629,17 +937,19 @@ the associated key is pressed after the repeatable action is triggered."
     :n "~" #'languagetool-check)))
 
 (use-package olivetti
+  :defer t
   :custom
   (olivetti-body-width 0.6)
   :config
   (setq olivetti-style 'fancy)
   (setq olivetti-minimum-body-width 80)
   :init
-    (map! :leader
+  (map! :leader
         (:prefix "t"
          :desc "Olivetti" "o" #'olivetti-mode)))
 
 (use-package! logos
+  :defer t
   :hook (logos-focus-mode . (lambda () (olivetti-mode 1)))
   :config
   (setq logos-outline-regexp-alist
@@ -663,6 +973,7 @@ the associated key is pressed after the repeatable action is triggered."
          :desc "Logos" "L" #'logos-focus-mode)))
 
 (use-package! magit-pretty-graph
+  :defer t
   :after magit
   :init
   (setq magit-pg-command
@@ -676,6 +987,7 @@ the associated key is pressed after the repeatable action is triggered."
         :desc "Magit pretty graph" "p" (cmd! (magit-pg-repo (magit-toplevel)))))
 
 (use-package! ef-themes
+  :defer t
   :config
   (setq ef-themes-variable-pitch-ui t
         ef-themes-mixed-fonts t
@@ -693,26 +1005,26 @@ the associated key is pressed after the repeatable action is triggered."
     "Configure `hl-todo-keyword-faces' with Ef themes colors.
 The exact color values are taken from the active Ef theme."
     (ef-themes-with-colors
-      (setq hl-todo-keyword-faces
-            `(("HOLD" . ,yellow)
-              ("TODO" . ,red)
-              ("NEXT" . ,blue)
-              ("THEM" . ,magenta)
-              ("PROG" . ,cyan-warmer)
-              ("OKAY" . ,green-warmer)
-              ("DONT" . ,yellow-warmer)
-              ("DROP" . ,red-warmer)
-              ("FAIL" . ,red-warmer)
-              ("BUG" . ,red-warmer)
-              ("DONE" . ,green)
-              ("NOTE" . ,blue-warmer)
-              ("KLUDGE" . ,cyan)
-              ("HACK" . ,cyan)
-              ("TEMP" . ,red)
-              ("FIXME" . ,red-warmer)
-              ("XXX+" . ,red-warmer)
-              ("REVIEW" . ,red)
-              ("DEPRECATED" . ,yellow)))))
+     (setq hl-todo-keyword-faces
+           `(("HOLD" . ,yellow)
+             ("TODO" . ,red)
+             ("NEXT" . ,blue)
+             ("THEM" . ,magenta)
+             ("PROG" . ,cyan-warmer)
+             ("OKAY" . ,green-warmer)
+             ("DONT" . ,yellow-warmer)
+             ("DROP" . ,red-warmer)
+             ("FAIL" . ,red-warmer)
+             ("BUG" . ,red-warmer)
+             ("DONE" . ,green)
+             ("NOTE" . ,blue-warmer)
+             ("KLUDGE" . ,cyan)
+             ("HACK" . ,cyan)
+             ("TEMP" . ,red)
+             ("FIXME" . ,red-warmer)
+             ("XXX+" . ,red-warmer)
+             ("REVIEW" . ,red)
+             ("DEPRECATED" . ,yellow)))))
 
   (add-hook 'ef-themes-post-load-hook #'daf/ef-themes-hl-todo-faces)
   :init
@@ -721,6 +1033,7 @@ The exact color values are taken from the active Ef theme."
          :desc "Toggle ef-themes" :mvn "t" #'ef-themes-toggle)))
 
 (use-package! modus-themes
+  :defer t
   :config
   (setq modus-themes-variable-pitch-ui t
         modus-themes-mixed-fonts t
@@ -735,106 +1048,123 @@ The exact color values are taken from the active Ef theme."
           (7 . (variable-pitch regular 1.1))
           (t . (variable-pitch regular 1.1)))))
 
-(use-package! fontaine
-  :config
-  ;; This is defined in Emacs C code: it belongs to font settings.
-  (setq x-underline-at-descent-line nil)
+;; (use-package! lambda-themes
+;;   :custom
+;;   (lambda-themes-set-italic-comments t)
+;;   (lambda-themes-set-italic-keywords t)
+;;   (lambda-themes-set-variable-pitch t)
+;;   :config
+;;   ;; load preferred theme
+;;   (load-theme 'lambda-light))
 
-  ;; And this is for Emacs28.
-  (setq-default text-scale-remap-header-line t)
+;; (use-package! fontaine
+;;   :config
+;;   ;; This is defined in Emacs C code: it belongs to font settings.
+;;   (setq x-underline-at-descent-line nil)
 
-  ;; This is the default value.  Just including it here for
-  ;; completeness.
-  (setq fontaine-latest-state-file (locate-user-emacs-file "fontaine-latest-state.eld"))
+;;   ;; And this is for Emacs28.
+;;   (setq-default text-scale-remap-header-line t)
 
-  ;; Iosevka Comfy is my highly customised build of Iosevka with
-  ;; monospaced and duospaced (quasi-proportional) variants as well as
-  ;; support or no support for ligatures:
-  ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
-  ;;
-  ;; Iosevka Comfy            == monospaced, supports ligatures
-  ;; Iosevka Comfy Fixed      == monospaced, no ligatures
-  ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
-  ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
-  ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
-  ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
-  ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
-  (setq fontaine-presets
-        '((smaller
-           :default-family "Iosevka Comfy Wide Fixed"
-           :default-height 90
-           :variable-pitch-family "Iosevka Comfy Wide Duo")
-          (small
-           :default-family "Iosevka Comfy Wide Fixed"
-           :default-height 100
-           :variable-pitch-family "Iosevka Comfy Wide Duo")
-          (regular
-           :default-height 120)
-          (large
-           :default-weight semilight
-           :default-height 150
-           :bold-weight extrabold)
-          (larger
-           :default-weight semilight
-           :default-height 160
-           :bold-weight extrabold)
-          (code-demo
-           :default-family "Iosevka Comfy Fixed"
-           :default-weight semilight
-           :default-height 190
-           :variable-pitch-family "Iosevka Comfy Duo"
-           :bold-weight extrabold)
-          (presentation
-           :default-weight semilight
-           :default-height 220
-           :bold-weight extrabold)
-          (legally-blind
-           :default-weight semilight
-           :default-height 260
-           :bold-weight extrabold)
-          (merriweather
-           :default-family "Merriweather"
-           :variable-pitch-family "Merriweather"
-           :default-height 150)
-          (ibm-plex-sans
-           :default-family "IBM Plex Sans")
-          (ibm-plex-mono
-           :default-family "IBM Plex Mono")
-          (t
-           ;; I keep all properties for didactic purposes, but most can be
-           ;; omitted.  See the fontaine manual for the technicalities:
-           ;; <https://protesilaos.com/emacs/fontaine>.
-           :default-family "Iosevka Comfy"
-           :default-weight regular
-           :default-height 120
-           :fixed-pitch-family nil ; falls back to :default-family
-           :fixed-pitch-weight nil ; falls back to :default-weight
-           :fixed-pitch-height 1.0
-           :fixed-pitch-serif-family nil ; falls back to :default-family
-           :fixed-pitch-serif-weight nil ; falls back to :default-weight
-           :fixed-pitch-serif-height 1.0
-           :variable-pitch-family "Iosevka Comfy Motion Duo"
-           :variable-pitch-weight nil
-           :variable-pitch-height 1.0
-           :bold-family nil ; use whatever the underlying face has
-           :bold-weight bold
-           :italic-family nil
-           :italic-slant italic
-           :line-spacing nil)))
+;;   ;; This is the default value.  Just including it here for
+;;   ;; completeness.
+;;   (setq fontaine-latest-state-file (locate-user-emacs-file "fontaine-latest-state.eld"))
 
-  ;; Set last preset or fall back to desired style from `fontaine-presets'.
-  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+;;   ;; Iosevka Comfy is my highly customised build of Iosevka with
+;;   ;; monospaced and duospaced (quasi-proportional) variants as well as
+;;   ;; support or no support for ligatures:
+;;   ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
+;;   ;;
+;;   ;; Iosevka Comfy            == monospaced, supports ligatures
+;;   ;; Iosevka Comfy Fixed      == monospaced, no ligatures
+;;   ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
+;;   ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
+;;   ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
+;;   ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
+;;   ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
+;;   (setq fontaine-presets
+;;         '((smaller
+;;            :default-family "Iosevka Comfy Wide Fixed"
+;;            :default-height 90
+;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
+;;           (small
+;;            :default-family "Iosevka Comfy Wide Fixed"
+;;            :default-height 100
+;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
+;;           (regular
+;;            :default-height 120)
+;;           (large
+;;            :default-weight semilight
+;;            :default-height 150
+;;            :bold-weight extrabold)
+;;           (larger
+;;            :default-weight semilight
+;;            :default-height 160
+;;            :bold-weight extrabold)
+;;           (code-demo
+;;            :default-family "Iosevka Comfy Fixed"
+;;            :default-weight semilight
+;;            :default-height 190
+;;            :variable-pitch-family "Iosevka Comfy Duo"
+;;            :bold-weight extrabold)
+;;           (presentation
+;;            :default-weight semilight
+;;            :default-height 220
+;;            :bold-weight extrabold)
+;;           (legally-blind
+;;            :default-weight semilight
+;;            :default-height 260
+;;            :bold-weight extrabold)
+;;           (merriweather
+;;            :default-family "Merriweather"
+;;            :variable-pitch-family "Merriweather"
+;;            :default-height 150)
+;;           (iosevka-nerd-font
+;;            :default-family "Iosevka Nerd Font")
+;;           (sarasa
+;;            :default-family "Sarasa Term J"
+;;            :variable-pitch-family "Sarasa Term Slab TC")
+;;           (ibm-plex-sans
+;;            :default-family "IBM Plex Sans")
+;;           (ibm-plex-mono
+;;            :default-family "IBM Plex Mono")
+;;           (t
+;;            ;; I keep all properties for didactic purposes, but most can be
+;;            ;; omitted.  See the fontaine manual for the technicalities:
+;;            ;; <https://protesilaos.com/emacs/fontaine>.
+;;            :default-family "Iosevka Comfy"
+;;            :default-weight regular
+;;            :default-height 120
+;;            :fixed-pitch-family nil      ; falls back to :default-family
+;;            :fixed-pitch-weight nil      ; falls back to :default-weight
+;;            :fixed-pitch-height 1.0
+;;            :fixed-pitch-serif-family nil ; falls back to :default-family
+;;            :fixed-pitch-serif-weight nil ; falls back to :default-weight
+;;            :fixed-pitch-serif-height 1.0
+;;            :variable-pitch-family "Iosevka Comfy Motion Duo"
+;;            :variable-pitch-weight nil
+;;            :variable-pitch-height 1.0
+;;            :bold-family nil             ; use whatever the underlying face has
+;;            :bold-weight bold
+;;            :italic-family nil
+;;            :italic-slant italic
+;;            :line-spacing nil)))
 
-  ;; The other side of `fontaine-restore-latest-preset'.
-  (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
+;;   ;; Set last preset or fall back to desired style from `fontaine-presets'.
+;;   (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
 
-  ;; Persist font configurations while switching themes (doing it with
-  ;; my `modus-themes' and `ef-themes' via the hooks they provide).
-  (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
-    (add-hook hook #'fontaine-apply-current-preset))
+;;   ;; The other side of `fontaine-restore-latest-preset'.
+;;   (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
 
-  (define-key global-map (kbd "C-c f") #'fontaine-set-preset)
-  (define-key global-map (kbd "C-c F") #'fontaine-set-face-font))
+;;   ;; Persist font configurations while switching themes (doing it with
+;;   ;; my `modus-themes' and `ef-themes' via the hooks they provide).
+;;   (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
+;;     (add-hook hook #'fontaine-apply-current-preset))
+
+;;   :init
+;;   (map! :leader
+;;         (:prefix-map ("ç" . "daf")
+;;                      "F" #'fontaine-set-face-font
+;;                      "f" #'fontaine-set-preset)))
 
 (use-package! popper
   :config
@@ -881,38 +1211,37 @@ The exact color values are taken from the active Ef theme."
 
 ;; Use puni-mode globally and disable it for term-mode.
 (use-package! puni
+  :defer t
   :config
 
   ;; custom function from the wiki
-  (defun daf/puni-kill-line ()
-    "Kill a line forward while keeping expressions balanced.
+ (defun daf/puni-kill-line ()
+  "Kill a line forward while keeping expressions balanced.
 If nothing can be deleted, kill backward.  If still nothing can be
 deleted, kill the pairs around point."
-    (interactive)
-    (let ((bounds (puni-bounds-of-list-around-point)))
-      (if (eq (car bounds) (cdr bounds))
-          (when-let ((sexp-bounds (puni-bounds-of-sexp-around-point)))
-            (puni-delete-region (car sexp-bounds) (cdr sexp-bounds) 'kill))
-        (if (eq (point) (cdr bounds))
-            (puni-backward-kill-line)
-          (puni-kill-line)))))
+  (interactive)
+  (let ((bounds (puni-bounds-of-list-around-point)))
+    (if (eq (car bounds) (cdr bounds))
+        (when-let ((sexp-bounds (puni-bounds-of-sexp-around-point)))
+          (puni-delete-region (car sexp-bounds) (cdr sexp-bounds) 'kill))
+      (if (eq (point) (cdr bounds))
+          (puni-backward-kill-line)
+        (puni-kill-line)))))
   :init
   (map!
    :map puni-mode-map
    (:prefix ("," . "puni")
     :nv "v" #'puni-expand-region
     :nv "s" #'puni-squeeze
+    :nv "S" #'puni-split
     :nv "t" #'puni-transpose
     :nv "d" #'daf/puni-kill-line
     :nv "D" #'puni-backward-kill-line
-    :nv "C" #'puni-beginning-of-sexp
-    :nv "B" #'puni-beginning-of-sexp
-    :nv "b" #'puni-backward-sexp
-    :nv "c" #'puni-backward-sexp
-    :nv "r" #'puni-forward-sexp
-    :nv "f" #'puni-forward-sexp
-    :nv "R" #'puni-end-of-sexp
-    :nv "F" #'puni-end-of-sexp
+    :nv "C" #'puni-convolute
+    :nv "p" #'puni-backward-sexp
+    :nv "P" #'puni-beginning-of-sexp
+    :nv "n" #'puni-forward-sexp
+    :nv "N" #'puni-end-of-sexp
     :nv "<" #'puni-slurp-backward
     :nv ">" #'puni-slurp-forward
     :nv "«" #'puni-slurp-backward
@@ -926,7 +1255,48 @@ deleted, kill the pairs around point."
 (map! :map evil-window-map
       "SPC" #'rotate-layout)
 
+;; Configure Tempel
+(use-package! tempel
+  ;; Require trigger prefix before template name when completing.
+  ;; :custom
+  ;; (tempel-trigger-prefix "<")
+
+  :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+         ("M-*" . tempel-insert))
+
+  :init
+
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+
+  (setq tempel-path (expand-file-name "templates/*" doom-user-dir))
+
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
+  ;; (global-tempel-abbrev-mode)
+)
+
+;; Optional: Add tempel-collection.
+;; The package is young and doesn't have comprehensive coverage.
+(use-package! tempel-collection)
+
 (use-package! multi-vterm
+  :defer t
   :custom
   ;; (multi-vterm-buffer-name "Terminal")
   (multi-vterm-dedicated-buffer-name "dedicated vterminal")
@@ -961,6 +1331,7 @@ deleted, kill the pairs around point."
          :desc "Next" "n" #'multi-vterm-next)))
 
 (use-package! nov
+  :defer t
   :mode ("\\.epub\\'" . nov-mode)
   :hook (nov-mode . mixed-pitch-mode)
   :hook (nov-mode . visual-line-mode)
@@ -992,6 +1363,7 @@ deleted, kill the pairs around point."
  :n "S" #'daf/scroll-top-line-to-bottom)
 
 (use-package! vundo
+  :defer t
   :unless (modulep! +tree)
   :custom
   (vundo-glyph-alist vundo-unicode-symbols)
@@ -1005,6 +1377,7 @@ deleted, kill the pairs around point."
   :defer t)
 
 (use-package! verb
+  :defer t
   :config
   (setq verb-json-use-mode 'json-mode)
   (defun graphql-to-json (rs)
@@ -1047,8 +1420,6 @@ deleted, kill the pairs around point."
     company-files
     company-yasnippet))
 
-(load! "book-mode")
-
 (after! savehist
   (add-to-list 'savehist-additional-variables 'evil-markers-alist)
   (add-hook! 'savehist-save-hook
@@ -1063,6 +1434,7 @@ deleted, kill the pairs around point."
     (make-local-variable 'evil-markers-alist)))
 
 (use-package! evil-fringe-mark
+  :defer t
   :after evil
   :config
   ;; Use right fringe
@@ -1071,111 +1443,98 @@ deleted, kill the pairs around point."
 :init
 (global-evil-fringe-mark-mode 1)
 
-(use-package! beacon
-  :config
-  (setq beacon-color 0.2)
-  (setq beacon-size 20)
-  (setq beacon-blink-delay 0.2)
-  (setq beacon-blink-duration 0.2)
-  ;; (setq beacon-blink-when-focused t)
-  (setq beacon-blink-when-point-moves-vertically t)
-
-  :init
-  (beacon-mode 1))
-
-(use-package! pulsar
-  :config
-  (setq pulsar-pulse t)
-  (setq pulsar-delay 0.06)
-  (setq pulsar-iterations 20)
-  (setq pulsar-face 'pulsar-blue)
-  (setq pulsar-highlight-face 'pulsar-red)
+;; (use-package! pulsar
+;;   :defer t
+;;   :config
+;;   (setq pulsar-pulse t)
+;;   (setq pulsar-delay 0.06)
+;;   (setq pulsar-iterations 20)
+;;   (setq pulsar-face 'pulsar-blue)
+;;   (setq pulsar-highlight-face 'pulsar-red)
 
 
-  ;; (setq pulsar-pulse-functions
-  ;;     '(isearch-repeat-forward
-  ;;       isearch-repeat-backward
-  ;;       recenter-top-bottom
-  ;;       move-to-window-line-top-bottom
-  ;;       reposition-window
-  ;;       bookmark-jump
-  ;;       other-window
-  ;;       delete-window
-  ;;       delete-other-windows
-  ;;       forward-page
-  ;;       backward-page
-  ;;       scroll-up-command
-  ;;       scroll-down-command
-  ;;       evil-next-match
-  ;;       evil-scroll-line-to-top
-  ;;       evil-scroll-line-to-center
-  ;;       evil-scroll-line-to-bottom
-  ;;       evil-window-move-left
-  ;;       evil-window-move-right
-  ;;       evil-window-move-up
-  ;;       evil-window-move-down
-  ;;       evil-window-left
-  ;;       evil-window-right
-  ;;       evil-window-up
-  ;;       evil-window-down
-  ;;       evil-window-vsplit
-  ;;       evil-window-split
-  ;;       evil-ex-search-forward
-  ;;       evil-search-next
-  ;;       evil-search-previous
-  ;;       evil-ex-search-backward
-  ;;       evil-ex-search-next
-  ;;       evil-ex-search-previous
-  ;;       evil-goto-line
-  ;;       evil-goto-first-line
-  ;;       evil-goto-last-line
-  ;;       windmove-right
-  ;;       windmove-left
-  ;;       windmove-up
-  ;;       windmove-down
-  ;;       windmove-swap-states-right
-  ;;       windmove-swap-states-left
-  ;;       windmove-swap-states-up
-  ;;       windmove-swap-states-down
-  ;;       tab-new
-  ;;       tab-close
-  ;;       tab-next
-  ;;       org-next-visible-heading
-  ;;       org-previous-visible-heading
-  ;;       org-forward-heading-same-level
-  ;;       org-backward-heading-same-level
-  ;;       outline-backward-same-level
-  ;;       outline-forward-same-level
-  ;;       outline-next-visible-heading
-  ;;       outline-previous-visible-heading
-  ;;       outline-up-heading))
+;;   (setq pulsar-pulse-functions
+;;         '(isearch-repeat-forward
+;;           isearch-repeat-backward
+;;           recenter-top-bottom
+;;           move-to-window-line-top-bottom
+;;           reposition-window
+;;           bookmark-jump
+;;           other-window
+;;           delete-window
+;;           delete-other-windows
+;;           forward-page
+;;           backward-page
+;;           scroll-up-command
+;;           scroll-down-command
+;;           evil-next-match
+;;           evil-scroll-line-to-top
+;;           evil-scroll-line-to-center
+;;           evil-scroll-line-to-bottom
+;;           evil-window-move-left
+;;           evil-window-move-right
+;;           evil-window-move-up
+;;           evil-window-move-down
+;;           evil-window-left
+;;           evil-window-right
+;;           evil-window-up
+;;           evil-window-down
+;;           evil-window-vsplit
+;;           evil-window-split
+;;           evil-ex-search-forward
+;;           evil-search-next
+;;           evil-search-previous
+;;           evil-ex-search-backward
+;;           evil-ex-search-next
+;;           evil-ex-search-previous
+;;           evil-goto-line
+;;           evil-goto-first-line
+;;           evil-goto-last-line
+;;           windmove-right
+;;           windmove-left
+;;           windmove-up
+;;           windmove-down
+;;           windmove-swap-states-right
+;;           windmove-swap-states-left
+;;           windmove-swap-states-up
+;;           windmove-swap-states-down
+;;           tab-new
+;;           tab-close
+;;           tab-next
+;;           org-next-visible-heading
+;;           org-previous-visible-heading
+;;           org-forward-heading-same-level
+;;           org-backward-heading-same-level
+;;           outline-backward-same-level
+;;           outline-forward-same-level
+;;           outline-next-visible-heading
+;;           outline-previous-visible-heading
+;;           outline-up-heading))
 
-  ;; (setq pulsar-pulse-functions
-  ;;       '(
-  ;;         evil-scroll-line-to-top
-  ;;         evil-scroll-line-to-center
-  ;;         evil-scroll-line-to-bottom
-
-  ;;         ))
+;;   (setq pulsar-pulse-functions
+;;         '(evil-scroll-line-to-top
+;;           evil-scroll-line-to-center
+;;           evil-scroll-line-to-bottom))
 
 
-  ;; integration with the `consult' package:
-  ;; (add-hook 'consult-after-jump-hook #'pulsar-recenter-top)
-  ;; (add-hook 'consult-after-jump-hook #'pulsar-reveal-entry)
-  ;; (add-hook 'next-error-hook #'pulsar-pulse-line-red)
-  ;; (add-hook 'doom-switch-window-hook #'pulsar-pulse-line)
-  ;; (add-hook 'evil-jumps-post-jump-hook #'pulsar-pulse-line)
-  ;; (advice-add #'evil-window-top    :after #'pulsar-pulse-line)
-  ;; (advice-add #'evil-window-middle :after #'pulsar-pulse-line)
-  ;; (advice-add #'evil-window-bottom :after #'pulsar-pulse-line)
-  ;; (advice-add #'what-cursor-position :after #'pulsar-pulse-line)
+;;   integration with the `consult' package:
+;;   (add-hook 'consult-after-jump-hook #'pulsar-recenter-top)
+;;   (add-hook 'consult-after-jump-hook #'pulsar-reveal-entry)
+;;   (add-hook 'next-error-hook #'pulsar-pulse-line-red)
+;;   (add-hook 'doom-switch-window-hook #'pulsar-pulse-line)
+;;   (add-hook 'evil-jumps-post-jump-hook #'pulsar-pulse-line)
+;;   (advice-add #'evil-window-top    :after #'pulsar-pulse-line)
+;;   (advice-add #'evil-window-middle :after #'pulsar-pulse-line)
+;;   (advice-add #'evil-window-bottom :after #'pulsar-pulse-line)
+;;   (advice-add #'what-cursor-position :after #'pulsar-pulse-line)
 
-  ;; (add-hook! '(imenu-after-jump-hook
-  ;;              better-jumper-post-jump-hook
-  ;;              counsel-grep-post-action-hook
-  ;;              dumb-jump-after-jump-hook)
-  ;;            #'pulsar-pulse-line)
+;;   (add-hook! '(imenu-after-jump-hook
+;;                better-jumper-post-jump-hook
+;;                counsel-grep-post-action-hook
+;;                dumb-jump-after-jump-hook)
+;;              #'pulsar-pulse-line)
 
 
-  ;; (pulsar-global-mode 1)
-  )
+;;   (pulsar-global-mode 1))
+
+;; (require 'gnus-bookmark)
