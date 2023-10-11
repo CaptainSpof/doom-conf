@@ -186,9 +186,8 @@ the associated key is pressed after the repeatable action is triggered."
 
 (set-face-foreground 'window-divider (face-background 'header-line))
 
-;; (setq doom-font (font-spec :family "Sarasa Term J" :size 12.0)
-;;       doom-variable-pitch-font (font-spec :family "Sarasa Term Slab TC" :size 12.0)
-;;       doom-unicode-font nil)
+(setq doom-font (font-spec :family "Sarasa Term J" :size 12.0)
+      doom-variable-pitch-font (font-spec :family "Sarasa Term Slab TC" :size 12.0))
 ;; (add-to-list 'doom-symbol-fallback-font-families "Symbols Nerd Font")
 
 (setq fancy-splash-image (expand-file-name "misc/splash-images/ferris.svg" doom-user-dir))

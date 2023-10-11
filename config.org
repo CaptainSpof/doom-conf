@@ -422,9 +422,8 @@ This might change from time to time, but currently I am rocking…
 We'll setup some font stuff here too. But the ~fontaine~ package is used to setup most of it.
 Also, there's a fix to some shenanigan happening with the emojis.
 #+begin_src emacs-lisp
-;; (setq doom-font (font-spec :family "Sarasa Term J" :size 12.0)
-;;       doom-variable-pitch-font (font-spec :family "Sarasa Term Slab TC" :size 12.0)
-;;       doom-unicode-font nil)
+(setq doom-font (font-spec :family "Sarasa Term J" :size 12.0)
+      doom-variable-pitch-font (font-spec :family "Sarasa Term Slab TC" :size 12.0))
 ;; (add-to-list 'doom-symbol-fallback-font-families "Symbols Nerd Font")
 #+end_src
 
