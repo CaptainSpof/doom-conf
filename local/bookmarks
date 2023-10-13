@@ -2,7 +2,10 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("tmp · /tmp" (filename . "/tmp/") (front-context-string . ":\n  drwxrwxrwt  ")
+(("Repositories · ~/Repositories" (filename . "~/Repositories/")
+ (front-context-string . "  /home/daf/Repo") (rear-context-string)
+ (position . 1) (last-modified 25894 30926 951721 449000))
+("tmp · /tmp" (filename . "/tmp/") (front-context-string . ":\n  drwxrwxrwt  ")
  (rear-context-string) (position . 7) (last-modified 25894 18945 46722 431000))
 ("Downloads · ~/Downloads" (filename . "~/Downloads/")
  (front-context-string . "  /home/daf/Down") (rear-context-string)

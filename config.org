@@ -411,8 +411,27 @@ commands/categories.
 This might change from time to time, but currently I am rocking…
 
 #+begin_src emacs-lisp
-(setq doom-theme 'ef-elea-dark)
+(setq daf/dark-theme 'doom-gruvbox)
+(setq daf/light-theme 'doom-gruvbox-light)
+
+(setq doom-theme daf/dark-theme)
 (setq ef-themes-to-toggle '(ef-elea-dark ef-elea-light))
+#+end_src
+
+#+begin_src emacs-lisp
+(defun daf/toggle-themes ()
+  "Toggle between two themes in Emacs."
+  (interactive)
+  (if (eq (car custom-enabled-themes) daf/dark-theme)
+      (progn
+        (disable-theme daf/dark-theme)
+        (load-theme daf/light-theme t))
+    (progn
+      (disable-theme daf/light-theme)
+      (load-theme daf/dark-theme t))))
+  (map! :leader
+        (:prefix-map ("t" . "toggle")
+         :desc "Toggle themes" :mvn "t" #'daf/toggle-themes))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1594,6 +1613,20 @@ are broken) when quitting Emacs (by pressing =q= instead of =y=).
 #+begin_src emacs-lisp :tangle packages.el
 (package! combobulate) ;; https://github.com/mickeynp/combobulate
 #+end_src
+** ~circadian~ · Cadia Stands!!!
+*** Configuration & Mapping
+#+begin_src emacs-lisp :tangle packages.el
+(package! circadian) ;; https://github.com/guidoschmidt/circadian.el
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! circadian
+  :ensure t
+  :config
+  (setq circadian-themes '(("8:00" . doom-gruvbox-light)
+                           ("19:30" . doom-gruvbox)))
+  (circadian-setup))
+  #+end_src
 ** ~elogcat~ ⚰
 /Manage Android logs./
 
@@ -1872,11 +1905,7 @@ The exact color values are taken from the active Ef theme."
              ("REVIEW" . ,red)
              ("DEPRECATED" . ,yellow)))))
 
-  (add-hook 'ef-themes-post-load-hook #'daf/ef-themes-hl-todo-faces)
-  :init
-  (map! :leader
-        (:prefix-map ("t" . "toggle")
-         :desc "Toggle ef-themes" :mvn "t" #'ef-themes-toggle)))
+  (add-hook 'ef-themes-post-load-hook #'daf/ef-themes-hl-todo-faces))
 #+end_src
 
 ** ~modus-themes~
@@ -1929,7 +1958,6 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
 ;;   ;; load preferred theme
 ;;   (load-theme 'lambda-light))
 #+end_src
-
 ** ~fontaine~ · Maître Corbeau, sur un arbre perché
 /Faces preset./
 /The Quick Brown Fox Jumps Over The Lazy Dog/

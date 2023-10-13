@@ -181,8 +181,25 @@ the associated key is pressed after the repeatable action is triggered."
           (side . left)
           (window-width . 0.3))))
 
-(setq doom-theme 'ef-elea-dark)
+(setq daf/dark-theme 'doom-gruvbox)
+(setq daf/light-theme 'doom-gruvbox-light)
+
+(setq doom-theme daf/dark-theme)
 (setq ef-themes-to-toggle '(ef-elea-dark ef-elea-light))
+
+(defun daf/toggle-themes ()
+  "Toggle between two themes in Emacs."
+  (interactive)
+  (if (eq (car custom-enabled-themes) daf/dark-theme)
+      (progn
+        (disable-theme daf/dark-theme)
+        (load-theme daf/light-theme t))
+    (progn
+      (disable-theme daf/light-theme)
+      (load-theme daf/dark-theme t))))
+  (map! :leader
+        (:prefix-map ("t" . "toggle")
+         :desc "Toggle themes" :mvn "t" #'daf/toggle-themes))
 
 (set-face-foreground 'window-divider (face-background 'header-line))
 
@@ -858,6 +875,13 @@ the associated key is pressed after the repeatable action is triggered."
 
 ;; (setq confirm-kill-emacs #'+daf/doom-quit-fn)
 
+(use-package! circadian
+  :ensure t
+  :config
+  (setq circadian-themes '(("8:00" . doom-gruvbox-light)
+                           ("19:30" . doom-gruvbox)))
+  (circadian-setup))
+
 ;; (use-package! elogcat
 ;;   :defer t
 ;;   :config
@@ -1025,11 +1049,7 @@ The exact color values are taken from the active Ef theme."
              ("REVIEW" . ,red)
              ("DEPRECATED" . ,yellow)))))
 
-  (add-hook 'ef-themes-post-load-hook #'daf/ef-themes-hl-todo-faces)
-  :init
-  (map! :leader
-        (:prefix-map ("t" . "toggle")
-         :desc "Toggle ef-themes" :mvn "t" #'ef-themes-toggle)))
+  (add-hook 'ef-themes-post-load-hook #'daf/ef-themes-hl-todo-faces))
 
 (use-package! modus-themes
   :defer t

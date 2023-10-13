@@ -67,6 +67,8 @@
 
 (package! combobulate) ;; https://github.com/mickeynp/combobulate
 
+(package! circadian) ;; https://github.com/guidoschmidt/circadian.el
+
 ;; (package! elogcat) ;; https://github.com/youngker/elogcat.el
 
 (package! jq-mode) ;; https://github.com/ljos/jq-mode
