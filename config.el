@@ -1234,18 +1234,18 @@ The exact color values are taken from the active Ef theme."
   :config
 
   ;; custom function from the wiki
- (defun daf/puni-kill-line ()
-  "Kill a line forward while keeping expressions balanced.
+  (defun daf/puni-kill-line ()
+    "Kill a line forward while keeping expressions balanced.
 If nothing can be deleted, kill backward.  If still nothing can be
 deleted, kill the pairs around point."
-  (interactive)
-  (let ((bounds (puni-bounds-of-list-around-point)))
-    (if (eq (car bounds) (cdr bounds))
-        (when-let ((sexp-bounds (puni-bounds-of-sexp-around-point)))
-          (puni-delete-region (car sexp-bounds) (cdr sexp-bounds) 'kill))
-      (if (eq (point) (cdr bounds))
-          (puni-backward-kill-line)
-        (puni-kill-line)))))
+    (interactive)
+    (let ((bounds (puni-bounds-of-list-around-point)))
+      (if (eq (car bounds) (cdr bounds))
+          (when-let ((sexp-bounds (puni-bounds-of-sexp-around-point)))
+            (puni-delete-region (car sexp-bounds) (cdr sexp-bounds) 'kill))
+        (if (eq (point) (cdr bounds))
+            (puni-backward-kill-line)
+          (puni-kill-line)))))
   :init
   (map!
    :map puni-mode-map
@@ -1254,6 +1254,15 @@ deleted, kill the pairs around point."
     :nv "s" #'puni-squeeze
     :nv "S" #'puni-split
     :nv "t" #'puni-transpose
+    (:prefix ("w"  . "wrap")
+     :nv "p" #'puni-wrap-round
+     :nv "(" #'puni-wrap-round
+     :nv "b" #'puni-wrap-square
+     :nv "[" #'puni-wrap-square
+     :nv "c" #'puni-wrap-curly
+     :nv "{" #'puni-wrap-curly
+     :nv "a" #'puni-wrap-angle
+     :nv "«" #'puni-wrap-angle)
     :nv "d" #'daf/puni-kill-line
     :nv "D" #'puni-backward-kill-line
     :nv "C" #'puni-convolute
