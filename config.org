@@ -2466,6 +2466,15 @@ some sort of wiki in this level.
 | Show all ~marks~ in a completion menu: | leader | ~SPC s r~ |
 
 -----
+** Keybindings · They're useful, brain why do you forget them?
+
+|---------+-------------------------------+------------|
+| scope   | description                   | keybinding |
+|---------+-------------------------------+------------|
+| ~vertico~ | Preview the current candidate | =C-SPC=      |
+|         |                               |            |
+|---------+-------------------------------+------------|
+
 
 * Level 9: Military Base · /Secret experiments/
 #+begin_quote
