@@ -65,7 +65,7 @@
 
 ;; (package! burly) ;; https://github.com/alphapapa/burly.el
 
-(package! combobulate) ;; https://github.com/mickeynp/combobulate
+;; (package! combobulate) ;; https://github.com/mickeynp/combobulate
 
 (package! circadian) ;; https://github.com/guidoschmidt/circadian.el
 
@@ -91,10 +91,6 @@
 (package! ef-themes) ;; https://github.com/protesilaos/ef-themes
 
 (package! modus-themes) ;; https://github.com/protesilaos/modus-themes
-
-;; (package! lambda-themes
-;;   :recipe (:host github
-;;            :repo "lambda-emacs/lambda-themes"))
 
 (package! fontaine) ;; https://github.com/protesilaos/fontaine
 

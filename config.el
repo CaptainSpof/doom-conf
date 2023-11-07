@@ -5,9 +5,9 @@
 
 (setq-default scroll-margin 3)
 
-(setq gcmh-high-cons-threshold most-positive-fixnum
-      max-specpdl-size 100000)
-(setq gc-cons-threshold (* 100 1024 1024)) ;; REVIEW: might be overkill
+;; (setq gcmh-high-cons-threshold most-positive-fixnum
+;;       max-specpdl-size 100000)
+;; (setq gc-cons-threshold (* 100 1024 1024)) ;; REVIEW: might be overkill
 
 (defvar daf/localleader-key "SPC ç"
   "The localleader prefix key, for major-mode specific commands.")
@@ -914,26 +914,6 @@ the associated key is pressed after the repeatable action is triggered."
 ;;         "k" #'elogcat-toggle-kernel
 ;;         "c" #'elogcat-erase-buffer))
 
-(setq emojify-display-style 'unicode)
-(setq emojify-emoji-styles '(unicode))
-
-(defvar emojify-disabled-emojis
-  '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓"
-    ;; Terminal powerline
-    "✔"
-    ;; Box drawing
-    "▶" "◀"
-    ;; I just want to see this as text
-    "©" "™")
-  "Characters that should never be affected by `emojify-mode'.")
-
-(defadvice! emojify-delete-from-data ()
-  "Ensure `emojify-disabled-emojis' don't appear in `emojify-emojis'."
-  :after #'emojify-set-emoji-data
-  (dolist (emoji emojify-disabled-emojis)
-    (remhash emoji emojify-emojis)))
-
 (use-package! justl
   :defer t)
 
@@ -1067,26 +1047,8 @@ The exact color values are taken from the active Ef theme."
           (7 . (variable-pitch regular 1.1))
           (t . (variable-pitch regular 1.1)))))
 
-;; (use-package! lambda-themes
-;;   :custom
-;;   (lambda-themes-set-italic-comments t)
-;;   (lambda-themes-set-italic-keywords t)
-;;   (lambda-themes-set-variable-pitch t)
-;;   :config
-;;   ;; load preferred theme
-;;   (load-theme 'lambda-light))
-
 ;; (use-package! fontaine
 ;;   :config
-;;   ;; This is defined in Emacs C code: it belongs to font settings.
-;;   (setq x-underline-at-descent-line nil)
-
-;;   ;; And this is for Emacs28.
-;;   (setq-default text-scale-remap-header-line t)
-
-;;   ;; This is the default value.  Just including it here for
-;;   ;; completeness.
-;;   (setq fontaine-latest-state-file (locate-user-emacs-file "fontaine-latest-state.eld"))
 
 ;;   ;; Iosevka Comfy is my highly customised build of Iosevka with
 ;;   ;; monospaced and duospaced (quasi-proportional) variants as well as
@@ -1432,13 +1394,6 @@ deleted, kill the pairs around point."
 (set-popup-rules!
  '(("^\\*HTTP Response.*" :quit t :side right :size 0.4 :modeline nil)))
 
-;; (after! lsp-mode
-;;   (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
-;;   (lsp-register-client
-;;    (make-lsp-client :new-connection (lsp-stdio-connection '("nil"))
-;;                     :major-modes '(nix-mode)
-;;                     :server-id 'nix)))
-
 (set-company-backend!
   '(text-mode
     markdown-mode
@@ -1564,5 +1519,3 @@ deleted, kill the pairs around point."
 
 
 ;;   (pulsar-global-mode 1))
-
-;; (require 'gnus-bookmark)

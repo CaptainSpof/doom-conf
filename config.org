@@ -9,39 +9,42 @@
 
 * Level 1: Hangar · /Introduction/
 #+begin_quote
-Welcome to Doom, soldier. Now shut up and start +fighting+ coding because
-there's no time to waste!
+Welcome to Doom, soldier. Now shut up and start +fighting+ coding because there's
+no time to waste!
 #+end_quote
-Welcome again, this is my personal Emacs configuration for the [[https://github.com/doomemacs/doomemacs][Doom]] framework.
-In this ~config.org~ file lies most of my Emacs config. This is a literate
-config, this means, the code that I stole from more competent person than myself
-will be generated to a nice Emacs config.
+Welcome again! This is my personal Emacs configuration for the [[https://github.com/doomemacs/doomemacs][Doom Emacs]]
+framework. In this ~config.org~ file lies most of my Emacs config. This is a
+literate configuration, meaning the code that I stole from more competent
+persons than myself will be generated to a nice Emacs config.
 
-Why literate? Well this allows me to have a nicely organized configuration, with
-lots of comments which helps to give a false sense of order and quality.
+Why literate? Well, this allows me to have a nicely organized configuration with
+lots of comments, which helps to give a false sense of order and quality.
 
-Oh yeah, I almost forgot. The mandatory disclaimer. If by any chance someone
-other than me stumble across this repository. *BEWARE*. I mostly don't know what I
-am doing. I don't understand ~lisp~ very well, nor any intricacies of Emacs, such
-as load order and so on. I might be doing stuff incredibly wrong. That might
-cause you to experience: /itching/, /headache/, /internal bleeding/, /raise your taxes/
-and kill your cat… to name a few. So again, *BEWARE*.
+Oh yeah, I almost forgot. The mandatory disclaimer:
+
+If, by any chance, someone other than me stumble across this repository. *BEWARE*.
+- I mostly don't know what I am doing.
+- I don't understand ~lisp~ very well, nor any intricacies of Emacs, such as load
+  order and so on.
+- I might be doing stuff incredibly wrong, which might cause you to experience:
+  /itching/, /headache/, /internal bleeding/, /raise your taxes/ and kill your cat… to
+  name a few. So again, *BEWARE*.
 
 ** Before we start
-What better to kick off this configuration than putting a line of code that I
-have no idea what it does? Apparently it helps things running faster, me like
+What better way to kick off this configuration than putting a line of code that
+I have no idea what it does? Apparently it helps things run faster, me like
 fast.
 #+begin_src emacs-lisp
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 #+end_src
-** How this config is organized
-Well here's a good question. I didn't really think this through…
+** How is this config organized?
+Well, here's a good question. I didn't really think this through…
 
-The general idea is to organize the packages's configuration in their own
+The general idea is to organize the packages' configurations in their own
 subheading (see [[* Level 5: Phobos Lab · /Packages/][Level 5]]).
 
-Also if doom already configure a package in a module, extend that package
-configuration in a subheading that represent the module it originate from (it's
+Also if ~Doom~ already configures a package in a module, we extend that package
+configuration in a subheading that represents the module it originates from (it's
 in [[* Level 4: Command Control · /Doom, but it's _my_ personal hell/][Level 4]]).
 
 In [[* Level 6: Central Processing · /Lang stuff/][Level 6]], I put language specific bits of configuration or helpful functions.
@@ -86,9 +89,9 @@ I found these settings somewhere, they're supposed to help with « /performance/
 so it must be good, right?
 
 #+begin_src emacs-lisp
-(setq gcmh-high-cons-threshold most-positive-fixnum
-      max-specpdl-size 100000)
-(setq gc-cons-threshold (* 100 1024 1024)) ;; REVIEW: might be overkill
+;; (setq gcmh-high-cons-threshold most-positive-fixnum
+;;       max-specpdl-size 100000)
+;; (setq gc-cons-threshold (* 100 1024 1024)) ;; REVIEW: might be overkill
 #+end_src
 
 The =leader= and =localleader= keys are great, but I want my own, this way, I am
@@ -143,7 +146,8 @@ We are in France, we speak French… Ok?
 ―Chabal
 #+end_quote
 
-Week starts on a Monday.
+Week starts on a Monday, as god intended (I think, maybe not, I don't read the
+bible).
 
 #+begin_src emacs-lisp
 (setq calendar-week-start-day 1)
@@ -178,7 +182,7 @@ dans l'eau” /sigh/.
 #+end_src
 
 I also think that having ~evil-~ appear in so many popups is a bit too verbose,
-let’s change that.
+let’s change that. (credit's due to Tecosaur if I recall correctly)
 
 #+begin_src emacs-lisp
 (setq which-key-allow-multiple-replacements t)
@@ -316,13 +320,11 @@ And add some bindings.
 #+end_src
 
 
-** Bépo :HACK:
-
 -----
 
 * Level 4: Command Control · /Doom, but it's _my_ personal hell/
 
-/Here, I'll put configuration for the modules built-in ~doom~. Either grouped by
+/Here, I'll put configuration for the modules built-in ~Doom~. Either grouped by
 package, or by category./
 
 ** Completion · ~:completion~
@@ -1529,7 +1531,7 @@ a popup image, rather than configuring for every image its size.
        (alist-get ?M avy-dispatch-alist) 'avy-action-teleport-whole-line))
 #+end_src
 
-** ~blamer~ · who wrote that crap!? (probably me.)
+** ~blamer~ · Who wrote that crap!? (probably me.)
 /Get git commit info at a glance./
 *** Configuration & Mapping
 
@@ -1559,7 +1561,7 @@ Let's customize the face and add a few key bindings.
     :desc  "Blamer posframe commit info" "," #'blamer-show-posframe-commit-info
     :desc  "Blamer mode"                 ";" #'blamer-mode)))
 #+end_src
-** ~burly~
+** TODO ~burly~
 /Save windows and frames layouts as bookmark./
 *** TODO Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
@@ -1608,12 +1610,13 @@ are broken) when quitting Emacs (by pressing =q= instead of =y=).
 
 ;; (setq confirm-kill-emacs #'+daf/doom-quit-fn)
 #+end_src
-** ~combobulate~
+** ~combobulate~ ⚰
 *** TODO Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
-(package! combobulate) ;; https://github.com/mickeynp/combobulate
+;; (package! combobulate) ;; https://github.com/mickeynp/combobulate
 #+end_src
 ** ~circadian~ · Cadia Stands!!!
+/But only until 19h30, after that: lights out./
 *** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
 (package! circadian) ;; https://github.com/guidoschmidt/circadian.el
@@ -1673,46 +1676,6 @@ I wrote some ugly function to add filters to ~logcat~.
 ;;         "k" #'elogcat-toggle-kernel
 ;;         "c" #'elogcat-erase-buffer))
 #+end_src
-** ~emojify~ · 🐂
-/Emojy in Emacs./
-*** Configuration
-
-Gotta love those emojis, right? 🤔
-
-#+begin_src emacs-lisp
-(setq emojify-display-style 'unicode)
-(setq emojify-emoji-styles '(unicode))
-#+end_src
-
-#+begin_quote
-One minor annoyance is the use of emojis over the default character when the
-default is actually preferred. This occurs with overlay symbols I use in Org
-mode, such as checkbox state, and a few other miscellaneous cases.
-
-We can accommodate our preferences by deleting those entries from the emoji hash
-table
-
-―Tecosaur
-#+end_quote
-
-#+begin_src emacs-lisp
-(defvar emojify-disabled-emojis
-  '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓"
-    ;; Terminal powerline
-    "✔"
-    ;; Box drawing
-    "▶" "◀"
-    ;; I just want to see this as text
-    "©" "™")
-  "Characters that should never be affected by `emojify-mode'.")
-
-(defadvice! emojify-delete-from-data ()
-  "Ensure `emojify-disabled-emojis' don't appear in `emojify-emojis'."
-  :after #'emojify-set-emoji-data
-  (dolist (emoji emojify-disabled-emojis)
-    (remhash emoji emojify-emojis)))
-#+end_src
 ** ~jq-mode~
 /Interactively parse JSON in Emacs./
 *** Configuration
@@ -1744,7 +1707,7 @@ table
 ** ~languagetool~ · Squiggly line my prose
 /Grammar correction./
 
-Doom's ship ~Emacs-langtool~ but I prefer ~languagetool.el~, let's set it up.
+~Doom~ ship ~Emacs-langtool~ but I prefer ~languagetool.el~, let's set it up.
 
 **** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
@@ -1939,26 +1902,7 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
           (t . (variable-pitch regular 1.1)))))
 #+end_src
 
-** ~lambda-themes~ ⚰
-*** Configuration
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! lambda-themes
-;;   :recipe (:host github
-;;            :repo "lambda-emacs/lambda-themes"))
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! lambda-themes
-;;   :custom
-;;   (lambda-themes-set-italic-comments t)
-;;   (lambda-themes-set-italic-keywords t)
-;;   (lambda-themes-set-variable-pitch t)
-;;   :config
-;;   ;; load preferred theme
-;;   (load-theme 'lambda-light))
-#+end_src
-** ~fontaine~ · Maître Corbeau, sur un arbre perché
+** TODO ~fontaine~ · Maître Corbeau, sur un arbre perché
 /Faces preset./
 /The Quick Brown Fox Jumps Over The Lazy Dog/
 *** Configuration
@@ -1972,15 +1916,6 @@ instruction.
 #+begin_src emacs-lisp
 ;; (use-package! fontaine
 ;;   :config
-;;   ;; This is defined in Emacs C code: it belongs to font settings.
-;;   (setq x-underline-at-descent-line nil)
-
-;;   ;; And this is for Emacs28.
-;;   (setq-default text-scale-remap-header-line t)
-
-;;   ;; This is the default value.  Just including it here for
-;;   ;; completeness.
-;;   (setq fontaine-latest-state-file (locate-user-emacs-file "fontaine-latest-state.eld"))
 
 ;;   ;; Iosevka Comfy is my highly customised build of Iosevka with
 ;;   ;; monospaced and duospaced (quasi-proportional) variants as well as
@@ -2413,26 +2348,12 @@ A nice little package which allows to rotate layout.
 -----
 
 * Level 6: Central Processing · /Lang stuff/
-** nix ⚰
-*** Configuration
-
-I am currently trying « ~nil~ » (yeah it's confusing) as nix's lsp server. Let's
-set it up with ~lsp-mode~.
-
-#+begin_src emacs-lisp
-;; (after! lsp-mode
-;;   (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
-;;   (lsp-register-client
-;;    (make-lsp-client :new-connection (lsp-stdio-connection '("nil"))
-;;                     :major-modes '(nix-mode)
-;;                     :server-id 'nix)))
-#+end_src
-
 ** Plain text
 *** Configuration
 
 #+begin_quote
 Ispell is nice, let’s have it in text, markdown, and GFM.
+
 ―Tecosaur
 #+end_quote
 
@@ -2450,31 +2371,33 @@ Ispell is nice, let’s have it in text, markdown, and GFM.
 
 -----
 
-* Level 7: Computer Station · /When you need a little ~powerup~ to survive Doom/
+* Level 7: Computer Station · /Basically cheats and walkthrough to survive Doom/
 
-The /Doom/ world is massive, it can be daunting to remember every combo move,
-secret passage and so on. I can't keep up, so I'll try to write a /cheat sheet/,
-some sort of wiki in this level.
+The ~Doom~ world is massive, it can be daunting to remember every combo move,
+secret passage and so on. I can't keep up. S$o I'll try to write a /cheat sheet/
+or some sort of wiki in this level.
 
 ** Mark · It's like nightcrawler in an editor
 *** Mapping
 
 
+|--------------------------------------+--------+---------|
 | _Description_                          | _Scope_  | _Mapping_ |
+|--------------------------------------+--------+---------|
 | Create a ~mark~ bound to a register    | ~:nv~    | ~m [a-Z]~ |
 | Jump to a ~mark~ bound to a register   | ~:nv~    | ~' [a-Z]~ |
 | Show all ~marks~ in a completion menu: | leader | ~SPC s r~ |
+|-                                     |        |         |
 
+** Keybindings · They're useful, brain; why do you forget them?
+
+|---------+-------------------------------+-----------|
+| _Scope_   | _Description_                   | _Mapping_   |
+|---------+-------------------------------+-----------|
+| ~vertico~ | Preview the current candidate | =C-SPC=     |
+|         |                               |           |
+|---------+-------------------------------+-----------|
 -----
-** Keybindings · They're useful, brain why do you forget them?
-
-|---------+-------------------------------+------------|
-| scope   | description                   | keybinding |
-|---------+-------------------------------+------------|
-| ~vertico~ | Preview the current candidate | =C-SPC=      |
-|         |                               |            |
-|---------+-------------------------------+------------|
-
 
 * Level 9: Military Base · /Secret experiments/
 #+begin_quote
@@ -2519,7 +2442,7 @@ will be moved to the relevant level.
 :init
 (global-evil-fringe-mark-mode 1)
 #+END_SRC
-** ~pulsar~
+** ~pulsar~ ⚰
 *** Configuration
 #+begin_src emacs-lisp :tangle packages.el
 ;; (package! pulsar)
@@ -2622,12 +2545,6 @@ will be moved to the relevant level.
 #+end_src
 
 -----
-** gnus-bookmark
-
-#+begin_src emacs-lisp
-;; (require 'gnus-bookmark)
-#+end_src
-
 * Level x: Sewers · /It never ends…/
 #+begin_quote
 « /Confing/ » Emacs is a never ending story. I'll always have stuff to tweak, new
