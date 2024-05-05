@@ -132,37 +132,28 @@ the associated key is pressed after the repeatable action is triggered."
        :desc "daf/toggle-lock" "," #'daf/window-toggle-lock-size
        :desc "daf/shrink" "." #'daf/window-shrink-and-lock))
 
-;; (after! company
-;;   (setq
-;;    company-show-quick-access 'left
-;;    company-quick-access-keys '("b" "é" "p" "o" "w")
-;;    company-quick-access-modifier 'control
-;;    company-dabbrev-other-buffers t)
+;; (custom-set-variables
+;;  '(kind-icon-default-style
+;;    '(:padding 0 :stroke 0 :margin 0 :radius 0 :height 0.8 :scale 1.0))
+;;  '(package-selected-packages '(kind-icon corfu)))
 
-;;   (set-company-backend! 'prog-mode '(company-capf company-dabbrev company-dabbrev-code)))
-
-(custom-set-variables
- '(kind-icon-default-style
-   '(:padding 0 :stroke 0 :margin 0 :radius 0 :height 0.8 :scale 1.0))
- '(package-selected-packages '(kind-icon corfu)))
-
-(use-package! cape
-  :general (:prefix "M-c"               ; Particular completion function
-                    "p" 'completion-at-point
-                    "t" 'complete-tag           ; etags
-                    "d" 'cape-dabbrev           ; or dabbrev-completion
-                    "f" 'cape-file
-                    "k" 'cape-keyword
-                    "s" 'cape-symbol
-                    "a" 'cape-abbrev
-                    "i" 'cape-ispell
-                    "l" 'cape-line
-                    "w" 'cape-dict
-                    "\\"' cape-tex
-                    "_" 'cape-tex
-                    "^" 'cape-tex
-                    "&" 'cape-sgml
-                    "r" 'cape-rfc1345))
+;; (use-package! cape
+;;   :general (:prefix "M-c"               ; Particular completion function
+;;                     "p" 'completion-at-point
+;;                     "t" 'complete-tag           ; etags
+;;                     "d" 'cape-dabbrev           ; or dabbrev-completion
+;;                     "f" 'cape-file
+;;                     "k" 'cape-keyword
+;;                     "s" 'cape-symbol
+;;                     "a" 'cape-abbrev
+;;                     "i" 'cape-ispell
+;;                     "l" 'cape-line
+;;                     "w" 'cape-dict
+;;                     "\\"' cape-tex
+;;                     "_" 'cape-tex
+;;                     "^" 'cape-tex
+;;                     "&" 'cape-sgml
+;;                     "r" 'cape-rfc1345))
 
 (map! [remap describe-bindings] #'embark-bindings
       "C-," #'embark-act)
@@ -245,6 +236,16 @@ the associated key is pressed after the repeatable action is triggered."
       (:prefix-map ("TAB" . "workspace")
        :desc "Switch workspace" :mvn "TAB" #'+workspace/switch-to
        :desc "Display tab bar" :mvn "." #'+workspace/display))
+
+(defun my/org-tab-conditional ()
+  (interactive)
+  (if (yas-active-snippets)
+      (yas-next-field-or-maybe-expand)
+    (org-cycle)))
+
+(map! :after evil-org
+      :map evil-org-mode-map
+      :i "<tab>" #'my/org-tab-conditional)
 
 (after! evil
   (setq evil-split-window-below t
@@ -1285,6 +1286,9 @@ deleted, kill the pairs around point."
 ;; The package is young and doesn't have comprehensive coverage.
 (use-package! tempel-collection)
 
+(setq todoist-token "16b3140bb01c100f7a078df6a528f5ebd74891c2") ; DO NOT COMMIT YOU FOOL!
+(setq todoist-backing-buffer "~/Sync/Org/Perso/todoist.org")
+
 (use-package! multi-vterm
   :defer t
   :custom
@@ -1394,14 +1398,14 @@ deleted, kill the pairs around point."
 (set-popup-rules!
  '(("^\\*HTTP Response.*" :quit t :side right :size 0.4 :modeline nil)))
 
-(set-company-backend!
-  '(text-mode
-    markdown-mode
-    gfm-mode)
-  '(:seperate
-    company-ispell
-    company-files
-    company-yasnippet))
+;; (set-company-backend!
+;;   '(text-mode
+;;     markdown-mode
+;;     gfm-mode)
+;;   '(:seperate
+;;     company-ispell
+;;     company-files
+;;     company-yasnippet))
 
 (after! savehist
   (add-to-list 'savehist-additional-variables 'evil-markers-alist)

@@ -549,6 +549,20 @@ Invert Switch workspace and Display tab bar mapping
 ;; (unpin! doom-snippets)
 #+end_src
 
+Workaround tab not working ~git-commit-mode-map~
+#+begin_src emacs-lisp
+(defun my/org-tab-conditional ()
+  (interactive)
+  (if (yas-active-snippets)
+      (yas-next-field-or-maybe-expand)
+    (org-cycle)))
+
+(map! :after evil-org
+      :map git-commit-mode-map
+      :i "<tab>" #'my/org-tab-conditional)
+#+end_src
+
+
 *** ~evil~ · the necessary one
 
 /As a Vim refugee, evil allows me to be somewhat productive in an editor, I
