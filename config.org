@@ -168,12 +168,14 @@ dans l'eau” /sigh/.
 (setq-default vterm-shell (executable-find "fish"))
 #+end_src
 
+Set default major mode to ~text-mode~.
+#+begin_src emacs-lisp
+(setq default-major-mode 'text-mode)
+#+end_src
+
+
 ** ~which-key~
 *** Configuration
-
-#+begin_src emacs-lisp :tangle packages.el
-(unpin! which-key)
-#+end_src
 
 ~which-key~ could be a little tad bit quicker to show up.
 
@@ -328,18 +330,6 @@ And add some bindings.
 package, or by category./
 
 ** Completion · ~:completion~
-*** ~company~ ⚰
-**** Configuration
-#+begin_src emacs-lisp
-;; (after! company
-;;   (setq
-;;    company-show-quick-access 'left
-;;    company-quick-access-keys '("b" "é" "p" "o" "w")
-;;    company-quick-access-modifier 'control
-;;    company-dabbrev-other-buffers t)
-
-;;   (set-company-backend! 'prog-mode '(company-capf company-dabbrev company-dabbrev-code)))
-#+end_src
 *** ~corfu~
 **** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
@@ -1162,12 +1152,6 @@ Add a hook to ~org-mode~.
                                  "** [ ] %?\n")
                                 )))
 #+END_SRC
-*** ~org-cv~
-**** Configuration & Mapping
-#+begin_src emacs-lisp :tangle packages.el
-(package! org-cv
-  :recipe (:host gitlab :repo "Titan-C/org-cv"))
-#+end_src
 *** ~org-gtd~
 **** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
@@ -2370,18 +2354,6 @@ Ispell is nice, let’s have it in text, markdown, and GFM.
 
 ―Tecosaur
 #+end_quote
-
-#+begin_src emacs-lisp
-(set-company-backend!
-  '(text-mode
-    markdown-mode
-    gfm-mode)
-  '(:seperate
-    company-ispell
-    company-files
-    company-yasnippet))
-#+end_src
-
 
 -----
 
