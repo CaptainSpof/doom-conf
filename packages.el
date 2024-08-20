@@ -1,119 +1,119 @@
-(unpin! which-key)
+(package! gcmh) ;; https://github.com/emacsmirror/gcmh
 
-;; (unpin! corfu)
-;; (unpin! cape)
-;; (unpin! corfu-terminal)
-;; (unpin! corfu-doc-terminal)
-;; (unpin! corfu-doc)
-;; (unpin! kind-icon)
-
-;; (package! doom-snippets :disable t)
-;; (unpin! doom-snippets)
-
-;; (unpin! lispyville)
+(package! evil-escape :disable t)
 
 (package! aweshell
   :recipe (:host github
-           :repo "manateelazycat/aweshell"))
-
-(package! eat) ;; https://codeberg.org/akib/emacs-eat
+           :repo "manateelazycat/aweshell")) ;; https://github.com/manateelazycat/aweshel
 
 (package! langtool :disable t)
 
-(unpin! flycheck)
-
 (unpin! flymake)
 
-(unpin! lsp-mode)
-
-(unpin! magit)
+;; (unpin! magit)
+(unpin! magit-todos)
+(unpin! pcre2el)
 (package! with-editor)
 
-;; (unpin! org) ;; REVIEW: why did I unpin it?
-
-(package! denote) ;; https://github.com/protesilaos/denote
-
-(package! ob-mermaid) ;; https://github.com/
-
-(package! org-appear) ;; https://github.com/awth13/org-appear
-
-(package! org-cv
-  :recipe (:host gitlab :repo "Titan-C/org-cv"))
-
-(package! org-gtd)
-
-(package! org-noter) ;; https://github.com/org-noter/org-noter
-
-(package! org-quick-peek
-  :recipe (:host github :repo "alphapapa/org-now"))
+(package! org-super-agenda) ;; https://github.com/alphapapa/org-super-agenda
 
 (package! org-modern) ;; https://github.com/minad/org-modern
 
 (package! org-modern-indent
   :recipe (:host github :repo "jdtsmith/org-modern-indent"))
 
+(package! org-gtd) ;; https://github.com/Trevoke/org-gtd.el
+
+(package! org-appear) ;; https://github.com/awth13/org-appear
+
+(package! org-books) ;; https://github.com/lepisma/org-books
+
+(package! org-noter) ;; https://github.com/org-noter/org-noter
+
+(package! org-now
+  :recipe (:host github :repo "alphapapa/org-now")) ;; https://github.com/alphapapa/org-now
+
 (package! org-remark) ;; https://github.com/nobiot/org-remark
 
 (package! image-popup
-  :recipe (:host gitlab :repo "OlMon/image-popup"))
+  :recipe (:host gitlab :repo "OlMon/image-popup")) ;; https://gitlab.com/OlMon/image-popup
 
-;; (package! valign)
+(package! ob-mermaid) ;; https://github.com/arnm/ob-mermaid
 
-(package! svg-tag-mode) ;; https://github.com/rougier/svg-tag-mode
+(package! spacious-padding) ;; https://github.com/protesilaos/spacious-padding
+
+(package! affe) ;; https://github.com/minad/affe
 
 (package! blamer) ;; https://github.com/Artawower/blamer.el
 
-;; (package! burly) ;; https://github.com/alphapapa/burly.el
+(package! casual-bookmarks
+  :recipe (:host github :repo "kickingvegas/casual-bookmarks")) ;; https://github.com/kickingvegas/casual-bookmarks
 
-;; (package! combobulate) ;; https://github.com/mickeynp/combobulate
+(package! casual-re-builder)
 
 (package! circadian) ;; https://github.com/guidoschmidt/circadian.el
 
-;; (package! elogcat) ;; https://github.com/youngker/elogcat.el
-
-(package! jq-mode) ;; https://github.com/ljos/jq-mode
-
-(package! just-mode)
-(package! justl)
-
-(package! languagetool) ;; https://github.com/PillFall/languagetool.el
-
-(package! olivetti) ;; https://github.com/rnkn/olivetti
+(package! ef-themes) ;; https://github.com/protesilaos/ef-themes
 
 (package! focus) ;; https://github.com/larstvei/Focus
 
+;; (package! fontaine) ;; https://github.com/protesilaos/fontaine
+
+(package! indent-bars
+  :recipe (:host github :repo "jdtsmith/indent-bars")) ;; https://github.com/jdtsmith/indent-bars
+
+(package! info-colors) ;; https://github.com/ubolonton/info-colors
+
+(package! jinx) ;; https://github.com/minad/jinx
+
+(package! jq-mode) ;; https://github.com/ljos/jq-mode
+
+(package! languagetool) ;; https://github.com/PillFall/languagetool.el
+
+(package! litable
+  :recipe (:host github :repo "Fuco1/litable")) ;; https://github.com/Fuco1/litable
+
 (package! logos) ;; https://github.com/protesilaos/logos
 
-(package! magit-pretty-graph
-  :recipe (:host github
-           :repo "georgek/magit-pretty-graph"))
-
-(package! ef-themes) ;; https://github.com/protesilaos/ef-themes
+(package! mlscroll) ;; https://github.com/jdtsmith/mlscroll
 
 (package! modus-themes) ;; https://github.com/protesilaos/modus-themes
 
-(package! fontaine) ;; https://github.com/protesilaos/fontaine
+(package! nov) ;; https://depp.brause.cc/nov.el/
 
-(package! popper) ;; https://github.com/karthink/popper
+(package! nushell-ts-mode
+  :recipe (:host github :repo "herbertjones/nushell-ts-mode")) ;; https://github.com/herbertjones/nushell-ts-mode
+
+(package! obvious
+  :recipe (:host github :repo "alphapapa/obvious.el")) ;; https://github.com/alphapapa/obvious.el
+
+(package! olivetti) ;; https://github.com/rnkn/olivetti
+
+(package! paren-face) ;; https://github.com/tarsius/paren-face
 
 (package! puni) ;; https://github.com/AmaiKinono/puni
 
+(package! pulsar) ;; https://github.com/protesilaos/pulsar
+
 (package! rotate) ;; https://github.com/daichirata/emacs-rotate
 
-(package! tempel)
-(package! tempel-collection)
+(package! tempel) ;; https://github.com/minad/tempel
+(package! tempel-collection) ;; https://github.com/Crandel/tempel-collection
 
-(package! multi-vterm
-  :recipe (:host github :repo "gagbo/multi-vterm" :branch "display_buffer"))
-
-(package! nov) ;; https://depp.brause.cc/nov.el/
-
-(package! nushell-mode :recipe (:host github :repo "mrkkrp/nushell-mode")) ;; https://github.com/mrkkrp/nushell-mode
-
-(package! vundo) ;; https://github.com/casouri/vundo
+(package! todoist) ;; https://github.com/abrochard/emacs-todoist
 
 (package! verb) ;; https://github.com/federicotdn/verb
 
-(package! evil-fringe-mark)
+(package! zoom) ;; https://github.com/cyrus-and/zoom
 
-;; (package! pulsar)
+(unpin! nix-mode)
+
+(package! evil-fringe-mark) ;; https://github.com/Andrew-William-Smith/evil-fringe-mark
+
+(package! org-wild-notifier) ;; https://github.com/akhramov/org-wild-notifier.el
+
+(package! systemd) ;; https://github.com/holomorph/systemd-mode
+
+(package! nano-modeline)
+
+(package! helm-org :disable t)
