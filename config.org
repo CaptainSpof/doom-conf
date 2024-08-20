@@ -258,12 +258,7 @@ bible).
 
       [return] #'org-agenda-goto
       [S-return] #'org-agenda-switch-to)
-
-
-
-
 #+end_src
-
 
 ** General stuff
 
@@ -2016,6 +2011,7 @@ learned that it wasn't possible to see the nice block style with ~org-modern~.
   :hook
   (org-indent-mode . org-modern-indent-mode))
 #+end_src
+
 *** ~org-mouse~
 **** Configuration
 
