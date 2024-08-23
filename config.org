@@ -111,7 +111,7 @@ so it must be good, right?
 ** Personal =localleader= · I am the captain, now
 
 The =leader= and =localleader= keys are great, but I want my own, this way, I am
-sure my key bindings won't interfer with anythings. I chose =SPC ç=, but I might
+sure my key bindings won't interfere with anythings. I chose =SPC ç=, but I might
 change it to something else, maybe a dedicated key on my keyboard…
 
 #+begin_src emacs-lisp
@@ -129,8 +129,7 @@ Disabling ~evil-escape~, there's no escaping, I tried.
 
 ** Default Shell
 
-To make fish happy, I guess. Which in turn makes me “content comme un poisson
-dans l'eau” /sigh/.
+To make ~fish~ happy, I guess.
 
 #+begin_src emacs-lisp
 (setq-default vterm-shell (executable-find "fish"))
@@ -551,8 +550,16 @@ Enable ~mixed-pitched-mode~ in ~org-mode~.
 
 Ferris is just too cute, I need to see him everyday…
 
+Now come with more cute dinos!
+
 #+begin_src emacs-lisp
-(setq fancy-splash-image (expand-file-name "misc/splash-images/ferris.svg" doom-user-dir))
+(setq fancy-splash-images
+      (list
+       (expand-file-name "misc/splash-images/ferris.svg" doom-user-dir)
+       (expand-file-name "misc/splash-images/angrytrex.png" doom-user-dir)
+       (expand-file-name "misc/splash-images/happystego.png" doom-user-dir)))
+
+(setq fancy-splash-image (nth (random (length fancy-splash-images)) fancy-splash-images))
 #+end_src
 
 …and only him, remove the dashboard shortcuts, I'll customize them later anyway.

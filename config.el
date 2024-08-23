@@ -255,7 +255,13 @@ the associated key is pressed after the repeatable action is triggered."
   :config
   (setq mixed-pitch-set-heigth t))
 
-(setq fancy-splash-image (expand-file-name "misc/splash-images/ferris.svg" doom-user-dir))
+(setq fancy-splash-images
+      (list
+       (expand-file-name "misc/splash-images/ferris.svg" doom-user-dir)
+       (expand-file-name "misc/splash-images/angrytrex.png" doom-user-dir)
+       (expand-file-name "misc/splash-images/happystego.png" doom-user-dir)))
+
+(setq fancy-splash-image (nth (random (length fancy-splash-images)) fancy-splash-images))
 
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 
