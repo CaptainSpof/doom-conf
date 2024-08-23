@@ -800,8 +800,6 @@ This only works with orderless and for the first component of the search."
         ("v" . "verse")
         ("q" . "quote")))
 
-;; (require 'org-mouse)
-
 (defun individual-visibility-source-blocks ()
   "Fold some blocks in the current buffer."
   (interactive)
@@ -977,7 +975,7 @@ This only works with orderless and for the first component of the search."
              (nerd-icons-mdicon
               "nf-md-calendar_sync"
               :height 0.9)) nil nil :ascent center)
-          ("Tasks"
+          ("tasks"
            ,(list
              (nerd-icons-codicon
               "nf-cod-tasklist"
@@ -1138,6 +1136,8 @@ This only works with orderless and for the first component of the search."
   :after org-modern
   :hook
   (org-indent-mode . org-modern-indent-mode))
+
+(require 'org-mouse)
 
 (setq org-gtd-update-ack "3.0.0")
 (use-package! org-gtd

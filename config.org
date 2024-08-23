@@ -29,7 +29,7 @@ If, by any chance, someone other than me stumble across this repository. *BEWARE
 - I don't understand ~emacs lisp~ very well, nor any intricacies of Emacs, such as load
   order and so on.
 - I might be doing stuff incredibly wrong, which might cause you to experience:
-  /itching/, /headache/, /internal bleeding/, /raise your taxes/ and kill your cat… to
+  /itching/, /headache/, /internal bleeding/, /raise your taxes/ and /kill your cat…/ to
   name a few. So again, *BEWARE*.
 
 ** Before we start
@@ -1560,12 +1560,6 @@ define some of our own.
         ("q" . "quote")))
 #+end_src
 
-Sometimes it is nice to be able to use the mouse.
-
-#+begin_src emacs-lisp
-;; (require 'org-mouse)
-#+end_src
-
 Some ~or-babel~ blocks might take too much space, so let's have a way to specify
 hidden block.
 
@@ -1793,7 +1787,7 @@ Let's start by removing some ~DOOM~ code, this makes ~org-habit~ graph acting we
              (nerd-icons-mdicon
               "nf-md-calendar_sync"
               :height 0.9)) nil nil :ascent center)
-          ("Tasks"
+          ("tasks"
            ,(list
              (nerd-icons-codicon
               "nf-cod-tasklist"
@@ -2021,6 +2015,14 @@ learned that it wasn't possible to see the nice block style with ~org-modern~.
   :after org-modern
   :hook
   (org-indent-mode . org-modern-indent-mode))
+#+end_src
+*** ~org-mouse~
+**** Configuration
+
+Sometimes it is nice to be able to use the mouse.
+
+#+begin_src emacs-lisp
+(require 'org-mouse)
 #+end_src
 
 *** FIXME ~org-gtd~
