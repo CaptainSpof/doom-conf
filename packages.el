@@ -46,11 +46,6 @@
 
 (package! blamer) ;; https://github.com/Artawower/blamer.el
 
-(package! casual-bookmarks
-  :recipe (:host github :repo "kickingvegas/casual-bookmarks")) ;; https://github.com/kickingvegas/casual-bookmarks
-
-(package! casual-re-builder)
-
 (package! circadian) ;; https://github.com/guidoschmidt/circadian.el
 
 (package! ef-themes) ;; https://github.com/protesilaos/ef-themes

@@ -1374,17 +1374,6 @@ This only works with orderless and for the first component of the search."
     :desc  "Blamer posframe commit info" "," #'blamer-show-posframe-commit-info
     :desc  "Blamer mode"                 ";" #'blamer-mode)))
 
-(use-package! casual-bookmarks
-  :ensure t)
-
-(use-package! casual-re-builder
-  :ensure t
-  :bind (:map
-         reb-mode-map ("C-o" . casual-re-builder-tmenu)
-         :map
-         reb-lisp-mode-map ("C-o" . casual-re-builder-tmenu))
-  :after (re-builder))
-
 (use-package! circadian
   :ensure t
   :init

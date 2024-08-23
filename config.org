@@ -1,4 +1,4 @@
-;; -*- mode: org; mode: logos-focus; olivetti-margin-width: 100;  -*-
+;; -*- mode: org; mode: logos-focus; -*-
 :DOC-CONFIG:
 #+property: header-args:emacs-lisp yes :comments no
 #+startup: fold
@@ -808,7 +808,7 @@ different places.
 #+end_src
 
 Send ~consult-line~ search pattern to the evil search history ring.
-Basically, =spc ss= → =ret= → =n= → =n= …
+Basically, =spc s s= → =ret= → =n= → =n= …
 
 #+begin_src emacs-lisp
 (defun noct-consult-line-evil-history (&rest _)
@@ -847,7 +847,6 @@ Finally, let's define some bindings.
 #+end_src
 
 *** ~embark~
-
 **** Configuration & Mapping
 
 =C-;= is three key presses in a bépo keyboard, let's add a more accessible
@@ -887,7 +886,6 @@ Typically, I would use it like this:
 #+end_src
 
 *** ~vertico~
-
 **** Overview
 
 |------------+------------------------+---------------------------|
@@ -896,7 +894,6 @@ Typically, I would use it like this:
 | =M-o c=      | ~consult-toggle-preview~ | Toggle preview in ~vertico~ |
 |            |                        |                           |
 |------------+------------------------+---------------------------|
-
 **** Configuration
 
 ~vertico~ allows us to choose which completion style we want for various
@@ -1115,7 +1112,6 @@ with =C-==.
 #+end_src
 
 *** ~fold~
-
 **** Mapping
 
 Quickly toggle ~folds~.
@@ -1127,7 +1123,6 @@ Quickly toggle ~folds~.
 #+end_src
 
 *** ~rotate-text~
-
 **** Configuration & Mapping
 
 I can't be ask to remember all useful bindings!
@@ -1178,7 +1173,6 @@ Take A or B, why not both ?
 
 *** ~dired~ · « Our last resort, in these dire times »
 **** TODO Overview
-
 **** Configuration
 
 Open file with external application from ~Dired~.
@@ -1238,7 +1232,6 @@ have ~eshell~ and ~vterm~ for that. I am still undecided between the two, so I u
 them both!
 
 *** ~eshell~
-
 **** Configuration
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -1333,7 +1326,6 @@ Now lets put all this into a global binding, I'll use =SPC e=.
 
 ** Checkers · ~:check(er)~ mate
 *** ~langtool~
-
 **** Configuration
 
 ~langtool~ isn't cutting it for me, I'll setup ~languagetool.el~ latter on.
@@ -1343,7 +1335,6 @@ Now lets put all this into a global binding, I'll use =SPC e=.
 #+end_src
 
 *** ~flycheck~
-
 **** Configuration & Mapping
 
 I write mostly bad code, so I need to jump to problems easily.
@@ -1357,7 +1348,6 @@ I write mostly bad code, so I need to jump to problems easily.
 #+end_src
 
 *** ~flymake~
-
 **** Configuration & Mapping
 
 I write mostly bad code, so I need to jump to problems easily.
@@ -1376,7 +1366,6 @@ I write mostly bad code, so I need to jump to problems easily.
 
 ** Tools · the sharpest ~:tool~ in the shed
 *** ~lookup~ · « Ahh we used to look up at the sky and wonder…»
-
 **** Mapping
 
 In situation when I need to quickly look a word definition to not look too dumb.
@@ -1402,7 +1391,6 @@ Let's try to apply some performance recommendation regarding =plists=.
 #+end_src
 
 *** ~magit~
-
 **** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -1439,7 +1427,6 @@ Show a list of TODO and other keywords in the ~magit~ status view.
 
 ** App · ~:app~ lause please
 *** ~emoji~
-
 **** Configuration & Mapping
 
 Remove some Emoji, for which I want to display a symbol.
@@ -1459,7 +1446,6 @@ Remove some Emoji, for which I want to display a symbol.
 #+end_src
 
 *** ~elfeed~
-
 **** Overview
 
 |------------+---------------+-----------------|
@@ -2020,9 +2006,7 @@ liking and remove the things I don't use.
 #+end_src
 
 *** ~org-modern-indent~
-
 /modern block styling with org-indent/
-
 **** Configuration
 
 Indenting headings in ~org-mode~ helps me find my way, so I was a bit sad when I
@@ -2106,10 +2090,8 @@ Sometimes it is nice to be able to use the mouse.
 #+end_src
 
 *** ~org-appear~
-
 /Toggle visibility of hidden Org mode element parts upon entering and leaving an
 element/
-
 **** Configuration
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2130,9 +2112,7 @@ Add a hook to ~org-mode~.
 #+end_src
 
 *** ~org-books~
-
 /Reading list management with org mode/
-
 **** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2174,9 +2154,7 @@ Add a hook to ~org-mode~.
 #+END_SRC
 
 *** ~org-noter~
-
 /Emacs document annotator, using Org-mode/
-
 **** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2189,9 +2167,7 @@ Add a hook to ~org-mode~.
 #+end_src
 
 *** ~org-now~
-
 /Conveniently show current Org tasks in a sidebar window/
-
 **** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2223,9 +2199,7 @@ Add a hook to ~org-mode~.
 #+end_src
 
 *** ~org-remark~
-
 /Highlight & annotate text, EWW, Info, and EPUB/
-
 **** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2247,9 +2221,7 @@ Add a hook to ~org-mode~.
 #+end_src
 
 *** ~org-roam~
-
 /Rudimentary Roam replica with Org-mode/
-
 **** Configuration
 
 #+begin_src emacs-lisp
@@ -2270,10 +2242,8 @@ Add a hook to ~org-mode~.
 #+end_src
 
 *** ~image-popup~
-
-Viewing image in org buffer is nice, but I'd rather have a small thumbnail with
-a popup image, rather than configuring for every image its size.
-
+/Viewing image in org buffer is nice, but I'd rather have a small thumbnail with/
+/a popup image, rather than configuring for every image its size./
 **** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2292,7 +2262,6 @@ a popup image, rather than configuring for every image its size.
 #+end_src
 
 *** ~mermaid-mode~
-
 **** Configuration
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2307,9 +2276,7 @@ a popup image, rather than configuring for every image its size.
 #+end_src
 
 *** ~spacious-mode~
-
 /Increase the padding/spacing of GNU Emacs frames and windows./
-
 **** Configuration
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2557,32 +2524,32 @@ Let's customize the face and add a few key bindings.
     :desc  "Blamer mode"                 ";" #'blamer-mode)))
 #+end_src
 
-** TODO ~casual-bookmarks~
+** ~casual-bookmarks~  :ARCHIVE:
 *** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! casual-bookmarks
-  :recipe (:host github :repo "kickingvegas/casual-bookmarks")) ;; https://github.com/kickingvegas/casual-bookmarks
+;; (package! casual-bookmarks
+;;   :recipe (:host github :repo "kickingvegas/casual-bookmarks")) ;; https://github.com/kickingvegas/casual-bookmarks
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! casual-bookmarks
-  :ensure t)
+;; (use-package! casual-bookmarks
+;;   :ensure t)
 #+end_src
-** ~casual-re-builder~
+** ~casual-re-builder~  :ARCHIVE:
 *** Configuration & Mapping
 #+begin_src emacs-lisp :tangle packages.el
-(package! casual-re-builder)
+;; (package! casual-re-builder)
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! casual-re-builder
-  :ensure t
-  :bind (:map
-         reb-mode-map ("C-o" . casual-re-builder-tmenu)
-         :map
-         reb-lisp-mode-map ("C-o" . casual-re-builder-tmenu))
-  :after (re-builder))
+;; (use-package! casual-re-builder
+;;   :ensure t
+;;   :bind (:map
+;;          reb-mode-map ("C-o" . casual-re-builder-tmenu)
+;;          :map
+;;          reb-lisp-mode-map ("C-o" . casual-re-builder-tmenu))
+;;   :after (re-builder))
 #+end_src
 
 ** ~circadian~ · Cadia Stands!!!
