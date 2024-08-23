@@ -3291,6 +3291,8 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
 (package! puni) ;; https://github.com/AmaiKinono/puni
 #+end_src
 
+An improved version of ~puni-kill-line~, from the repo's wiki.
+
 #+begin_src emacs-lisp
 ;;;###autoload
 (defun daf/puni-kill-line ()
@@ -3303,9 +3305,12 @@ deleted, kill the pairs around point."
         (when-let ((sexp-bounds (puni-bounds-of-sexp-around-point)))
           (puni-delete-region (car sexp-bounds) (cdr sexp-bounds) 'kill))
       (if (eq (point) (cdr bounds))
-          (puni-backward-kill-line evil-want-fine-undo 'yes)
+          (puni-backward-kill-line)
         (puni-kill-line)))))
 
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package! puni
   :init
   (map!

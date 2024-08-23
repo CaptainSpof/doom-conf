@@ -1713,7 +1713,7 @@ deleted, kill the pairs around point."
         (when-let ((sexp-bounds (puni-bounds-of-sexp-around-point)))
           (puni-delete-region (car sexp-bounds) (cdr sexp-bounds) 'kill))
       (if (eq (point) (cdr bounds))
-          (puni-backward-kill-line evil-want-fine-undo 'yes)
+          (puni-backward-kill-line)
         (puni-kill-line)))))
 
 (use-package! puni
