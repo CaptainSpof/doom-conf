@@ -787,23 +787,6 @@ This only works with orderless and for the first component of the search."
           ("NO"      . +org-todo-cancel)
           ("DROP"    . +org-todo-cancel))))
 
-  ;; (setq org-todo-keywords
-        ;; '((sequence
-           ;; "TODO(t)"
-           ;; "NEXT(n)"
-           ;; "REVIEW(r)"
-           ;; "WAIT(w)"
-           ;; "HOLD(h)"
-           ;; "MAYBE(m)"
-           ;; "SOMEDAY(s)"
-           ;; "FIXME(f)"
-           ;; "|"
-           ;; "DONE(d)"
-           ;; "DROP(D)")
-          ;; (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
-          ;; (sequence "TOREAD(l)" "READING(L)" "|" "READ(R)")
-          ;; (sequence "|" "YES(y)" "NO(N)")))
-
 (use-package! org-tempo
   :after org
   :demand t)
@@ -1679,11 +1662,13 @@ The exact color values are taken from the active Ef theme."
   (evil-window-bottom)
   (evil-scroll-line-to-top (line-number-at-pos))
   (+nav-flash/blink-cursor))
+
 (defun daf/scroll-top-line-to-bottom ()
   (interactive)
   (evil-window-top)
   (evil-scroll-line-to-bottom (line-number-at-pos))
   (+nav-flash/blink-cursor))
+
 :init
 (map!
  :map nov-mode-map

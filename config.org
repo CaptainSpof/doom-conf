@@ -1465,7 +1465,6 @@ Remove some Emoji, for which I want to display a symbol.
 | =spc r .=    | […]           | Open =elfeed.org= |
 |            |               |                 |
 |------------+---------------+-----------------|
-
 **** Configuration & Mapping
 
 ~Elfeed~ doesn't have a binding by default, conveniently, =spc r= is available.
@@ -1538,25 +1537,7 @@ Let's customize the ~org-todo-keywords~ list. Also, make ~org-code~ verbatim ita
           ("SOMEDAY" . +org-todo-onhold)
           ("NO"      . +org-todo-cancel)
           ("DROP"    . +org-todo-cancel))))
-
-  ;; (setq org-todo-keywords
-        ;; '((sequence
-           ;; "TODO(t)"
-           ;; "NEXT(n)"
-           ;; "REVIEW(r)"
-           ;; "WAIT(w)"
-           ;; "HOLD(h)"
-           ;; "MAYBE(m)"
-           ;; "SOMEDAY(s)"
-           ;; "FIXME(f)"
-           ;; "|"
-           ;; "DONE(d)"
-           ;; "DROP(D)")
-          ;; (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
-          ;; (sequence "TOREAD(l)" "READING(L)" "|" "READ(R)")
-          ;; (sequence "|" "YES(y)" "NO(N)")))
-
-#+end_src
+  #+end_src
 
 There are some handy shortcuts in ~org-mode~ to insert babel src blocks, we can
 define some of our own.
@@ -3216,11 +3197,13 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
   (evil-window-bottom)
   (evil-scroll-line-to-top (line-number-at-pos))
   (+nav-flash/blink-cursor))
+
 (defun daf/scroll-top-line-to-bottom ()
   (interactive)
   (evil-window-top)
   (evil-scroll-line-to-bottom (line-number-at-pos))
   (+nav-flash/blink-cursor))
+
 :init
 (map!
  :map nov-mode-map
