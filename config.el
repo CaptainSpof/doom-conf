@@ -703,8 +703,9 @@ This only works with orderless and for the first component of the search."
   (map!
    :after magit
    :map magit-mode-map
-   :n "g»" #'+workspace/switch-right
-   :n "g«" #'+workspace/switch-left
+   :n "$"   #'magit-process-buffer
+   :n "g»"  #'+workspace/switch-right
+   :n "g«"  #'+workspace/switch-left
    :n "C-t" #'magit-section-forward-sibling
    :n "C-s" #'magit-section-backward-sibling))
 
@@ -903,7 +904,6 @@ This only works with orderless and for the first component of the search."
 
 (defadvice! +org-init-appearance-h--no-ligatures-a ()
   :after #'+org-init-appearance-h
-  (message "DAF org-init-appearance")
   (set-ligatures! 'org-mode nil)
   (set-ligatures! 'org-mode
     :list_property "::"
