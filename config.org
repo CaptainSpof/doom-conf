@@ -723,6 +723,26 @@ the ~global-whitespace-mode~ and revert the buffer afterward.
   (global-whitespace-mode 'toggle)
   (revert-buffer))
 #+end_src
+*** ~vc-gutter~
+**** Configuration & Mapping
+
+Add some bindings for hunk navigation =g (= , =g )=.
+
+#+begin_src emacs-lisp
+(map!
+ :prefix "g"
+ :n ")" #'+vc-gutter/next-hunk
+ :n "(" #'+vc-gutter/previous-hunk)
+#+end_src
+
+And make it repeatable.
+
+#+begin_src emacs-lisp
+(daf/repeat-map! daf-navigate-hunk-repeat-map
+                 '((+vc-gutter/next-hunk     . ")")
+                   (+vc-gutter/previous-hunk . "("))
+                 "Repeatable map for navigating hunks")
+#+end_src
 
 ** Completion · ~:completion~
 *** ~consult~

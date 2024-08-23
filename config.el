@@ -325,6 +325,16 @@ the associated key is pressed after the repeatable action is triggered."
   (global-whitespace-mode 'toggle)
   (revert-buffer))
 
+(map!
+ :prefix "g"
+ :n ")" #'+vc-gutter/next-hunk
+ :n "(" #'+vc-gutter/previous-hunk)
+
+(daf/repeat-map! daf-navigate-hunk-repeat-map
+                 '((+vc-gutter/next-hunk     . ")")
+                   (+vc-gutter/previous-hunk . "("))
+                 "Repeatable map for navigating hunks")
+
 (setq consult-narrow-key "«")
 
 (use-package! embark-consult
