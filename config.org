@@ -324,6 +324,16 @@ Nevermind, hit an error: tab-with must be set to 8 in org-mode buffers…
  :nv "\"" #'+popup/toggle)
 #+end_src
 
+I'm no "baka"!
+
+This is just me trying out some mapping function in emacs lisp. Is it how it
+works ?
+
+#+begin_src emacs-lisp
+(setq +doom-quit-messages
+      (delete (seq-find (lambda (elmt) (string-match-p "baka" elmt)) +doom-quit-messages) +doom-quit-messages))
+#+end_src
+
 ** Expand region
 
 When using ~evil-mode~, you can rebind =v= to ~er/expand-region~, this is super

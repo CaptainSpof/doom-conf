@@ -103,6 +103,9 @@
  :leader
  :nv "\"" #'+popup/toggle)
 
+(setq +doom-quit-messages
+      (delete (seq-find (lambda (elmt) (string-match-p "baka" elmt)) +doom-quit-messages) +doom-quit-messages))
+
 (map!
  :map 'override
  :v "v" #'er/expand-region
