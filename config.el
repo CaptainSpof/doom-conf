@@ -209,27 +209,6 @@ the associated key is pressed after the repeatable action is triggered."
   `(org-level-8     :foreground ,everforest-hard-dark-yellow)
   `(hl-line         :background ,(doom-lighten (doom-color 'base3) 0.10)))
 
-;; (nano-theme-set-light-tinted)
-;; (customize-set-variable 'modus-themes-common-palette-overrides
-                        ;; `(
-                          ;; ;; Make the mode-line borderless
-                          ;; ;; (bg-mode-line-active       ,nano-color-subtle)
-                          ;; ;; (fg-mode-line-active       fg-main)
-                          ;; ;; (bg-mode-line-inactive     ,nano-color-highlight)
-                          ;; ;; (fg-mode-line-active       fg-dim)
-                          ;; ;; (bg-search-lazy            ,nano-color-popout)
-                          ;; ;; (border-mode-line-active   ,nano-color-subtle)
-                          ;; ;; (border-mode-line-inactive bg-main)
-                          ;; (doom-modeline-panel :background)
-                          ;; ))
-
-;; (custom-theme-set-faces! 'modus-operandi-tinted
-  ;; `(pulsar-magenta :background ,nano-color-popout)
-  ;; `(doom-modeline-bar :background ,nano-color-foreground)
-  ;; `(doom-modeline-panel :background ,nano-color-popout :foreground ,nano-color-foreground)
-  ;; `(org-modern-tag :background ,nano-color-faded)
-  ;; `(eros-result-overlay-face :background ,nano-color-faded))
-
 (defun daf/toggle-themes ()
   "Toggle between light and dark themes."
   (interactive)
@@ -264,6 +243,7 @@ the associated key is pressed after the repeatable action is triggered."
 (setq fancy-splash-image (nth (random (length fancy-splash-images)) fancy-splash-images))
 
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+;; (setq +doom-dashboard-functions '(doom-dashboard-widget-banner))
 
 (defun +doom-dashboard-setup-modified-keymap ()
   (setq +doom-dashboard-mode-map (make-sparse-keymap))
@@ -324,21 +304,41 @@ the associated key is pressed after the repeatable action is triggered."
 (map!
  :leader
  :prefix ("t" . "toggle")
- "SPC" #'daf/show-whitespaces)
+ :desc "Whitespaces" "SPC" #'daf/show-whitespaces)
 
 (defun daf/show-whitespaces ()
   (interactive)
   (global-whitespace-mode 'toggle)
   (revert-buffer))
 
+(defun daf/prev-hunk ()
+  "Navigate hunk via vc-gutter or diff-hunk"
+  (interactive)
+  (condition-case err
+      (+vc-gutter/previous-hunk)
+    (user-error
+     (message "User error: %s" (error-message-string err))
+     (diff-hunk-prev))))
+
+(defun daf/next-hunk ()
+  "Navigate hunk via vc-gutter or diff-hunk"
+  (interactive)
+  (condition-case err
+      (+vc-gutter/next-hunk)
+    (user-error
+     (message "User error: %s" (error-message-string err))
+     (diff-hunk-next))))
+
 (map!
  :prefix "g"
- :n ")" #'+vc-gutter/next-hunk
- :n "(" #'+vc-gutter/previous-hunk)
+ :n ")" #'daf/next-hunk
+ :n "(" #'daf/prev-hunk)
 
 (daf/repeat-map! daf-navigate-hunk-repeat-map
-                 '((+vc-gutter/next-hunk     . ")")
-                   (+vc-gutter/previous-hunk . "("))
+                 '((daf/next-hunk . ")")
+                   (daf/prev-hunk . "(")
+                   (daf/prev-hunk . "p")
+                   (daf/next-hunk . "n"))
                  "Repeatable map for navigating hunks")
 
 (setq consult-narrow-key "«")
@@ -442,8 +442,8 @@ This only works with orderless and for the first component of the search."
         vertico-multiform-commands     '((consult-line buffer))
         vertico-multiform-categories   '((consult-grep buffer))
         vertico-buffer-display-action  '(display-buffer-in-side-window
-                                          (side . left)
-                                          (window-width . 0.4))))
+                                         (side . left)
+                                         (window-width . 0.4))))
 
 (autoload #'consult--read "consult")
 
@@ -582,10 +582,14 @@ This only works with orderless and for the first component of the search."
 
 (defun ediff-copy-both-to-C ()
   (interactive)
-  (ediff-copy-diff ediff-current-difference nil 'C nil
-                   (concat
-                    (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
-                    (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+  (ediff-copy-diff
+   ediff-current-difference nil 'C nil
+   (concat
+    (ediff-get-region-contents
+     ediff-current-difference 'A ediff-control-buffer)
+    (ediff-get-region-contents
+     ediff-current-difference 'B ediff-control-buffer))))
+
 (defun add-d-to-ediff-mode-map ()
   (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
 
@@ -703,19 +707,22 @@ This only works with orderless and for the first component of the search."
  (:when (modulep! :tools lookup)
    :n "z?" #'define-word-at-point))
 
-(use-package! magit
-  :ensure nil
-  :init
+(after! magit
   (map!
-   :after magit
    :map magit-mode-map
    :n "$"   #'magit-process-buffer
    :n "g»"  #'+workspace/switch-right
    :n "g«"  #'+workspace/switch-left
    :n "C-t" #'magit-section-forward-sibling
+   :n "C-s" #'magit-section-backward-sibling)
+  (map!
+   :map magit-status-mode-map
+   :n "g("  #'daf/prev-hunk
+   :n "g)"  #'daf/next-hunk
+   :n "C-t" #'magit-section-forward-sibling
    :n "C-s" #'magit-section-backward-sibling))
 
-
+;; REVIEW
 (after! gv
   (put 'buffer-local-value 'byte-obsolete-generalized-variable nil))
 
@@ -754,7 +761,7 @@ This only works with orderless and for the first component of the search."
            "REVIEW(r)"  ; A task being tested/reviewed
            "WAIT(w)"    ; Something external is holding up this task
            "HOLD(h)"    ; This task is paused/on hold because of me
-           "MAYBE(m)"   ; A task that need might be droped
+           "MAYBE(m)"   ; A task that might be droped
            "SOMEDAY(s)" ; A task without a precise timebox
            "FIXME(f)"
            "|"
@@ -767,10 +774,10 @@ This only works with orderless and for the first component of the search."
            "|"
            "[X](D)")    ; Task was completed
           (sequence
-           "TOREAD(l)"
-           "READING(L)"
+           "TOREAD(l)"  ; A book/article to read
+           "READING(L)" ; Currently reading
            "|"
-           "READ(R)")
+           "READ(R)")   ; Done reading
           (sequence
            "|"
            "YES(y)"
@@ -940,7 +947,6 @@ This only works with orderless and for the first component of the search."
           (habits . " %i %-12:c")
           (tags   . " %i %-12:c")
           (search . " %i %-12:c"))
-
         org-agenda-category-icon-alist
         `(
           ("Family"
@@ -982,6 +988,21 @@ This only works with orderless and for the first component of the search."
              (nerd-icons-codicon
               "nf-cod-tasklist"
               :height 0.9)) nil nil :ascent center)
+          ("Home-Assistant"
+           ,(list
+             (nerd-icons-mdicon
+              "nf-md-home_assistant"
+              :height 0.9)) nil nil :ascent center)
+          ("Book"
+           ,(list
+             (nerd-icons-codicon
+              "nf-cod-book"
+              :height 0.9)) nil nil :ascent center)
+          ("YouTube"
+           ,(list
+             (nerd-icons-faicon
+              "nf-fa-youtube"
+              :height 0.9)) nil nil :ascent center)
           ("Personal"
            ,(list
              (nerd-icons-codicon
@@ -1015,7 +1036,7 @@ This only works with orderless and for the first component of the search."
 
 (use-package! org-super-agenda
   :defer t
-  :after (org-agenda)
+  :after (org org-agenda)
   :commands org-super-agenda-mode
 
   :config
@@ -1032,6 +1053,11 @@ This only works with orderless and for the first component of the search."
             (alltodo "" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
                           '(
+                            (:order-multi (1 (:name "Done today"
+                                              :and (:regexp "State \"DONE\""
+                                                    :log t))
+                                             (:name "Clocked today"
+                                              :log t)))
                             (:auto-group t
                              :order 10)
                             (:name "Next to do"
@@ -1052,11 +1078,8 @@ This only works with orderless and for the first component of the search."
                             (:name "Due Soon"
                              :deadline future
                              :order 8)
-                            (:name "Issues"
-                             :tag "issue"
-                             :order 12)
                             (:name "Back Burner"
-                             :order 14
+                             :order 10
                              :todo "SOMEDAY")))
                          (org-agenda-list)))))))
 
@@ -1081,15 +1104,15 @@ This only works with orderless and for the first component of the search."
    org-modern-todo-faces
    '(("TODO"    :inverse-video t :inherit org-todo)
      ("[-]"     :inverse-video t :inherit +org-todo-active)
+     ("[?]"     :inverse-video t :inherit +org-todo-onhold)
      ("NEXT"    :inverse-video t :inherit +org-todo-active)
-     ("HOLD"    :inverse-video t :inherit +org-todo-onhold)
      ("WAIT"    :inverse-video t :inherit +org-todo-onhold)
      ("REVIEW"  :inverse-video t :inherit +org-todo-onhold)
+     ("HOLD"    :inverse-video t :inherit +org-todo-onhold)
      ("MAYBE"   :inverse-video t :inherit +org-todo-onhold)
      ("SOMEDAY" :inverse-video t :inherit +org-todo-onhold)
-     ("[?]"     :inverse-video t :inherit +org-todo-onhold)
-     ("DROP"    :inverse-video t :inherit +org-todo-cancel)
-     ("NO"      :inverse-video t :inherit +org-todo-cancel))
+     ("NO"      :inverse-video t :inherit +org-todo-cancel)
+     ("DROP"    :inverse-video t :inherit +org-todo-cancel))
    org-modern-block-name
    '((t . t)
      ("src"     "» " "«")
@@ -1143,14 +1166,13 @@ This only works with orderless and for the first component of the search."
 
 (setq org-gtd-update-ack "3.0.0")
 (use-package! org-gtd
-  :ensure t
   :demand t
   :after org
   :defer t
 
   :custom
   (org-gtd-directory org-directory)
-  (org-gtd-areas-of-focus '("Home" "Personal" "Work" "Family" "Health" "Emacs" "NixOS"))
+  (org-gtd-areas-of-focus '("Home" "Personal" "Work" "Family" "Health" "Emacs" "NixOS" "YouTube" "Home-Assistant"))
   (org-agenda-property-list '("DELEGATED_TO"))
   (org-edna-use-inheritance t)
 
@@ -1255,7 +1277,8 @@ This only works with orderless and for the first component of the search."
                        :g "[" #'org-remark-view-previous
                        :g "r" #'org-remark-remove)))))
 
-(setq org-roam-directory org-directory)
+(after! org
+  (setq org-roam-directory org-directory))
 
 (use-package! image-popup
   :defer t
@@ -1271,7 +1294,6 @@ This only works with orderless and for the first component of the search."
    (scheme  . t)))
 
 (use-package! spacious-padding
-  :ensure t
   :defer
   :hook (after-init . spacious-padding-mode))
 
@@ -1364,7 +1386,6 @@ This only works with orderless and for the first component of the search."
     :desc  "Blamer mode"                 ";" #'blamer-mode)))
 
 (use-package! circadian
-  :ensure t
   :init
 
   (add-hook 'circadian-after-load-theme-hook
@@ -1372,10 +1393,10 @@ This only works with orderless and for the first component of the search."
                 (message "Setting circadian theme.")
                 (cond ((eq doom-theme daf/dark-theme)
                        (message "Setting dark modeline theme."))
-                       ;; (nano-theme-set-dark)
+                      ;; (nano-theme-set-dark)
                       ((eq doom-theme daf/light-theme)
                        (message "Setting light modeline theme.")))
-                       ;; (nano-theme-set-light-tinted)
+                ;; (nano-theme-set-light-tinted)
                 ;; (nano-faces)
                 ;; (nano-theme)
                 (doom/reload-theme)))
@@ -1387,38 +1408,13 @@ This only works with orderless and for the first component of the search."
 
 (use-package! ef-themes
   :defer t
+
   :config
   (setq
    ;; ef-themes-variable-pitch-ui t
    ef-themes-italic-constructs t
    ef-themes-bold-constructs t
-   ef-themes-mixed-fonts t)
-
-  (defun daf/ef-themes-hl-todo-faces ()
-    "Configure `hl-todo-keyword-faces' with Ef themes colors.
-The exact color values are taken from the active Ef theme."
-    (ef-themes-with-colors
-     (setq hl-todo-keyword-faces
-           `(("HOLD" . ,yellow)
-             ("TODO" . ,red)
-             ("NEXT" . ,blue)
-             ("THEM" . ,magenta)
-             ("PROG" . ,cyan-warmer)
-             ("OKAY" . ,green-warmer)
-             ("DONT" . ,yellow-warmer)
-             ("DROP" . ,red-warmer)
-             ("FAIL" . ,red-warmer)
-             ("BUG" . ,red-warmer)
-             ("DONE" . ,green)
-             ("NOTE" . ,blue-warmer)
-             ("KLUDGE" . ,cyan)
-             ("HACK" . ,cyan)
-             ("TEMP" . ,red)
-             ("FIXME" . ,red-warmer)
-             ("XXX+" . ,red-warmer)
-             ("REVIEW" . ,red)
-             ("DEPRECATED" . ,yellow))))))
-;;(add-hook 'ef-themes-post-load-hook #'daf/ef-themes-hl-todo-faces)
+   ef-themes-mixed-fonts t))
 
 (use-package! embrace
   :defer t
@@ -1553,6 +1549,7 @@ The exact color values are taken from the active Ef theme."
 
 (use-package! jinx
   :defer t
+
   :init
   (add-hook 'doom-init-ui-hook #'global-jinx-mode)
   (map!
@@ -1748,7 +1745,6 @@ deleted, kill the pairs around point."
   (add-hook 'term-mode-hook #'puni-disable-puni-mode))
 
 (use-package! pulsar
-  :ensure t
   :defer t
   :config
   (add-to-list 'pulsar-pulse-functions 'evil-scroll-up)
@@ -1822,13 +1818,17 @@ deleted, kill the pairs around point."
 (use-package! tempel-collection)
 
 (use-package! verb
-  :ensure t
   :defer t
+
   :config
   (setq verb-json-use-mode 'json-mode)
+
   (defun graphql-to-json (rs)
     ;; Modify RS and return it (RS is a request specification, type `verb-request-spec')
-    (oset rs body (replace-regexp-in-string "\n" "" (format-message "{\"query\": \"%s\"}" (oref rs body))))
+    (oset rs body
+          (replace-regexp-in-string "\n" ""
+                                    (format-message "{\"query\": \"%s\"}"
+                                                    (oref rs body))))
     rs)
 
   :init
@@ -1856,7 +1856,6 @@ deleted, kill the pairs around point."
   (evil-define-key* 'normal 'global "U" #'vundo))
 
 (use-package! zoom
-  :ensure t
   :defer t
   ;; :hook (doom-first-input . zoom-mode)
 
@@ -1875,19 +1874,15 @@ deleted, kill the pairs around point."
                                            "*helpful variable: argv*")
         zoom-ignored-buffer-name-regexps '("^\\*calc" "\\*helpful variable: .*\\*")))
 
-(use-package! lsp-mode
-  :ensure t)
-
 (use-package! lsp-nix
-  :ensure lsp-mode
-  :after (lsp-mode)
+  :after lsp-mode
   :demand t
+
   :custom
   (lsp-nix-nil-formatter ["nixfmt"]))
 
 (use-package! nix-mode
-  :hook (nix-mode . lsp-deferred)
-  :ensure t)
+  :hook (nix-mode . lsp-deferred))
 
 (after! savehist
   (add-to-list 'savehist-additional-variables 'evil-markers-alist)
@@ -1942,11 +1937,11 @@ deleted, kill the pairs around point."
 (add-hook 'doom-load-theme-hook      #'daf/set-nano-modeline-face)
 
 (defun daf/set-nano-modeline-face ()
+  "Inherit faces from either mode-line or header-line"
   (let ((nano-modeline-face
          (if (eq (face-attribute 'header-line :background) 'unspecified)
              'mode-line
            'header-line)))
-
     (custom-set-faces!
       `(nano-modeline-active
         :foreground ,(face-attribute 'default :foreground)
@@ -1958,7 +1953,6 @@ deleted, kill the pairs around point."
 
 (defun daf/nano-modeline-vterm-mode ()
   "Nano line for term mode"
-
   (funcall nano-modeline-position
            '((nano-modeline-buffer-status ">_") " ")
            '((nano-modeline-default-directory) " "

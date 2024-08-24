@@ -111,4 +111,5 @@
 
 (package! nano-modeline)
 
+(package! helm :disable t)
 (package! helm-org :disable t)

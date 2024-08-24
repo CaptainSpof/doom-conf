@@ -25,10 +25,10 @@ lots of comments, which helps to give a false sense of order and quality.
 Oh yeah, I almost forgot. The mandatory _disclaimer_:
 
 If, by any chance, someone other than me stumble across this repository. *BEWARE*.
-- I mostly don't know what I am doing.
-- I don't understand ~emacs lisp~ very well, nor any intricacies of Emacs, such as load
++ I mostly don't know what I am doing.
++ I don't understand ~emacs lisp~ very well, nor any intricacies of Emacs, such as load
   order and so on.
-- I might be doing stuff incredibly wrong, which might cause you to experience:
++ I might be doing stuff incredibly wrong, which might cause you to experience:
   /itching/, /headache/, /internal bleeding/, /raise your taxes/ and /kill your cat…/ to
   name a few. So again, *BEWARE*.
 
@@ -480,32 +480,6 @@ borrowed from ~everforest~.
   `(hl-line         :background ,(doom-lighten (doom-color 'base3) 0.10)))
 #+end_src
 
-The ~modus-themes~ are nice, but I'm not so fond of the border in the modeline, so
-we'll remove it.
-
-#+begin_src emacs-lisp
-;; (nano-theme-set-light-tinted)
-;; (customize-set-variable 'modus-themes-common-palette-overrides
-                        ;; `(
-                          ;; ;; Make the mode-line borderless
-                          ;; ;; (bg-mode-line-active       ,nano-color-subtle)
-                          ;; ;; (fg-mode-line-active       fg-main)
-                          ;; ;; (bg-mode-line-inactive     ,nano-color-highlight)
-                          ;; ;; (fg-mode-line-active       fg-dim)
-                          ;; ;; (bg-search-lazy            ,nano-color-popout)
-                          ;; ;; (border-mode-line-active   ,nano-color-subtle)
-                          ;; ;; (border-mode-line-inactive bg-main)
-                          ;; (doom-modeline-panel :background)
-                          ;; ))
-
-;; (custom-theme-set-faces! 'modus-operandi-tinted
-  ;; `(pulsar-magenta :background ,nano-color-popout)
-  ;; `(doom-modeline-bar :background ,nano-color-foreground)
-  ;; `(doom-modeline-panel :background ,nano-color-popout :foreground ,nano-color-foreground)
-  ;; `(org-modern-tag :background ,nano-color-faded)
-  ;; `(eros-result-overlay-face :background ,nano-color-faded))
-#+end_src
-
 Let us have a nice and easy way to toggle between the two themes.
 
 #+begin_src emacs-lisp
@@ -566,6 +540,7 @@ Now come with more cute dinos!
 
 #+begin_src emacs-lisp
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+;; (setq +doom-dashboard-functions '(doom-dashboard-widget-banner))
 #+end_src
 
 *** Dashboard
@@ -723,7 +698,7 @@ the ~global-whitespace-mode~ and revert the buffer afterward.
 (map!
  :leader
  :prefix ("t" . "toggle")
- "SPC" #'daf/show-whitespaces)
+ :desc "Whitespaces" "SPC" #'daf/show-whitespaces)
 
 (defun daf/show-whitespaces ()
   (interactive)
@@ -736,18 +711,40 @@ the ~global-whitespace-mode~ and revert the buffer afterward.
 Add some bindings for hunk navigation =g (= , =g )=.
 
 #+begin_src emacs-lisp
+(defun daf/prev-hunk ()
+  "Navigate hunk via vc-gutter or diff-hunk"
+  (interactive)
+  (condition-case err
+      (+vc-gutter/previous-hunk)
+    (user-error
+     (message "User error: %s" (error-message-string err))
+     (diff-hunk-prev))))
+
+(defun daf/next-hunk ()
+  "Navigate hunk via vc-gutter or diff-hunk"
+  (interactive)
+  (condition-case err
+      (+vc-gutter/next-hunk)
+    (user-error
+     (message "User error: %s" (error-message-string err))
+     (diff-hunk-next))))
+
 (map!
  :prefix "g"
- :n ")" #'+vc-gutter/next-hunk
- :n "(" #'+vc-gutter/previous-hunk)
+ :n ")" #'daf/next-hunk
+ :n "(" #'daf/prev-hunk)
 #+end_src
 
 And make it repeatable.
 
+TODO: use either vc-gutter or diff-hunk command.
+
 #+begin_src emacs-lisp
 (daf/repeat-map! daf-navigate-hunk-repeat-map
-                 '((+vc-gutter/next-hunk     . ")")
-                   (+vc-gutter/previous-hunk . "("))
+                 '((daf/next-hunk . ")")
+                   (daf/prev-hunk . "(")
+                   (daf/prev-hunk . "p")
+                   (daf/next-hunk . "n"))
                  "Repeatable map for navigating hunks")
 #+end_src
 
@@ -917,8 +914,8 @@ should appear in the bottom.
         vertico-multiform-commands     '((consult-line buffer))
         vertico-multiform-categories   '((consult-grep buffer))
         vertico-buffer-display-action  '(display-buffer-in-side-window
-                                          (side . left)
-                                          (window-width . 0.4))))
+                                         (side . left)
+                                         (window-width . 0.4))))
 
 (autoload #'consult--read "consult")
 
@@ -1168,10 +1165,14 @@ Take A or B, why not both ?
 #+begin_src emacs-lisp
 (defun ediff-copy-both-to-C ()
   (interactive)
-  (ediff-copy-diff ediff-current-difference nil 'C nil
-                   (concat
-                    (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
-                    (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+  (ediff-copy-diff
+   ediff-current-difference nil 'C nil
+   (concat
+    (ediff-get-region-contents
+     ediff-current-difference 'A ediff-control-buffer)
+    (ediff-get-region-contents
+     ediff-current-difference 'B ediff-control-buffer))))
+
 (defun add-d-to-ediff-mode-map ()
   (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
 
@@ -1410,19 +1411,22 @@ Let's try to apply some performance recommendation regarding =plists=.
 Show a list of TODO and other keywords in the ~magit~ status view.
 
 #+begin_src emacs-lisp
-(use-package! magit
-  :ensure nil
-  :init
+(after! magit
   (map!
-   :after magit
    :map magit-mode-map
    :n "$"   #'magit-process-buffer
    :n "g»"  #'+workspace/switch-right
    :n "g«"  #'+workspace/switch-left
    :n "C-t" #'magit-section-forward-sibling
+   :n "C-s" #'magit-section-backward-sibling)
+  (map!
+   :map magit-status-mode-map
+   :n "g("  #'daf/prev-hunk
+   :n "g)"  #'daf/next-hunk
+   :n "C-t" #'magit-section-forward-sibling
    :n "C-s" #'magit-section-backward-sibling))
 
-
+;; REVIEW
 (after! gv
   (put 'buffer-local-value 'byte-obsolete-generalized-variable nil))
 
@@ -1505,7 +1509,7 @@ Let's customize the ~org-todo-keywords~ list. Also, make ~org-code~ verbatim ita
            "REVIEW(r)"  ; A task being tested/reviewed
            "WAIT(w)"    ; Something external is holding up this task
            "HOLD(h)"    ; This task is paused/on hold because of me
-           "MAYBE(m)"   ; A task that need might be droped
+           "MAYBE(m)"   ; A task that might be droped
            "SOMEDAY(s)" ; A task without a precise timebox
            "FIXME(f)"
            "|"
@@ -1518,10 +1522,10 @@ Let's customize the ~org-todo-keywords~ list. Also, make ~org-code~ verbatim ita
            "|"
            "[X](D)")    ; Task was completed
           (sequence
-           "TOREAD(l)"
-           "READING(L)"
+           "TOREAD(l)"  ; A book/article to read
+           "READING(L)" ; Currently reading
            "|"
-           "READ(R)")
+           "READ(R)")   ; Done reading
           (sequence
            "|"
            "YES(y)"
@@ -1537,7 +1541,7 @@ Let's customize the ~org-todo-keywords~ list. Also, make ~org-code~ verbatim ita
           ("SOMEDAY" . +org-todo-onhold)
           ("NO"      . +org-todo-cancel)
           ("DROP"    . +org-todo-cancel))))
-  #+end_src
+#+end_src
 
 There are some handy shortcuts in ~org-mode~ to insert babel src blocks, we can
 define some of our own.
@@ -1749,7 +1753,6 @@ Let's start by removing some ~DOOM~ code, this makes ~org-habit~ graph acting we
           (habits . " %i %-12:c")
           (tags   . " %i %-12:c")
           (search . " %i %-12:c"))
-
         org-agenda-category-icon-alist
         `(
           ("Family"
@@ -1790,6 +1793,21 @@ Let's start by removing some ~DOOM~ code, this makes ~org-habit~ graph acting we
            ,(list
              (nerd-icons-codicon
               "nf-cod-tasklist"
+              :height 0.9)) nil nil :ascent center)
+          ("Home-Assistant"
+           ,(list
+             (nerd-icons-mdicon
+              "nf-md-home_assistant"
+              :height 0.9)) nil nil :ascent center)
+          ("Book"
+           ,(list
+             (nerd-icons-codicon
+              "nf-cod-book"
+              :height 0.9)) nil nil :ascent center)
+          ("YouTube"
+           ,(list
+             (nerd-icons-faicon
+              "nf-fa-youtube"
               :height 0.9)) nil nil :ascent center)
           ("Personal"
            ,(list
@@ -1848,7 +1866,7 @@ Saves ~org-mode~ buffers whenever a schedule/deadline/check todo action is made.
 #+begin_src emacs-lisp
 (use-package! org-super-agenda
   :defer t
-  :after (org-agenda)
+  :after (org org-agenda)
   :commands org-super-agenda-mode
 
   :config
@@ -1865,6 +1883,11 @@ Saves ~org-mode~ buffers whenever a schedule/deadline/check todo action is made.
             (alltodo "" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
                           '(
+                            (:order-multi (1 (:name "Done today"
+                                              :and (:regexp "State \"DONE\""
+                                                    :log t))
+                                             (:name "Clocked today"
+                                              :log t)))
                             (:auto-group t
                              :order 10)
                             (:name "Next to do"
@@ -1885,11 +1908,8 @@ Saves ~org-mode~ buffers whenever a schedule/deadline/check todo action is made.
                             (:name "Due Soon"
                              :deadline future
                              :order 8)
-                            (:name "Issues"
-                             :tag "issue"
-                             :order 12)
                             (:name "Back Burner"
-                             :order 14
+                             :order 10
                              :todo "SOMEDAY")))
                          (org-agenda-list)))))))
 
@@ -1938,15 +1958,15 @@ liking and remove the things I don't use.
    org-modern-todo-faces
    '(("TODO"    :inverse-video t :inherit org-todo)
      ("[-]"     :inverse-video t :inherit +org-todo-active)
+     ("[?]"     :inverse-video t :inherit +org-todo-onhold)
      ("NEXT"    :inverse-video t :inherit +org-todo-active)
-     ("HOLD"    :inverse-video t :inherit +org-todo-onhold)
      ("WAIT"    :inverse-video t :inherit +org-todo-onhold)
      ("REVIEW"  :inverse-video t :inherit +org-todo-onhold)
+     ("HOLD"    :inverse-video t :inherit +org-todo-onhold)
      ("MAYBE"   :inverse-video t :inherit +org-todo-onhold)
      ("SOMEDAY" :inverse-video t :inherit +org-todo-onhold)
-     ("[?]"     :inverse-video t :inherit +org-todo-onhold)
-     ("DROP"    :inverse-video t :inherit +org-todo-cancel)
-     ("NO"      :inverse-video t :inherit +org-todo-cancel))
+     ("NO"      :inverse-video t :inherit +org-todo-cancel)
+     ("DROP"    :inverse-video t :inherit +org-todo-cancel))
    org-modern-block-name
    '((t . t)
      ("src"     "» " "«")
@@ -2024,9 +2044,7 @@ Sometimes it is nice to be able to use the mouse.
 #+end_src
 
 *** FIXME ~org-gtd~
-
 /A package for using GTD with org-mode/
-
 **** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2036,14 +2054,13 @@ Sometimes it is nice to be able to use the mouse.
 #+begin_src emacs-lisp
 (setq org-gtd-update-ack "3.0.0")
 (use-package! org-gtd
-  :ensure t
   :demand t
   :after org
   :defer t
 
   :custom
   (org-gtd-directory org-directory)
-  (org-gtd-areas-of-focus '("Home" "Personal" "Work" "Family" "Health" "Emacs" "NixOS"))
+  (org-gtd-areas-of-focus '("Home" "Personal" "Work" "Family" "Health" "Emacs" "NixOS" "YouTube" "Home-Assistant"))
   (org-agenda-property-list '("DELEGATED_TO"))
   (org-edna-use-inheritance t)
 
@@ -2213,7 +2230,8 @@ Add a hook to ~org-mode~.
 **** Configuration
 
 #+begin_src emacs-lisp
-(setq org-roam-directory org-directory)
+(after! org
+  (setq org-roam-directory org-directory))
 #+end_src
 
 *** ~denote~  :ARCHIVE:
@@ -2273,7 +2291,6 @@ Add a hook to ~org-mode~.
 
 #+begin_src emacs-lisp
 (use-package! spacious-padding
-  :ensure t
   :defer
   :hook (after-init . spacious-padding-mode))
 #+end_src
@@ -2297,77 +2314,77 @@ Add a hook to ~org-mode~.
 ;; (defconst day-time-re (format "\\(%s\\)? ?\\(%s\\)?" day-re time-re))
 ;;
 ;; (defun svg-progress-percent (value)
-  ;; (svg-image (svg-lib-concat
-              ;; (svg-lib-progress-bar (/ (string-to-number value) 100.0)
-                                    ;; nil :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
-              ;; (svg-lib-tag (concat value "%")
-                           ;; nil :stroke 0 :margin 0)) :ascent 'center))
+;; (svg-image (svg-lib-concat
+;; (svg-lib-progress-bar (/ (string-to-number value) 100.0)
+;; nil :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+;; (svg-lib-tag (concat value "%")
+;; nil :stroke 0 :margin 0)) :ascent 'center))
 ;;
 ;; (defun svg-progress-count (value)
-  ;; (let* ((seq (mapcar #'string-to-number (split-string value "/")))
-         ;; (count (float (car seq)))
-         ;; (total (float (cadr seq))))
-    ;; (svg-image (svg-lib-concat
-                ;; (svg-lib-progress-bar (/ count total) nil
-                                      ;; :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
-                ;; (svg-lib-tag value nil
-                             ;; :stroke 0 :margin 0)) :ascent 'center)))
+;; (let* ((seq (mapcar #'string-to-number (split-string value "/")))
+;; (count (float (car seq)))
+;; (total (float (cadr seq))))
+;; (svg-image (svg-lib-concat
+;; (svg-lib-progress-bar (/ count total) nil
+;; :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+;; (svg-lib-tag value nil
+;; :stroke 0 :margin 0)) :ascent 'center)))
 ;;
 ;; (setq svg-tag-tags
-      ;; `(
-        ;; ;; Org tags
-        ;; (":\\([A-Za-z0-9]+\\)" . ((lambda (tag) (svg-tag-make tag))))
-        ;; (":\\([A-Za-z0-9]+[ \-]\\)" . ((lambda (tag) tag)))
+;; `(
+;; ;; Org tags
+;; (":\\([A-Za-z0-9]+\\)" . ((lambda (tag) (svg-tag-make tag))))
+;; (":\\([A-Za-z0-9]+[ \-]\\)" . ((lambda (tag) tag)))
 ;;
-        ;; ;; Task priority
-        ;; ("\\[#[A-Z]\\]" . ( (lambda (tag)
-                              ;; (svg-tag-make tag :face 'org-priority
-                                            ;; :beg 2 :end -1 :margin 0))))
+;; ;; Task priority
+;; ("\\[#[A-Z]\\]" . ( (lambda (tag)
+;; (svg-tag-make tag :face 'org-priority
+;; :beg 2 :end -1 :margin 0))))
 ;;
-        ;; ;; Progress
-        ;; ("\\(\\[[0-9]\\{1,3\\}%\\]\\)" . ((lambda (tag)
-                                            ;; (svg-progress-percent (substring tag 1 -2)))))
-        ;; ("\\(\\[[0-9]+/[0-9]+\\]\\)" . ((lambda (tag)
-                                          ;; (svg-progress-count (substring tag 1 -1)))))
+;; ;; Progress
+;; ("\\(\\[[0-9]\\{1,3\\}%\\]\\)" . ((lambda (tag)
+;; (svg-progress-percent (substring tag 1 -2)))))
+;; ("\\(\\[[0-9]+/[0-9]+\\]\\)" . ((lambda (tag)
+;; (svg-progress-count (substring tag 1 -1)))))
 ;;
-        ;; ;; TODO / DONE
-        ;; ("TODO" . ((lambda (tag) (svg-tag-make "TODO" :face 'org-todo :inverse t :margin 0))))
-        ;; ("DONE" . ((lambda (tag) (svg-tag-make "DONE" :face 'org-done :margin 0))))
-;;
-;;
-        ;; ;; Citation of the form [cite:@Knuth:1984]
-        ;; ("\\(\\[cite:@[A-Za-z]+:\\)" . ((lambda (tag)
-                                          ;; (svg-tag-make tag
-                                                        ;; :inverse t
-                                                        ;; :beg 7 :end -1
-                                                        ;; :crop-right t))))
-        ;; ("\\[cite:@[A-Za-z]+:\\([0-9]+\\]\\)" . ((lambda (tag)
-                                                   ;; (svg-tag-make tag
-                                                                 ;; :end -1
-                                                                 ;; :crop-left t))))
+;; ;; TODO / DONE
+;; ("TODO" . ((lambda (tag) (svg-tag-make "TODO" :face 'org-todo :inverse t :margin 0))))
+;; ("DONE" . ((lambda (tag) (svg-tag-make "DONE" :face 'org-done :margin 0))))
 ;;
 ;;
-        ;; ;; Active date (with or without day name, with or without time)
-        ;; (,(format "\\(<%s>\\)" date-re) .
-         ;; ((lambda (tag)
-            ;; (svg-tag-make tag :beg 1 :end -1 :margin 0))))
-        ;; (,(format "\\(<%s \\)%s>" date-re day-time-re) .
-         ;; ((lambda (tag)
-            ;; (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0))))
-        ;; (,(format "<%s \\(%s>\\)" date-re day-time-re) .
-         ;; ((lambda (tag)
-            ;; (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0))))
+;; ;; Citation of the form [cite:@Knuth:1984]
+;; ("\\(\\[cite:@[A-Za-z]+:\\)" . ((lambda (tag)
+;; (svg-tag-make tag
+;; :inverse t
+;; :beg 7 :end -1
+;; :crop-right t))))
+;; ("\\[cite:@[A-Za-z]+:\\([0-9]+\\]\\)" . ((lambda (tag)
+;; (svg-tag-make tag
+;; :end -1
+;; :crop-left t))))
 ;;
-        ;; ;; Inactive date  (with or without day name, with or without time)
-        ;; (,(format "\\(\\[%s\\]\\)" date-re) .
-         ;; ((lambda (tag)
-            ;; (svg-tag-make tag :beg 1 :end -1 :margin 0 :face 'org-date))))
-        ;; (,(format "\\(\\[%s \\)%s\\]" date-re day-time-re) .
-         ;; ((lambda (tag)
-            ;; (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0 :face 'org-date))))
-        ;; (,(format "\\[%s \\(%s\\]\\)" date-re day-time-re) .
-         ;; ((lambda (tag)
-            ;; (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0 :face 'org-date))))))
+;;
+;; ;; Active date (with or without day name, with or without time)
+;; (,(format "\\(<%s>\\)" date-re) .
+;; ((lambda (tag)
+;; (svg-tag-make tag :beg 1 :end -1 :margin 0))))
+;; (,(format "\\(<%s \\)%s>" date-re day-time-re) .
+;; ((lambda (tag)
+;; (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0))))
+;; (,(format "<%s \\(%s>\\)" date-re day-time-re) .
+;; ((lambda (tag)
+;; (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0))))
+;;
+;; ;; Inactive date  (with or without day name, with or without time)
+;; (,(format "\\(\\[%s\\]\\)" date-re) .
+;; ((lambda (tag)
+;; (svg-tag-make tag :beg 1 :end -1 :margin 0 :face 'org-date))))
+;; (,(format "\\(\\[%s \\)%s\\]" date-re day-time-re) .
+;; ((lambda (tag)
+;; (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0 :face 'org-date))))
+;; (,(format "\\[%s \\(%s\\]\\)" date-re day-time-re) .
+;; ((lambda (tag)
+;; (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0 :face 'org-date))))))
 #+end_src
 
 -----
@@ -2512,34 +2529,6 @@ Let's customize the face and add a few key bindings.
     :desc  "Blamer mode"                 ";" #'blamer-mode)))
 #+end_src
 
-** ~casual-bookmarks~  :ARCHIVE:
-*** Configuration & Mapping
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! casual-bookmarks
-;;   :recipe (:host github :repo "kickingvegas/casual-bookmarks")) ;; https://github.com/kickingvegas/casual-bookmarks
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! casual-bookmarks
-;;   :ensure t)
-#+end_src
-** ~casual-re-builder~  :ARCHIVE:
-*** Configuration & Mapping
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! casual-re-builder)
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! casual-re-builder
-;;   :ensure t
-;;   :bind (:map
-;;          reb-mode-map ("C-o" . casual-re-builder-tmenu)
-;;          :map
-;;          reb-lisp-mode-map ("C-o" . casual-re-builder-tmenu))
-;;   :after (re-builder))
-#+end_src
-
 ** ~circadian~ · Cadia Stands!!!
 /But only until 19h30, after that: lights out./
 *** Configuration & Mapping
@@ -2550,7 +2539,6 @@ Let's customize the face and add a few key bindings.
 
 #+begin_src emacs-lisp
 (use-package! circadian
-  :ensure t
   :init
 
   (add-hook 'circadian-after-load-theme-hook
@@ -2558,10 +2546,10 @@ Let's customize the face and add a few key bindings.
                 (message "Setting circadian theme.")
                 (cond ((eq doom-theme daf/dark-theme)
                        (message "Setting dark modeline theme."))
-                       ;; (nano-theme-set-dark)
+                      ;; (nano-theme-set-dark)
                       ((eq doom-theme daf/light-theme)
                        (message "Setting light modeline theme.")))
-                       ;; (nano-theme-set-light-tinted)
+                ;; (nano-theme-set-light-tinted)
                 ;; (nano-faces)
                 ;; (nano-theme)
                 (doom/reload-theme)))
@@ -2596,38 +2584,13 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 #+begin_src emacs-lisp
 (use-package! ef-themes
   :defer t
+
   :config
   (setq
    ;; ef-themes-variable-pitch-ui t
    ef-themes-italic-constructs t
    ef-themes-bold-constructs t
-   ef-themes-mixed-fonts t)
-
-  (defun daf/ef-themes-hl-todo-faces ()
-    "Configure `hl-todo-keyword-faces' with Ef themes colors.
-The exact color values are taken from the active Ef theme."
-    (ef-themes-with-colors
-     (setq hl-todo-keyword-faces
-           `(("HOLD" . ,yellow)
-             ("TODO" . ,red)
-             ("NEXT" . ,blue)
-             ("THEM" . ,magenta)
-             ("PROG" . ,cyan-warmer)
-             ("OKAY" . ,green-warmer)
-             ("DONT" . ,yellow-warmer)
-             ("DROP" . ,red-warmer)
-             ("FAIL" . ,red-warmer)
-             ("BUG" . ,red-warmer)
-             ("DONE" . ,green)
-             ("NOTE" . ,blue-warmer)
-             ("KLUDGE" . ,cyan)
-             ("HACK" . ,cyan)
-             ("TEMP" . ,red)
-             ("FIXME" . ,red-warmer)
-             ("XXX+" . ,red-warmer)
-             ("REVIEW" . ,red)
-             ("DEPRECATED" . ,yellow))))))
-;;(add-hook 'ef-themes-post-load-hook #'daf/ef-themes-hl-todo-faces)
+   ef-themes-mixed-fonts t))
 #+end_src
 
 ** ~elogcat~  :ARCHIVE:
@@ -2914,6 +2877,7 @@ instruction.
 
 (use-package! jinx
   :defer t
+
   :init
   (add-hook 'doom-init-ui-hook #'global-jinx-mode)
   (map!
@@ -3058,24 +3022,24 @@ let's obliged.
 
 #+begin_src emacs-lisp :tangle packages.el
 ;; (package! magit-pretty-graph
-  ;; :recipe (:host github
-           ;; :repo "georgek/magit-pretty-graph"))
+;; :recipe (:host github
+;; :repo "georgek/magit-pretty-graph"))
 #+end_src
 
 #+begin_src emacs-lisp
 ;; (use-package! magit-pretty-graph
-  ;; :defer t
-  ;; :after magit
-  ;; :init
-  ;; (setq magit-pg-command
-        ;; (concat "git --no-pager log"
-                ;; " --topo-order --decorate=full"
-                ;; " --pretty=format:\"%H%x00%P%x00%an%x00%ar%x00%s%x00%d\""
-                ;; " -n 2000")) ;; Increase the default 100 limit
+;; :defer t
+;; :after magit
+;; :init
+;; (setq magit-pg-command
+;; (concat "git --no-pager log"
+;; " --topo-order --decorate=full"
+;; " --pretty=format:\"%H%x00%P%x00%an%x00%ar%x00%s%x00%d\""
+;; " -n 2000")) ;; Increase the default 100 limit
 ;;
-  ;; (map! :localleader
-        ;; :map (magit-mode-map)
-        ;; :desc "Magit pretty graph" "p" (cmd! (magit-pg-repo (magit-toplevel)))))
+;; (map! :localleader
+;; :map (magit-mode-map)
+;; :desc "Magit pretty graph" "p" (cmd! (magit-pg-repo (magit-toplevel)))))
 #+end_src
 
 ** ~mlscroll~
@@ -3127,44 +3091,44 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
 
 #+begin_src emacs-lisp :tangle packages.el
 ;; (package! multi-vterm
-  ;; :recipe (:host github :repo "gagbo/multi-vterm" :branch "display_buffer"))
+;; :recipe (:host github :repo "gagbo/multi-vterm" :branch "display_buffer"))
 #+end_src
 
 #+begin_src emacs-lisp
 ;; (use-package! multi-vterm
-  ;; :defer t
-  ;; :custom
-  ;; ;; (multi-vterm-buffer-name "Terminal")
-  ;; (multi-vterm-dedicated-buffer-name "dedicated vterminal")
-  ;; (multi-vterm-dedicated-window-side 'bottom)
+;; :defer t
+;; :custom
+;; ;; (multi-vterm-buffer-name "Terminal")
+;; (multi-vterm-dedicated-buffer-name "dedicated vterminal")
+;; (multi-vterm-dedicated-window-side 'bottom)
 ;;
-  ;; :config
-  ;; (set-popup-rules!
-    ;; '(("^\\*vterm.*"
-       ;; :slot 1 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)
-      ;; ("^\\*dedicated vterminal.*"
-       ;; :slot 2 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)))
+;; :config
+;; (set-popup-rules!
+;; '(("^\\*vterm.*"
+;; :slot 1 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)
+;; ("^\\*dedicated vterminal.*"
+;; :slot 2 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)))
 ;;
-  ;; (evil-define-key 'normal vterm-mode-map (kbd "C-d") #'vterm--self-insert)
-  ;; (evil-define-key 'normal vterm-mode-map (kbd ";c")  #'multi-vterm-project)
-  ;; (evil-define-key 'normal vterm-mode-map (kbd ";n")  #'multi-vterm-next)
-  ;; (evil-define-key 'normal vterm-mode-map (kbd ";p")  #'multi-vterm-prev)
-  ;; (evil-define-key 'normal vterm-mode-map (kbd ";r")  #'multi-vterm-rename-buffer)
-  ;; (evil-define-key 'normal vterm-mode-map (kbd ";;")  #'multi-vterm-dedicated-select)
+;; (evil-define-key 'normal vterm-mode-map (kbd "C-d") #'vterm--self-insert)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";c")  #'multi-vterm-project)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";n")  #'multi-vterm-next)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";p")  #'multi-vterm-prev)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";r")  #'multi-vterm-rename-buffer)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";;")  #'multi-vterm-dedicated-select)
 ;;
-  ;; :init
-  ;; (map! :leader
-        ;; (:prefix ("o" . "open")
-         ;; :desc "Dedicated terminal"      "t" #'multi-vterm-dedicated-toggle
-         ;; :desc "Dedicated terminal here" "T" #'multi-vterm-project))
+;; :init
+;; (map! :leader
+;; (:prefix ("o" . "open")
+;; :desc "Dedicated terminal"      "t" #'multi-vterm-dedicated-toggle
+;; :desc "Dedicated terminal here" "T" #'multi-vterm-project))
 ;;
-  ;; (map! (:map vterm-mode-map
-         ;; :localleader
-         ;; :desc "Create"   "c" #'multi-vterm-project
-         ;; :desc "Rename"   "r" #'multi-vterm-rename-buffer
-         ;; :desc "Select"   "," #'multi-vterm-dedicated-select
-         ;; :desc "Previous" "p" #'multi-vterm-prev
-         ;; :desc "Next"     "n" #'multi-vterm-next)))
+;; (map! (:map vterm-mode-map
+;; :localleader
+;; :desc "Create"   "c" #'multi-vterm-project
+;; :desc "Rename"   "r" #'multi-vterm-rename-buffer
+;; :desc "Select"   "," #'multi-vterm-dedicated-select
+;; :desc "Previous" "p" #'multi-vterm-prev
+;; :desc "Next"     "n" #'multi-vterm-next)))
 #+end_src
 
 ** ~nov~
@@ -3347,7 +3311,6 @@ deleted, kill the pairs around point."
 
 #+begin_src emacs-lisp
 (use-package! pulsar
-  :ensure t
   :defer t
   :config
   (add-to-list 'pulsar-pulse-functions 'evil-scroll-up)
@@ -3468,13 +3431,17 @@ A nice little package which allows to rotate layout.
 
 #+begin_src emacs-lisp
 (use-package! verb
-  :ensure t
   :defer t
+
   :config
   (setq verb-json-use-mode 'json-mode)
+
   (defun graphql-to-json (rs)
     ;; Modify RS and return it (RS is a request specification, type `verb-request-spec')
-    (oset rs body (replace-regexp-in-string "\n" "" (format-message "{\"query\": \"%s\"}" (oref rs body))))
+    (oset rs body
+          (replace-regexp-in-string "\n" ""
+                                    (format-message "{\"query\": \"%s\"}"
+                                                    (oref rs body))))
     rs)
 
   :init
@@ -3521,7 +3488,6 @@ with popup shell.
 
 #+begin_src emacs-lisp
 (use-package! zoom
-  :ensure t
   :defer t
   ;; :hook (doom-first-input . zoom-mode)
 
@@ -3562,19 +3528,15 @@ _TODO_: switch to ~novlang.el~ for *everything*.
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! lsp-mode
-  :ensure t)
-
 (use-package! lsp-nix
-  :ensure lsp-mode
-  :after (lsp-mode)
+  :after lsp-mode
   :demand t
+
   :custom
   (lsp-nix-nil-formatter ["nixfmt"]))
 
 (use-package! nix-mode
-  :hook (nix-mode . lsp-deferred)
-  :ensure t)
+  :hook (nix-mode . lsp-deferred))
 #+end_src
 
 -----
@@ -3659,8 +3621,7 @@ will be moved to the relevant level./
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! meow
-  :ensure t)
+(use-package! meow)
 
 (defconst meow-cheatsheet-layout-bepo
   '((<TLDE> "$"	"#")
@@ -3810,13 +3771,13 @@ will be moved to the relevant level./
 #+end_src
 
 #+begin_src emacs-lisp
-  (use-package! org-wild-notifier
-    ;; The add-hook enables the mode after init
-    :defer t
-    :init
-    (add-hook 'doom-post-init-hook #'org-wild-notifier-mode t)
-    :config
-    (setq alert-default-style 'notification))
+(use-package! org-wild-notifier
+  ;; The add-hook enables the mode after init
+  :defer t
+  :init
+  (add-hook 'doom-post-init-hook #'org-wild-notifier-mode t)
+  :config
+  (setq alert-default-style 'notification))
 #+end_src
 
 ** ~systemd~
@@ -3856,11 +3817,11 @@ will be moved to the relevant level./
 (add-hook 'doom-load-theme-hook      #'daf/set-nano-modeline-face)
 
 (defun daf/set-nano-modeline-face ()
+  "Inherit faces from either mode-line or header-line"
   (let ((nano-modeline-face
          (if (eq (face-attribute 'header-line :background) 'unspecified)
              'mode-line
            'header-line)))
-
     (custom-set-faces!
       `(nano-modeline-active
         :foreground ,(face-attribute 'default :foreground)
@@ -3872,7 +3833,6 @@ will be moved to the relevant level./
 
 (defun daf/nano-modeline-vterm-mode ()
   "Nano line for term mode"
-
   (funcall nano-modeline-position
            '((nano-modeline-buffer-status ">_") " ")
            '((nano-modeline-default-directory) " "
@@ -3882,6 +3842,7 @@ will be moved to the relevant level./
 ** Disabling ~helm~ stuff
 
 #+begin_src emacs-lisp :tangle packages.el
+(package! helm :disable t)
 (package! helm-org :disable t)
 #+end_src
 
@@ -3947,6 +3908,7 @@ reference all that here.
 - [ ] ~evil-surround~ needs to be reloaded for keybindings to work.
 
 ** Todos [5/6]
+- [[id:2c81f9a0-5ab2-4c4f-bbbe-d40d1976fb49][Emacs Configuration [3/22]​]]
 - [X] migrate elogcat stuff for android
 - [X] finish font setup
   - [X] Iosevka Comfy Wide Duo isn't available on my system
