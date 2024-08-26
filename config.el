@@ -1432,106 +1432,6 @@ This only works with orderless and for the first component of the search."
     (setq evil-embrace-show-help-p t))
   (setq embrace-show-help-p t))
 
-;; (use-package! fontaine
-;;   :config
-
-;;   ;; Iosevka Comfy is my highly customised build of Iosevka with
-;;   ;; monospaced and duospaced (quasi-proportional) variants as well as
-;;   ;; support or no support for ligatures:
-;;   ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
-;;   ;;
-;;   ;; Iosevka Comfy            == monospaced, supports ligatures
-;;   ;; Iosevka Comfy Fixed      == monospaced, no ligatures
-;;   ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
-;;   ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
-;;   ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
-;;   ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
-;;   ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
-;;   (setq fontaine-presets
-;;         '((smaller
-;;            :default-family "Iosevka Comfy Wide Fixed"
-;;            :default-height 90
-;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
-;;           (small
-;;            :default-family "Iosevka Comfy Wide Fixed"
-;;            :default-height 100
-;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
-;;           (regular
-;;            :default-height 120)
-;;           (large
-;;            :default-weight semilight
-;;            :default-height 150
-;;            :bold-weight extrabold)
-;;           (larger
-;;            :default-weight semilight
-;;            :default-height 160
-;;            :bold-weight extrabold)
-;;           (code-demo
-;;            :default-family "Iosevka Comfy Fixed"
-;;            :default-weight semilight
-;;            :default-height 190
-;;            :variable-pitch-family "Iosevka Comfy Duo"
-;;            :bold-weight extrabold)
-;;           (presentation
-;;            :default-weight semilight
-;;            :default-height 220
-;;            :bold-weight extrabold)
-;;           (legally-blind
-;;            :default-weight semilight
-;;            :default-height 260
-;;            :bold-weight extrabold)
-;;           (merriweather
-;;            :default-family "Merriweather"
-;;            :variable-pitch-family "Merriweather"
-;;            :default-height 150)
-;;           (iosevka-nerd-font
-;;            :default-family "Iosevka Nerd Font")
-;;           (sarasa
-;;            :default-family "Sarasa Term J"
-;;            :variable-pitch-family "Sarasa Term Slab TC")
-;;           (ibm-plex-sans
-;;            :default-family "IBM Plex Sans")
-;;           (ibm-plex-mono
-;;            :default-family "IBM Plex Mono")
-;;           (t
-;;            ;; I keep all properties for didactic purposes, but most can be
-;;            ;; omitted.  See the fontaine manual for the technicalities:
-;;            ;; <https://protesilaos.com/emacs/fontaine>.
-;;            :default-family "Iosevka Comfy"
-;;            :default-weight regular
-;;            :default-height 120
-;;            :fixed-pitch-family nil      ; falls back to :default-family
-;;            :fixed-pitch-weight nil      ; falls back to :default-weight
-;;            :fixed-pitch-height 1.0
-;;            :fixed-pitch-serif-family nil ; falls back to :default-family
-;;            :fixed-pitch-serif-weight nil ; falls back to :default-weight
-;;            :fixed-pitch-serif-height 1.0
-;;            :variable-pitch-family "Iosevka Comfy Motion Duo"
-;;            :variable-pitch-weight nil
-;;            :variable-pitch-height 1.0
-;;            :bold-family nil             ; use whatever the underlying face has
-;;            :bold-weight bold
-;;            :italic-family nil
-;;            :italic-slant italic
-;;            :line-spacing nil)))
-
-;;   ;; Set last preset or fall back to desired style from `fontaine-presets'.
-;;   (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
-
-;;   ;; The other side of `fontaine-restore-latest-preset'.
-;;   (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
-
-;;   ;; Persist font configurations while switching themes (doing it with
-;;   ;; my `modus-themes' and `ef-themes' via the hooks they provide).
-;;   (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
-;;     (add-hook hook #'fontaine-apply-current-preset))
-
-;;   :init
-;;   (map! :leader
-;;         (:prefix ("ç" . "daf")
-;;                      "F" #'fontaine-set-face-font
-;;                      "f" #'fontaine-set-preset)))
-
 (use-package! indent-bars
   :custom
   (indent-bars-treesit-support t)
@@ -1908,10 +1808,7 @@ deleted, kill the pairs around point."
 (global-evil-fringe-mark-mode 1)
 
 (use-package! org-wild-notifier
-  ;; The add-hook enables the mode after init
-  :defer t
-  :init
-  (add-hook 'doom-post-init-hook #'org-wild-notifier-mode t)
+  :hook (org-load . org-wild-notifier-mode)
   :config
   (setq alert-default-style 'notification))
 

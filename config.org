@@ -1384,20 +1384,6 @@ In situation when I need to quickly look a word definition to not look too dumb.
    :n "z?" #'define-word-at-point))
 #+end_src
 
-*** ~lsp~  :ARCHIVE:
-**** Configuration
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (unpin! lsp-mode)
-#+end_src
-
-Let's try to apply some performance recommendation regarding =plists=.
-
-#+begin_src emacs-lisp
-;; (setenv "LSP_USE_PLISTS" "1")
-;; (setq lsp-use-plists "true")
-#+end_src
-
 *** ~magit~
 **** Configuration & Mapping
 
@@ -1435,6 +1421,20 @@ Show a list of TODO and other keywords in the ~magit~ status view.
 ;;:after magit
 ;;:config
 ;;(magit-todos-mode 1))
+#+end_src
+
+*** ~lsp~  :ARCHIVE:
+**** Configuration
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (unpin! lsp-mode)
+#+end_src
+
+Let's try to apply some performance recommendation regarding =plists=.
+
+#+begin_src emacs-lisp
+;; (setenv "LSP_USE_PLISTS" "1")
+;; (setq lsp-use-plists "true")
 #+end_src
 
 ** App · ~:app~ lause please
@@ -2234,19 +2234,6 @@ Add a hook to ~org-mode~.
   (setq org-roam-directory org-directory))
 #+end_src
 
-*** ~denote~  :ARCHIVE:
-
-**** Configuration & Mapping
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! denote) ;; https://github.com/protesilaos/denote
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! denote
-;;   :defer t)
-#+end_src
-
 *** ~image-popup~
 /Viewing image in org buffer is nice, but I'd rather have a small thumbnail with/
 /a popup image, rather than configuring for every image its size./
@@ -2293,6 +2280,19 @@ Add a hook to ~org-mode~.
 (use-package! spacious-padding
   :defer
   :hook (after-init . spacious-padding-mode))
+#+end_src
+
+*** ~denote~  :ARCHIVE:
+
+**** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! denote) ;; https://github.com/protesilaos/denote
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package! denote
+;;   :defer t)
 #+end_src
 
 *** ~svg-tag-mode~  :ARCHIVE:
@@ -2561,14 +2561,6 @@ Let's customize the face and add a few key bindings.
 
 #+end_src
 
-** TODO ~combobulate~  :ARCHIVE:
-/Structured Editing and Navigation in Emacs with Tree-Sitter/
-*** Configuration & Mapping
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! combobulate) ;; https://github.com/mickeynp/combobulate
-#+end_src
-
 ** ~ef-themes~ · εὖ pour les intimes
 /Collection of themes./
 *** Configuration & Mapping
@@ -2593,53 +2585,6 @@ We want our ~org~ headings to be of different size to be more distinguishable.
    ef-themes-mixed-fonts t))
 #+end_src
 
-** ~elogcat~  :ARCHIVE:
-/Manage Android logs./
-
-Occasionally (only happen once to be honest), I need to debug an Android app,
-~elogcat~ allows me to get cleaner logs.
-
-*** Configuration & Mapping
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! elogcat) ;; https://github.com/youngker/elogcat.el
-#+end_src
-
-I wrote some ugly function to add filters to ~logcat~.
-
-#+begin_src emacs-lisp
-;; (use-package! elogcat
-;;   :defer t
-;;   :config
-;;   (defun daf/elogcat-set-tail ()
-;;     "Add a limit of line to the command"
-;;     (interactive)
-;;     (setq elogcat-logcat-command (concat elogcat-logcat-command " -T 50")))
-
-;;   (defun daf/elogcat-set-include-filter-pid ()
-;;     "Try to determine a PID from an input, and set it as a filter"
-;;     (interactive)
-;;     (elogcat-set-include-filter (substring
-;;                                  (shell-command-to-string
-;;                                   (format "adb shell ps | grep -F %s | tr -s '[:space:]' ' ' | cut -d' ' -f2" (read-string "app namespace: ")))
-;;                                  0 -1)))
-;;   :init
-;;   (map! :map elogcat-mode-map
-;;         :localleader
-;;         "i" #'elogcat-set-include-filter
-;;         "I" #'elogcat-clear-include-filter
-;;         "x" #'elogcat-set-exclude-filter
-;;         "X" #'elogcat-clear-exclude-filter
-;;         "p" #'daf/elogcat-set-include-filter-pid
-;;         "t" #'daf/elogcat-set-tail
-;;         "g" #'elogcat-show-status
-;;         "m" #'elogcat-toggle-main
-;;         "s" #'elogcat-toggle-system
-;;         "e" #'elogcat-toggle-events
-;;         "r" #'elogcat-toggle-radio
-;;         "k" #'elogcat-toggle-kernel
-;;         "c" #'elogcat-erase-buffer))
-#+end_src
 ** ~embrace~ · 🫂
 /Add/Change/Delete pairs based on `expand-region', similar to `evil-surround'./
 *** Overview
@@ -2680,145 +2625,6 @@ I wrote some ugly function to add filters to ~logcat~.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! focus) ;; https://github.com/larstvei/Focus
-#+end_src
-
-** TODO ~fontaine~  · Maître Corbeau, sur un arbre perché
-/Faces preset./
-/The Quick Brown Fox Jumps Over The Lazy Dog/
-*** Configuration
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! fontaine) ;; https://github.com/protesilaos/fontaine
-#+end_src
-
-And now, for the configuration, which is largely copied from the repo's
-instruction.
-
-#+begin_src emacs-lisp
-;; (use-package! fontaine
-;;   :config
-
-;;   ;; Iosevka Comfy is my highly customised build of Iosevka with
-;;   ;; monospaced and duospaced (quasi-proportional) variants as well as
-;;   ;; support or no support for ligatures:
-;;   ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
-;;   ;;
-;;   ;; Iosevka Comfy            == monospaced, supports ligatures
-;;   ;; Iosevka Comfy Fixed      == monospaced, no ligatures
-;;   ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
-;;   ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
-;;   ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
-;;   ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
-;;   ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
-;;   (setq fontaine-presets
-;;         '((smaller
-;;            :default-family "Iosevka Comfy Wide Fixed"
-;;            :default-height 90
-;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
-;;           (small
-;;            :default-family "Iosevka Comfy Wide Fixed"
-;;            :default-height 100
-;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
-;;           (regular
-;;            :default-height 120)
-;;           (large
-;;            :default-weight semilight
-;;            :default-height 150
-;;            :bold-weight extrabold)
-;;           (larger
-;;            :default-weight semilight
-;;            :default-height 160
-;;            :bold-weight extrabold)
-;;           (code-demo
-;;            :default-family "Iosevka Comfy Fixed"
-;;            :default-weight semilight
-;;            :default-height 190
-;;            :variable-pitch-family "Iosevka Comfy Duo"
-;;            :bold-weight extrabold)
-;;           (presentation
-;;            :default-weight semilight
-;;            :default-height 220
-;;            :bold-weight extrabold)
-;;           (legally-blind
-;;            :default-weight semilight
-;;            :default-height 260
-;;            :bold-weight extrabold)
-;;           (merriweather
-;;            :default-family "Merriweather"
-;;            :variable-pitch-family "Merriweather"
-;;            :default-height 150)
-;;           (iosevka-nerd-font
-;;            :default-family "Iosevka Nerd Font")
-;;           (sarasa
-;;            :default-family "Sarasa Term J"
-;;            :variable-pitch-family "Sarasa Term Slab TC")
-;;           (ibm-plex-sans
-;;            :default-family "IBM Plex Sans")
-;;           (ibm-plex-mono
-;;            :default-family "IBM Plex Mono")
-;;           (t
-;;            ;; I keep all properties for didactic purposes, but most can be
-;;            ;; omitted.  See the fontaine manual for the technicalities:
-;;            ;; <https://protesilaos.com/emacs/fontaine>.
-;;            :default-family "Iosevka Comfy"
-;;            :default-weight regular
-;;            :default-height 120
-;;            :fixed-pitch-family nil      ; falls back to :default-family
-;;            :fixed-pitch-weight nil      ; falls back to :default-weight
-;;            :fixed-pitch-height 1.0
-;;            :fixed-pitch-serif-family nil ; falls back to :default-family
-;;            :fixed-pitch-serif-weight nil ; falls back to :default-weight
-;;            :fixed-pitch-serif-height 1.0
-;;            :variable-pitch-family "Iosevka Comfy Motion Duo"
-;;            :variable-pitch-weight nil
-;;            :variable-pitch-height 1.0
-;;            :bold-family nil             ; use whatever the underlying face has
-;;            :bold-weight bold
-;;            :italic-family nil
-;;            :italic-slant italic
-;;            :line-spacing nil)))
-
-;;   ;; Set last preset or fall back to desired style from `fontaine-presets'.
-;;   (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
-
-;;   ;; The other side of `fontaine-restore-latest-preset'.
-;;   (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
-
-;;   ;; Persist font configurations while switching themes (doing it with
-;;   ;; my `modus-themes' and `ef-themes' via the hooks they provide).
-;;   (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
-;;     (add-hook hook #'fontaine-apply-current-preset))
-
-;;   :init
-;;   (map! :leader
-;;         (:prefix ("ç" . "daf")
-;;                      "F" #'fontaine-set-face-font
-;;                      "f" #'fontaine-set-preset)))
-#+end_src
-
-** ~golden-ratio~  :ARCHIVE:
-/Automatic resizing of Emacs windows to the golden ratio./
-*** Configuration & Mapping
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! golden-ratio) ;; https://github.com/roman/golden-ratio.el
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! golden-ratio
-;; :after-call pre-command-hook
-;; :hook doom-switch-window-hook
-;; :init
-;; (map! :leader
-;; (:prefix ("w" . "windows")
-;; :desc "Toggle golden-ratio mode" "g" #'golden-ratio-mode))
-;;
-;; :config
-;; (golden-ratio-mode +1)
-;; ;; Using this hook for resizing windows is less precise than
-;; ;; `doom-switch-window-hook'.
-;; (remove-hook! ('window-configuration-change-hook 'org-now-hook
-;; 'vterm-mode-hook) #'golden-ratio))
 #+end_src
 
 ** ~indent-bars~ · If Emacs is a prison, at least the bars are nice
@@ -2911,27 +2717,6 @@ instruction.
 (package! jq-mode) ;; https://github.com/ljos/jq-mode
 #+end_src
 
-** ~just~  · Just do it :ARCHIVE:
-/Like Makefile, but easier to grasp./
-*** Configuration & Mapping
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! just-mode)
-;; (package! justl)
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! justl
-;; :defer t)
-;;
-;; (defun daf/consult-just ()
-;; "Prompt a list of just recipes from the project. Run the selected candidate."
-;; (interactive)
-;; (let (recipes)
-;; (setq recipes (justl--get-recipies-with-desc (justl--find-justfiles (projectile-project-root))))
-;; (justl--exec justl-executable (list (completing-read "Choose an action: " recipes)))))
-#+end_src
-
 ** ~languagetool~ · Squiggly line my prose
 /Grammar correction./
 
@@ -3016,32 +2801,6 @@ let's obliged.
          :desc "Logos" "L" #'logos-focus-mode)))
 #+end_src
 
-** ~magit-pretty-graph~  :ARCHIVE:
-/Prettier ~git log~ graph./
-*** Configuration & Mapping
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! magit-pretty-graph
-;; :recipe (:host github
-;; :repo "georgek/magit-pretty-graph"))
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! magit-pretty-graph
-;; :defer t
-;; :after magit
-;; :init
-;; (setq magit-pg-command
-;; (concat "git --no-pager log"
-;; " --topo-order --decorate=full"
-;; " --pretty=format:\"%H%x00%P%x00%an%x00%ar%x00%s%x00%d\""
-;; " -n 2000")) ;; Increase the default 100 limit
-;;
-;; (map! :localleader
-;; :map (magit-mode-map)
-;; :desc "Magit pretty graph" "p" (cmd! (magit-pg-repo (magit-toplevel)))))
-#+end_src
-
 ** ~mlscroll~
 /Lightweight scrollbar for the Emacs mode line/
 *** Configuration
@@ -3083,52 +2842,6 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
    modus-themes-mixed-fonts t
    modus-themes-italic-constructs t
    modus-themes-bold-constructs t))
-#+end_src
-
-** ~multi-vterm~  :ARCHIVE:
-/Manage multiple instances of ~vterm~./
-*** Configuration & Mapping
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! multi-vterm
-;; :recipe (:host github :repo "gagbo/multi-vterm" :branch "display_buffer"))
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! multi-vterm
-;; :defer t
-;; :custom
-;; ;; (multi-vterm-buffer-name "Terminal")
-;; (multi-vterm-dedicated-buffer-name "dedicated vterminal")
-;; (multi-vterm-dedicated-window-side 'bottom)
-;;
-;; :config
-;; (set-popup-rules!
-;; '(("^\\*vterm.*"
-;; :slot 1 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)
-;; ("^\\*dedicated vterminal.*"
-;; :slot 2 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)))
-;;
-;; (evil-define-key 'normal vterm-mode-map (kbd "C-d") #'vterm--self-insert)
-;; (evil-define-key 'normal vterm-mode-map (kbd ";c")  #'multi-vterm-project)
-;; (evil-define-key 'normal vterm-mode-map (kbd ";n")  #'multi-vterm-next)
-;; (evil-define-key 'normal vterm-mode-map (kbd ";p")  #'multi-vterm-prev)
-;; (evil-define-key 'normal vterm-mode-map (kbd ";r")  #'multi-vterm-rename-buffer)
-;; (evil-define-key 'normal vterm-mode-map (kbd ";;")  #'multi-vterm-dedicated-select)
-;;
-;; :init
-;; (map! :leader
-;; (:prefix ("o" . "open")
-;; :desc "Dedicated terminal"      "t" #'multi-vterm-dedicated-toggle
-;; :desc "Dedicated terminal here" "T" #'multi-vterm-project))
-;;
-;; (map! (:map vterm-mode-map
-;; :localleader
-;; :desc "Create"   "c" #'multi-vterm-project
-;; :desc "Rename"   "r" #'multi-vterm-rename-buffer
-;; :desc "Select"   "," #'multi-vterm-dedicated-select
-;; :desc "Previous" "p" #'multi-vterm-prev
-;; :desc "Next"     "n" #'multi-vterm-next)))
 #+end_src
 
 ** ~nov~
@@ -3412,14 +3125,6 @@ A nice little package which allows to rotate layout.
 (use-package! tempel-collection)
 #+end_src
 
-** TODO ~todoist~
-/Emacs interface to todoist/
-*** Configuration
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! todoist) ;; https://github.com/abrochard/emacs-todoist
-#+end_src
-
 ** ~verb~
 /Send HTTP requests in ~org-mode~./
 *** TODO Overview
@@ -3505,6 +3210,301 @@ with popup shell.
         zoom-ignored-buffer-names        '("*doom:scratch*" "*info*"
                                            "*helpful variable: argv*")
         zoom-ignored-buffer-name-regexps '("^\\*calc" "\\*helpful variable: .*\\*")))
+#+end_src
+
+** ~todoist~   :ARCHIVE:
+/Emacs interface to todoist/
+*** Configuration
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! todoist) ;; https://github.com/abrochard/emacs-todoist
+#+end_src
+
+** ~elogcat~  :ARCHIVE:
+/Manage Android logs./
+
+Occasionally (only happen once to be honest), I need to debug an Android app,
+~elogcat~ allows me to get cleaner logs.
+
+*** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! elogcat) ;; https://github.com/youngker/elogcat.el
+#+end_src
+
+I wrote some ugly function to add filters to ~logcat~.
+
+#+begin_src emacs-lisp
+;; (use-package! elogcat
+;;   :defer t
+;;   :config
+;;   (defun daf/elogcat-set-tail ()
+;;     "Add a limit of line to the command"
+;;     (interactive)
+;;     (setq elogcat-logcat-command (concat elogcat-logcat-command " -T 50")))
+
+;;   (defun daf/elogcat-set-include-filter-pid ()
+;;     "Try to determine a PID from an input, and set it as a filter"
+;;     (interactive)
+;;     (elogcat-set-include-filter (substring
+;;                                  (shell-command-to-string
+;;                                   (format "adb shell ps | grep -F %s | tr -s '[:space:]' ' ' | cut -d' ' -f2" (read-string "app namespace: ")))
+;;                                  0 -1)))
+;;   :init
+;;   (map! :map elogcat-mode-map
+;;         :localleader
+;;         "i" #'elogcat-set-include-filter
+;;         "I" #'elogcat-clear-include-filter
+;;         "x" #'elogcat-set-exclude-filter
+;;         "X" #'elogcat-clear-exclude-filter
+;;         "p" #'daf/elogcat-set-include-filter-pid
+;;         "t" #'daf/elogcat-set-tail
+;;         "g" #'elogcat-show-status
+;;         "m" #'elogcat-toggle-main
+;;         "s" #'elogcat-toggle-system
+;;         "e" #'elogcat-toggle-events
+;;         "r" #'elogcat-toggle-radio
+;;         "k" #'elogcat-toggle-kernel
+;;         "c" #'elogcat-erase-buffer))
+#+end_src
+** ~fontaine~  · Maître Corbeau, sur un arbre perché :ARCHIVE:
+/Faces preset./
+/The Quick Brown Fox Jumps Over The Lazy Dog/
+*** Configuration
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! fontaine) ;; https://github.com/protesilaos/fontaine
+#+end_src
+
+And now, for the configuration, which is largely copied from the repo's
+instruction.
+
+#+begin_src emacs-lisp
+;; (use-package! fontaine
+;;   :config
+
+;;   ;; Iosevka Comfy is my highly customised build of Iosevka with
+;;   ;; monospaced and duospaced (quasi-proportional) variants as well as
+;;   ;; support or no support for ligatures:
+;;   ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
+;;   ;;
+;;   ;; Iosevka Comfy            == monospaced, supports ligatures
+;;   ;; Iosevka Comfy Fixed      == monospaced, no ligatures
+;;   ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
+;;   ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
+;;   ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
+;;   ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
+;;   ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
+;;   (setq fontaine-presets
+;;         '((smaller
+;;            :default-family "Iosevka Comfy Wide Fixed"
+;;            :default-height 90
+;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
+;;           (small
+;;            :default-family "Iosevka Comfy Wide Fixed"
+;;            :default-height 100
+;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
+;;           (regular
+;;            :default-height 120)
+;;           (large
+;;            :default-weight semilight
+;;            :default-height 150
+;;            :bold-weight extrabold)
+;;           (larger
+;;            :default-weight semilight
+;;            :default-height 160
+;;            :bold-weight extrabold)
+;;           (code-demo
+;;            :default-family "Iosevka Comfy Fixed"
+;;            :default-weight semilight
+;;            :default-height 190
+;;            :variable-pitch-family "Iosevka Comfy Duo"
+;;            :bold-weight extrabold)
+;;           (presentation
+;;            :default-weight semilight
+;;            :default-height 220
+;;            :bold-weight extrabold)
+;;           (legally-blind
+;;            :default-weight semilight
+;;            :default-height 260
+;;            :bold-weight extrabold)
+;;           (merriweather
+;;            :default-family "Merriweather"
+;;            :variable-pitch-family "Merriweather"
+;;            :default-height 150)
+;;           (iosevka-nerd-font
+;;            :default-family "Iosevka Nerd Font")
+;;           (sarasa
+;;            :default-family "Sarasa Term J"
+;;            :variable-pitch-family "Sarasa Term Slab TC")
+;;           (ibm-plex-sans
+;;            :default-family "IBM Plex Sans")
+;;           (ibm-plex-mono
+;;            :default-family "IBM Plex Mono")
+;;           (t
+;;            ;; I keep all properties for didactic purposes, but most can be
+;;            ;; omitted.  See the fontaine manual for the technicalities:
+;;            ;; <https://protesilaos.com/emacs/fontaine>.
+;;            :default-family "Iosevka Comfy"
+;;            :default-weight regular
+;;            :default-height 120
+;;            :fixed-pitch-family nil      ; falls back to :default-family
+;;            :fixed-pitch-weight nil      ; falls back to :default-weight
+;;            :fixed-pitch-height 1.0
+;;            :fixed-pitch-serif-family nil ; falls back to :default-family
+;;            :fixed-pitch-serif-weight nil ; falls back to :default-weight
+;;            :fixed-pitch-serif-height 1.0
+;;            :variable-pitch-family "Iosevka Comfy Motion Duo"
+;;            :variable-pitch-weight nil
+;;            :variable-pitch-height 1.0
+;;            :bold-family nil             ; use whatever the underlying face has
+;;            :bold-weight bold
+;;            :italic-family nil
+;;            :italic-slant italic
+;;            :line-spacing nil)))
+
+;;   ;; Set last preset or fall back to desired style from `fontaine-presets'.
+;;   (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+
+;;   ;; The other side of `fontaine-restore-latest-preset'.
+;;   (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
+
+;;   ;; Persist font configurations while switching themes (doing it with
+;;   ;; my `modus-themes' and `ef-themes' via the hooks they provide).
+;;   (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
+;;     (add-hook hook #'fontaine-apply-current-preset))
+
+;;   :init
+;;   (map! :leader
+;;         (:prefix ("ç" . "daf")
+;;                      "F" #'fontaine-set-face-font
+;;                      "f" #'fontaine-set-preset)))
+#+end_src
+
+** ~golden-ratio~  :ARCHIVE:
+/Automatic resizing of Emacs windows to the golden ratio./
+*** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! golden-ratio) ;; https://github.com/roman/golden-ratio.el
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package! golden-ratio
+;; :after-call pre-command-hook
+;; :hook doom-switch-window-hook
+;; :init
+;; (map! :leader
+;; (:prefix ("w" . "windows")
+;; :desc "Toggle golden-ratio mode" "g" #'golden-ratio-mode))
+;;
+;; :config
+;; (golden-ratio-mode +1)
+;; ;; Using this hook for resizing windows is less precise than
+;; ;; `doom-switch-window-hook'.
+;; (remove-hook! ('window-configuration-change-hook 'org-now-hook
+;; 'vterm-mode-hook) #'golden-ratio))
+#+end_src
+
+** ~magit-pretty-graph~  :ARCHIVE:
+/Prettier ~git log~ graph./
+*** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! magit-pretty-graph
+;; :recipe (:host github
+;; :repo "georgek/magit-pretty-graph"))
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package! magit-pretty-graph
+;; :defer t
+;; :after magit
+;; :init
+;; (setq magit-pg-command
+;; (concat "git --no-pager log"
+;; " --topo-order --decorate=full"
+;; " --pretty=format:\"%H%x00%P%x00%an%x00%ar%x00%s%x00%d\""
+;; " -n 2000")) ;; Increase the default 100 limit
+;;
+;; (map! :localleader
+;; :map (magit-mode-map)
+;; :desc "Magit pretty graph" "p" (cmd! (magit-pg-repo (magit-toplevel)))))
+#+end_src
+
+** ~just~  · Just do it :ARCHIVE:
+/Like Makefile, but easier to grasp./
+*** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! just-mode)
+;; (package! justl)
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package! justl
+;; :defer t)
+;;
+;; (defun daf/consult-just ()
+;; "Prompt a list of just recipes from the project. Run the selected candidate."
+;; (interactive)
+;; (let (recipes)
+;; (setq recipes (justl--get-recipies-with-desc (justl--find-justfiles (projectile-project-root))))
+;; (justl--exec justl-executable (list (completing-read "Choose an action: " recipes)))))
+#+end_src
+
+** ~multi-vterm~  :ARCHIVE:
+/Manage multiple instances of ~vterm~./
+*** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! multi-vterm
+;; :recipe (:host github :repo "gagbo/multi-vterm" :branch "display_buffer"))
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package! multi-vterm
+;; :defer t
+;; :custom
+;; ;; (multi-vterm-buffer-name "Terminal")
+;; (multi-vterm-dedicated-buffer-name "dedicated vterminal")
+;; (multi-vterm-dedicated-window-side 'bottom)
+;;
+;; :config
+;; (set-popup-rules!
+;; '(("^\\*vterm.*"
+;; :slot 1 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)
+;; ("^\\*dedicated vterminal.*"
+;; :slot 2 :vslot -2 :actions (+popup-display-buffer-stacked-side-window-fn) :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil)))
+;;
+;; (evil-define-key 'normal vterm-mode-map (kbd "C-d") #'vterm--self-insert)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";c")  #'multi-vterm-project)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";n")  #'multi-vterm-next)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";p")  #'multi-vterm-prev)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";r")  #'multi-vterm-rename-buffer)
+;; (evil-define-key 'normal vterm-mode-map (kbd ";;")  #'multi-vterm-dedicated-select)
+;;
+;; :init
+;; (map! :leader
+;; (:prefix ("o" . "open")
+;; :desc "Dedicated terminal"      "t" #'multi-vterm-dedicated-toggle
+;; :desc "Dedicated terminal here" "T" #'multi-vterm-project))
+;;
+;; (map! (:map vterm-mode-map
+;; :localleader
+;; :desc "Create"   "c" #'multi-vterm-project
+;; :desc "Rename"   "r" #'multi-vterm-rename-buffer
+;; :desc "Select"   "," #'multi-vterm-dedicated-select
+;; :desc "Previous" "p" #'multi-vterm-prev
+;; :desc "Next"     "n" #'multi-vterm-next)))
+#+end_src
+
+** ~combobulate~  :ARCHIVE:
+/Structured Editing and Navigation in Emacs with Tree-Sitter/
+*** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! combobulate) ;; https://github.com/mickeynp/combobulate
 #+end_src
 
 * Level 6: Central Processing · /Lang stuff/
@@ -3772,10 +3772,7 @@ will be moved to the relevant level./
 
 #+begin_src emacs-lisp
 (use-package! org-wild-notifier
-  ;; The add-hook enables the mode after init
-  :defer t
-  :init
-  (add-hook 'doom-post-init-hook #'org-wild-notifier-mode t)
+  :hook (org-load . org-wild-notifier-mode)
   :config
   (setq alert-default-style 'notification))
 #+end_src

@@ -52,8 +52,6 @@
 
 (package! focus) ;; https://github.com/larstvei/Focus
 
-;; (package! fontaine) ;; https://github.com/protesilaos/fontaine
-
 (package! indent-bars
   :recipe (:host github :repo "jdtsmith/indent-bars")) ;; https://github.com/jdtsmith/indent-bars
 
@@ -94,8 +92,6 @@
 
 (package! tempel) ;; https://github.com/minad/tempel
 (package! tempel-collection) ;; https://github.com/Crandel/tempel-collection
-
-(package! todoist) ;; https://github.com/abrochard/emacs-todoist
 
 (package! verb) ;; https://github.com/federicotdn/verb
 
