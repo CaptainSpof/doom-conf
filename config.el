@@ -304,6 +304,23 @@ the associated key is pressed after the repeatable action is triggered."
 
 (add-hook 'lsp-after-open-hook 'daf/turn-on-mode-line)
 
+(setq aw-dispatch-alist
+      '((?d aw-delete-window "Delete Window")
+        (?m aw-swap-window "Swap Windows")
+        (?M aw-move-window "Move Window")
+        (?c aw-copy-window "Copy Window")
+        (?j aw-switch-buffer-in-window "Select Buffer")
+        (?n aw-flip-window)
+        (?u aw-switch-buffer-other-window "Switch Buffer Other Window")
+        (?e aw-execute-command-other-window "Execute Command Other Window")
+        (?F aw-split-window-fair "Split Fair Window")
+        (?k aw-split-window-vert "Split Vert Window")
+        (?v aw-split-window-horz "Split Horz Window")
+        (?o delete-other-windows "Delete Other Windows")
+        (?T aw-transpose-frame "Transpose Frame")
+        ;; ?i ?r ?t are used by hyperbole.el
+        (?? aw-show-dispatch-help)))
+
 (map! :leader
       (:prefix ("TAB" . "workspace")
        :desc "Select workspace"          :mvn "TAB" #'+workspace/switch-to
@@ -1792,6 +1809,7 @@ deleted, kill the pairs around point."
 
 (grugru-define-multiple
   (word "yes" "no")
+  (word "true" "false")
   (word "left" "right"))
 
 (use-package! lsp-nix
