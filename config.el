@@ -583,15 +583,6 @@ This only works with orderless and for the first component of the search."
   (map!
    :n "z <tab>" #'+fold/toggle))
 
-(map!
- (:prefix ("ç" . "daf")
-  :n "ç" #'rotate-text
-  :n "r" #'rotate-text))
-
-(after! rotate-text
-  (add-to-list 'rotate-text-words '("info" "warning" "error"))
-  (add-to-list 'rotate-text-words '("enabled" "disabled")))
-
 (setq undo-fu-allow-undo-in-region 't)
 
 (defun ediff-copy-both-to-C ()
@@ -1447,6 +1438,17 @@ This only works with orderless and for the first component of the search."
     (setq evil-embrace-show-help-p t))
   (setq embrace-show-help-p t))
 
+(use-package! grugru
+  :config
+  (grugru-highlight-mode)
+  (grugru-default-setup)
+
+  :init
+  (map!
+   (:prefix ("ç" . "daf")
+    :desc "Rotate text" :n "ç" #'grugru
+    :desc "Rotate text" :n "r" #'grugru)))
+
 (use-package! indent-bars
   :custom
   (indent-bars-treesit-support t)
@@ -1626,7 +1628,6 @@ deleted, kill the pairs around point."
   (map!
    :map puni-mode-map
    (:prefix ("," . "daf")
-    :nv "TAB" #'delete-indentation
     :nv "v"   #'puni-expand-region
     :nv "s"   #'puni-squeeze
     :nv "/"   #'puni-split
@@ -1789,6 +1790,10 @@ deleted, kill the pairs around point."
                                            "*helpful variable: argv*")
         zoom-ignored-buffer-name-regexps '("^\\*calc" "\\*helpful variable: .*\\*")))
 
+(grugru-define-multiple
+  (word "yes" "no")
+  (word "left" "right"))
+
 (use-package! lsp-nix
   :after lsp-mode
   :demand t
@@ -1798,6 +1803,8 @@ deleted, kill the pairs around point."
 
 (use-package! nix-mode
   :hook (nix-mode . lsp-deferred))
+
+(grugru-define-global 'symbol '("enabled" "disabled"))
 
 (after! savehist
   (add-to-list 'savehist-additional-variables 'evil-markers-alist)

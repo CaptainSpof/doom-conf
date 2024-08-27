@@ -1150,26 +1150,6 @@ Quickly toggle ~folds~.
    :n "z <tab>" #'+fold/toggle))
 #+end_src
 
-*** ~rotate-text~
-**** Configuration & Mapping
-
-I can't be ask to remember all useful bindings!
-
-#+begin_src emacs-lisp
-(map!
- (:prefix ("ç" . "daf")
-  :n "ç" #'rotate-text
-  :n "r" #'rotate-text))
-#+end_src
-
-And we add some common rotations.
-
-#+begin_src emacs-lisp
-(after! rotate-text
-  (add-to-list 'rotate-text-words '("info" "warning" "error"))
-  (add-to-list 'rotate-text-words '("enabled" "disabled")))
-#+end_src
-
 ** Emacs · ~:emacs~ itself
 *** ~undo-fu~
 **** Configuration
@@ -2651,6 +2631,26 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 #+begin_src emacs-lisp :tangle packages.el
 (package! focus) ;; https://github.com/larstvei/Focus
 #+end_src
+** ~grugru~
+/Rotate text at point in Emacs./
+*** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! grugru) ;; https://github.com/ROCKTAKEY/grugru
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! grugru
+  :config
+  (grugru-highlight-mode)
+  (grugru-default-setup)
+
+  :init
+  (map!
+   (:prefix ("ç" . "daf")
+    :desc "Rotate text" :n "ç" #'grugru
+    :desc "Rotate text" :n "r" #'grugru)))
+#+end_src
 
 ** ~indent-bars~ · If Emacs is a prison, at least the bars are nice
 /Fast, configurable indentation guide-bars for Emacs/
@@ -3005,7 +3005,6 @@ deleted, kill the pairs around point."
   (map!
    :map puni-mode-map
    (:prefix ("," . "daf")
-    :nv "TAB" #'delete-indentation
     :nv "v"   #'puni-expand-region
     :nv "s"   #'puni-squeeze
     :nv "/"   #'puni-split
@@ -3545,6 +3544,14 @@ _TODO_: switch to ~novlang.el~ for *everything*.
 ―Tecosaur
 #+end_quote
 
+Let's add a couple pair of words to rotate.
+
+#+begin_src emacs-lisp
+(grugru-define-multiple
+  (word "yes" "no")
+  (word "left" "right"))
+#+end_src
+
 ** Nix
 *** Configuration
 
@@ -3563,6 +3570,13 @@ _TODO_: switch to ~novlang.el~ for *everything*.
 (use-package! nix-mode
   :hook (nix-mode . lsp-deferred))
 #+end_src
+
+Let's add « /enabled/ » and « /disabled/ » to ~grugru~.
+
+#+begin_src emacs-lisp
+(grugru-define-global 'symbol '("enabled" "disabled"))
+#+end_src
+
 
 -----
 

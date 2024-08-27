@@ -52,6 +52,8 @@
 
 (package! focus) ;; https://github.com/larstvei/Focus
 
+(package! grugru) ;; https://github.com/ROCKTAKEY/grugru
+
 (package! indent-bars
   :recipe (:host github :repo "jdtsmith/indent-bars")) ;; https://github.com/jdtsmith/indent-bars
 
