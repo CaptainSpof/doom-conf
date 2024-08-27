@@ -528,7 +528,7 @@ We'll setup some font stuff here too. But the ~fontaine~ package is used to setu
 Also, there's a fix to some shenanigan happening with the emojis.
 
 #+begin_src emacs-lisp
-(setq doom-font                (font-spec :family "Maple Mono NF" :size 12.0)
+(setq doom-font                (font-spec :family "Maple Mono NF" :size 11.5)
       doom-variable-pitch-font (font-spec :family "Maple Mono NF")
       doom-symbol-font         (font-spec :family "JuliaMono")
       doom-emoji-font          (font-spec :family "Twitter Color Emoji"))
