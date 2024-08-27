@@ -50,15 +50,15 @@ The general idea is to organize the packages' configurations in their own
 subheading (see [[* Level 5: Phobos Lab · /Packages/][Level 5]]).
 
 Also if ~Doom~ already configures a package in a module, we extend that package
-configuration in a subheading that represents the module it originates from (it's
-in [[* Level 4: Command Control · /Doom, but it's _my_ personal hell/][Level 4]]).
+configuration in a subheading that represents the module it originates from
+(it's in [[* Level 4: Command Control · /Doom, but it's _my_ personal hell/][Level 4]]).
 
 In [[* Level 6: Central Processing · /Lang stuff/][Level 6]], I put language specific bits of configuration or helpful functions.
 
 ** Inspirations
 
 Here's a non exhaustive list of config that helped me write this one. Thanks to
-the authors🙏.
+the authors 🙏.
 
 - [[https://github.com/abougouffa/dotfiles/blob/main/dot_doom.d/config.org][Abdelhak Bougouffa's config]]
 - [[https://github.com/gtrunsec/nixos-flk/blob/main/users/dotfiles/doom-emacs/config.org][GTrunkSec's config]]
@@ -140,7 +140,7 @@ To make ~fish~ happy, I guess.
 ~which-key~ could be a little tad bit quicker to show up.
 
 #+begin_src emacs-lisp
-(setq which-key-idle-delay 0.5) ;; I need the help, I really do
+(setq which-key-idle-delay 0.5)
 #+end_src
 
 I also think that having ~evil-~ appear in so many popups is a bit too verbose,
@@ -254,7 +254,6 @@ bible).
 ;; FIXME
 (map! :after (evil evil-org org)
       :map org-agenda-mode-map
-
       [return] #'org-agenda-goto
       [S-return] #'org-agenda-switch-to)
 #+end_src
@@ -268,12 +267,13 @@ I don't see a correlation between being zen and being blind.
 #+end_src
 
 Set default major mode to ~text-mode~.
+
 #+begin_src emacs-lisp
 (setq default-major-mode 'text-mode)
 #+end_src
 
 #+begin_quote
-    When I bring up Doom's scratch buffer with SPC x, it's often to play with
+    When I bring up Doom's scratch buffer with =SPC x=, it's often to play with
     elisp or note something down (that isn't worth an entry in my notes). I can
     do both in `lisp-interaction-mode'.
 
@@ -297,7 +297,7 @@ Let's use ~hippie-expand~ instead of ~dabbrev-expand~.
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
 #+end_src
 
-Access =leaderkey= in minibuffer with =M-spc=.
+Access =leaderkey= in the minibuffer with =M-SPC=.
 
 #+begin_src emacs-lisp
 (map! :map minibuffer-local-map doom-leader-alt-key #'doom/leader)
@@ -317,6 +317,8 @@ Nevermind, hit an error: tab-with must be set to 8 in org-mode buffers…
 ;; (setq tab-width 4)
 #+end_src
 
+Toggle popup with =SPC "=.
+
 #+begin_src emacs-lisp
 (map!
  :leader
@@ -325,12 +327,33 @@ Nevermind, hit an error: tab-with must be set to 8 in org-mode buffers…
 
 I'm no "baka"!
 
-This is just me trying out some mapping function in emacs lisp. Is it how it
-works ?
+Well, maybe I am. But I'm also trying out some mapping function in Emacs Lisp.
+Is it how it works ?
 
 #+begin_src emacs-lisp
 (setq +doom-quit-messages
-      (delete (seq-find (lambda (elmt) (string-match-p "baka" elmt)) +doom-quit-messages) +doom-quit-messages))
+      (delete (seq-find
+               (lambda (elmt) (string-match-p "baka" elmt))
+               +doom-quit-messages)
+              +doom-quit-messages))
+#+end_src
+
+** Remove lines
+
+#+begin_src emacs-lisp
+(defun daf/join-lines ()
+  "Remove all blank lines with 'delete-blank-lines', then call 'join-line'."
+  (interactive)
+  (setq thisblank (looking-at "[ \t]*$"))
+  (delete-blank-lines)
+  (if thisblank (delete-blank-lines))
+  (join-line))
+#+end_src
+
+#+begin_src emacs-lisp
+(map!
+ (:prefix ("," . "daf")
+  :desc "Join lines" :nv "TAB" #'daf/join-lines))
 #+end_src
 
 ** Expand region
@@ -446,7 +469,7 @@ package, or by category./
 *** Themes
 
 Let us define a dark and a light theme. We'll setup ~Circadian~ later on to manage
-em.
+them.
 
 #+begin_src emacs-lisp
 (defvar daf/dark-theme  'doom-gruvbox)
@@ -550,7 +573,7 @@ Now come with more cute dinos!
 |--------------------------+----------------------------------+----------------------|
 | Keybind(s)               | Emacs Command                    | Description          |
 |--------------------------+----------------------------------+----------------------|
-| =spc D=                    | ~+doom-dashboard/open~             | Open the dashboard   |
+| =SPC D=                    | ~+doom-dashboard/open~             | Open the dashboard   |
 |--------------------------+----------------------------------+----------------------|
 | _+doom-dashboard-mode-map_ |                                  |                      |
 |                          |                                  |                      |
@@ -648,7 +671,7 @@ the ~nano-modeline~.
 (setq doom-modeline-position-column-line-format '(""))
 #+end_src
 
-Since we have two modelines (we at dafos corporation spare no expense), it would be handy to disable the ~doom-modeline~ via a shortcut =spc tm=.
+Since we have two modelines (we at Dafos Corporation™  spare no expense), it would be handy to disable the ~doom-modeline~ via a shortcut =SPC t m=.
 
 #+begin_src emacs-lisp
 (map!
@@ -671,27 +694,28 @@ I am in a buffer with lsp enabled.
 #+end_src
 
 *** Workspace
-
 **** Mapping
 
-Invert Switch workspace and Display tab bar mapping.
+Invert Switch workspace and Display tab bar mapping. Also add some commodity
+shortcuts.
 
 #+begin_src emacs-lisp
 (map! :leader
       (:prefix ("TAB" . "workspace")
-       :desc "Switch workspace" :mvn "TAB" #'+workspace/switch-to
-       :mvn "»" #'+workspace/switch-right
-       :mvn "«" #'+workspace/switch-left
-       :desc "Display tab bar"  :mvn "."   #'+workspace/display))
+       :desc "Select workspace"          :mvn "TAB" #'+workspace/switch-to
+       :desc "Switch to right workspace" :mvn "»"   #'+workspace/switch-right
+       :desc "Switch to left workspace"  :mvn "«"   #'+workspace/switch-left
+       :desc "Display tab bar"           :mvn "."   #'+workspace/display))
 
 (map! :n "C-t" nil
       :n "g»" #'+workspace/switch-right
       :n "g«" #'+workspace/switch-left)
 #+end_src
+
 *** Whitespace
 **** Mapping
 
-Toggle display whitespaces with =spc t spc=. It's a bit hacky, I need to toggle
+Toggle display whitespaces with =SPC t SPC=. It's a bit hacky, I need to toggle
 the ~global-whitespace-mode~ and revert the buffer afterward.
 
 #+begin_src emacs-lisp
@@ -812,7 +836,7 @@ different places.
 #+end_src
 
 Send ~consult-line~ search pattern to the evil search history ring.
-Basically, =spc s s= → =ret= → =n= → =n= …
+Basically, =SPC s s= → =ret= → =n= → =n= …
 
 #+begin_src emacs-lisp
 (defun noct-consult-line-evil-history (&rest _)
@@ -866,7 +890,7 @@ binding.
 Open a buffer from ~consult~ and split using ~ace-window~.
 
 Typically, I would use it like this:
-1. =spc spc= for ~find-file~
+1. =SPC SPC= for ~find-file~
 2. highlight desired file
 3. =C-,= to open the ~embark~ menu
 4. =o= to invoke the ~ace-window~ action
@@ -976,7 +1000,7 @@ should at least try to immerse myself in the default Emacs's binding, someday…
 | =q=          | ~eval-quit~                  | Quit                    |
 | =Q=          | ~evil-record-macro~          | Record macro            |
 | =, ,=        | ~evil-avy-goto-char-timer~   | Go to char with timer   |
-| =, spc=      | ~avy-goto-word-0~            | Go to word              |
+| =, SPC=      | ~avy-goto-word-0~            | Go to word              |
 | =, l=        | ~avy-goto-line~              | Go to line              |
 | =C-==        | ~daf/toggle-window-enlargen~ | Toggle window enlarging |
 | =z tab=      | ~+fold/toggle~               | Toggle fold             |
@@ -1448,7 +1472,7 @@ Remove some Emoji, for which I want to display a symbol.
   (set-char-table-range char-script-table char 'symbol))
 #+end_src
 
-=spc i n= to insert ~nerd icons~.
+=SPC i n= to insert ~nerd icons~.
 
 #+begin_src emacs-lisp
 (map!
@@ -1463,15 +1487,15 @@ Remove some Emoji, for which I want to display a symbol.
 |------------+---------------+-----------------|
 | Keybind(s) | Emacs Command | Description     |
 |------------+---------------+-----------------|
-| =spc r=      |               | RSS             |
-| =spc r r=    | ~elfeed~        | Elfeed          |
-| =spc r u=    | ~elfeed-update~ | Update feeds    |
-| =spc r .=    | […]           | Open =elfeed.org= |
+| =SPC r=      |               | RSS             |
+| =SPC r r=    | ~elfeed~        | Elfeed          |
+| =SPC r u=    | ~elfeed-update~ | Update feeds    |
+| =SPC r .=    | […]           | Open =elfeed.org= |
 |            |               |                 |
 |------------+---------------+-----------------|
 **** Configuration & Mapping
 
-~Elfeed~ doesn't have a binding by default, conveniently, =spc r= is available.
+~Elfeed~ doesn't have a binding by default, conveniently, =SPC r= is available.
 
 #+begin_src emacs-lisp
 
@@ -2072,6 +2096,7 @@ Sometimes it is nice to be able to use the mouse.
   (map! :leader
         (:prefix ("z" . "org-gtd")
          :desc "Agenda"            "a" #'org-agenda
+         :desc "Archive"           "A" #'org-gtd-archive-completed-items
          :desc "Capture"           "c" #'org-gtd-capture
          :desc "Clarify item"      "C" #'org-gtd-clarify-item
          :desc "Process inbox"     "i" #'org-gtd-process-inbox
@@ -2634,7 +2659,7 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 |------------+------------------+--------------------|
 | Keybind(s) | Emacs Command    | Description        |
 |------------+------------------+--------------------|
-| =spc t i=    | ~indent-bars-mode~ | Toggle indent bars |
+| =SPC t i=    | ~indent-bars-mode~ | Toggle indent bars |
 |            |                  |                    |
 |------------+------------------+--------------------|
 *** Configuration & Mapping
@@ -3188,7 +3213,7 @@ A nice little package which allows to rotate layout.
 (package! zoom) ;; https://github.com/cyrus-and/zoom
 #+end_src
 
-Disabled by default, =spc t == to enable it. This is mainly because, there's a bug
+Disabled by default, =SPC t == to enable it. This is mainly because, there's a bug
 with popup shell.
 
 #+begin_src emacs-lisp
@@ -3891,10 +3916,7 @@ reference all that here.
 - [X] ~doom-modeline~ isn't happy about font profile switching
 - [X] (layout +bepo) isn't working
 - [X] (layout +bepo) isn't working, take 2
-  I'm still experiencing issues, it seems that when using the ~+bepo~ module,
-  ~yas-snipet~ is loaded too often, which cause lags.
 - [X] ~company~ glitches with variable fonts (maybe?)
-  ~+childframe~ seems to have fixed the issue.
 - [ ] emojis and symbols are giving me trouble
   - [ ] can't disable specific symbols
 - [ ] ~flycheck~ is activated where it shouldn't

@@ -17,7 +17,7 @@
 
 (setq-default vterm-shell (executable-find "fish"))
 
-(setq which-key-idle-delay 0.5) ;; I need the help, I really do
+(setq which-key-idle-delay 0.5)
 
 (setq which-key-allow-multiple-replacements t)
 (after! which-key
@@ -78,7 +78,6 @@
 ;; FIXME
 (map! :after (evil evil-org org)
       :map org-agenda-mode-map
-
       [return] #'org-agenda-goto
       [S-return] #'org-agenda-switch-to)
 
@@ -104,7 +103,22 @@
  :nv "\"" #'+popup/toggle)
 
 (setq +doom-quit-messages
-      (delete (seq-find (lambda (elmt) (string-match-p "baka" elmt)) +doom-quit-messages) +doom-quit-messages))
+      (delete (seq-find
+               (lambda (elmt) (string-match-p "baka" elmt))
+               +doom-quit-messages)
+              +doom-quit-messages))
+
+(defun daf/join-lines ()
+  "Remove all blank lines with 'delete-blank-lines', then call 'join-line'."
+  (interactive)
+  (setq thisblank (looking-at "[ \t]*$"))
+  (delete-blank-lines)
+  (if thisblank (delete-blank-lines))
+  (join-line))
+
+(map!
+ (:prefix ("," . "daf")
+  :desc "Join lines" :nv "TAB" #'daf/join-lines))
 
 (map!
  :map 'override
@@ -292,10 +306,10 @@ the associated key is pressed after the repeatable action is triggered."
 
 (map! :leader
       (:prefix ("TAB" . "workspace")
-       :desc "Switch workspace" :mvn "TAB" #'+workspace/switch-to
-       :mvn "»" #'+workspace/switch-right
-       :mvn "«" #'+workspace/switch-left
-       :desc "Display tab bar"  :mvn "."   #'+workspace/display))
+       :desc "Select workspace"          :mvn "TAB" #'+workspace/switch-to
+       :desc "Switch to right workspace" :mvn "»"   #'+workspace/switch-right
+       :desc "Switch to left workspace"  :mvn "«"   #'+workspace/switch-left
+       :desc "Display tab bar"           :mvn "."   #'+workspace/display))
 
 (map! :n "C-t" nil
       :n "g»" #'+workspace/switch-right
@@ -1184,6 +1198,7 @@ This only works with orderless and for the first component of the search."
   (map! :leader
         (:prefix ("z" . "org-gtd")
          :desc "Agenda"            "a" #'org-agenda
+         :desc "Archive"           "A" #'org-gtd-archive-completed-items
          :desc "Capture"           "c" #'org-gtd-capture
          :desc "Clarify item"      "C" #'org-gtd-clarify-item
          :desc "Process inbox"     "i" #'org-gtd-process-inbox
