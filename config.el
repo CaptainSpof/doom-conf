@@ -31,9 +31,27 @@
 (setq bookmark-default-file (expand-file-name "local/bookmarks" doom-user-dir)
       projectile-known-projects-file (expand-file-name "local/projectile.projects" doom-user-dir))
 
+;;;###autoload
+(defmacro daf/repeat-map! (map-name keys-alist &optional docstring)
+  "A helper macro to create keymaps for repeatable actions.
+
+MAP-NAME is the variable name for the sparse keymap created, and KEYS-ALIST, is
+an association list of functions to keys, where each function is called after
+the associated key is pressed after the repeatable action is triggered."
+  `(defvar ,map-name
+     (let ((map (make-sparse-keymap)))
+       (dolist (cmd ,keys-alist)
+         (define-key map (cdr cmd) (car cmd))
+         (put (car cmd) 'repeat-map ',map-name))
+       map)
+     ,docstring))
+
+(add-hook 'after-init-hook 'repeat-mode)
+
 (setq-default scroll-margin 3)
 
 (pixel-scroll-precision-mode 1)
+(setq mouse-wheel-tilt-scroll t)
 
 (defun filter-mwheel-always-coalesce (orig &rest args)
   "A filter function suitable for :around advices that ensures only
@@ -50,14 +68,32 @@
     (apply orig args)))
 
                                         ; Don't coalesce for high precision scrolling
-(advice-add 'pixel-scroll-precision :around #'filter-mwheel-never-coalesce)
+;; (advice-add 'pixel-scroll-precision :around #'filter-mwheel-never-coalesce)
 
                                         ; Coalesce for default scrolling (which is still used for horizontal scrolling)
                                         ; and text scaling (bound to ctrl + mouse wheel by default).
 ;; (advice-add 'mwheel-scroll          :around #'filter-mwheel-always-coalesce)
 ;; (advice-add 'mouse-wheel-text-scale :around #'filter-mwheel-always-coalesce)
 
-(setq mouse-wheel-tilt-scroll t)
+;;;###autoload
+(defun daf/scroll-up-line-by-five ()
+  (interactive)
+  (scroll-up-line 5))
+
+;;;###autoload
+(defun daf/scroll-down-line-by-five ()
+  (interactive)
+  (scroll-down-line 5))
+
+(map! :n "C-e" #'daf/scroll-down-line-by-five
+      :n "C-y" #'daf/scroll-up-line-by-five)
+
+(daf/repeat-map! daf-scroll-line-repeat-map
+                 '((daf/scroll-up-line-by-five   . "y")
+                   (daf/scroll-up-line-by-five   . "t")
+                   (daf/scroll-down-line-by-five . "e")
+                   (daf/scroll-down-line-by-five . "s"))
+                 "Repeatable map for scrolling lines")
 
 (after! tramp
   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
@@ -124,33 +160,6 @@
  :map 'override
  :v "v" #'er/expand-region
  :v "V" #'er/contract-region)
-
-;;;###autoload
-(defmacro daf/repeat-map! (map-name keys-alist &optional docstring)
-  "A helper macro to create keymaps for repeatable actions.
-
-MAP-NAME is the variable name for the sparse keymap created, and KEYS-ALIST, is
-an association list of functions to keys, where each function is called after
-the associated key is pressed after the repeatable action is triggered."
-  `(defvar ,map-name
-     (let ((map (make-sparse-keymap)))
-       (dolist (cmd ,keys-alist)
-         (define-key map (cdr cmd) (car cmd))
-         (put (car cmd) 'repeat-map ',map-name))
-       map)
-     ,docstring))
-
-(add-hook 'after-init-hook 'repeat-mode)
-
-(daf/repeat-map! daf-window-resize-repeat-map
-                 '((+evil-window-increase-height-by-three . "+")
-                   (+evil-window-increase-height-by-three . "=")
-                   (+evil-window-decrease-height-by-three . "-")
-                   (+evil-window-increase-width-by-five   . "»")
-                   (+evil-window-increase-width-by-five   . ">")
-                   (+evil-window-decrease-width-by-five   . "«")
-                   (+evil-window-decrease-width-by-five   . "<"))
-                 "Repeatable map for window resizing")
 
 ;;;###autoload
 (defun daf/window-toggle-lock-size ()
@@ -552,36 +561,46 @@ This only works with orderless and for the first component of the search."
              "é" (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
 
 ;;;###autoload
-(defun +evil-window-increase-width-by-five (count)
+(defun +daf/evil-window-increase-width-by-five (count)
   "wrapper call associated function by step of five"
   (interactive "p")
   (evil-window-increase-width (+ count 5)))
 
 ;;;###autoload
-(defun +evil-window-decrease-width-by-five (count)
+(defun +daf/evil-window-decrease-width-by-five (count)
   "wrapper call associated function by step of five"
   (interactive "p")
   (evil-window-decrease-width (+ count 5)))
 
 ;;;###autoload
-(defun +evil-window-increase-height-by-three (count)
+(defun +daf/evil-window-increase-height-by-three (count)
   "wrapper call associated function by step of three"
   (interactive "p")
   (evil-window-increase-height (+ count 3)))
 
 ;;;###autoload
-(defun +evil-window-decrease-height-by-three (count)
+(defun +daf/evil-window-decrease-height-by-three (count)
   "wrapper call associated function by step of three"
   (interactive "p")
   (evil-window-decrease-height (+ count 3)))
 
 (map! (:map evil-window-map
-            "+" #'+evil-window-increase-height-by-three
-            "-" #'+evil-window-decrease-height-by-three
-            "«" #'+evil-window-decrease-width-by-five
-            "<" #'+evil-window-decrease-width-by-five
-            ">" #'+evil-window-increase-width-by-five
-            "»" #'+evil-window-increase-width-by-five))
+            "+" #'+daf/evil-window-increase-height-by-three
+            "-" #'+daf/evil-window-decrease-height-by-three
+            "«" #'+daf/evil-window-decrease-width-by-five
+            "<" #'+daf/evil-window-decrease-width-by-five
+            ">" #'+daf/evil-window-increase-width-by-five
+            "»" #'+daf/evil-window-increase-width-by-five))
+
+(daf/repeat-map! daf-window-resize-repeat-map
+                 '((+daf/evil-window-increase-height-by-three . "+")
+                   (+daf/evil-window-increase-height-by-three . "=")
+                   (+daf/evil-window-decrease-height-by-three . "-")
+                   (+daf/evil-window-increase-width-by-five   . "»")
+                   (+daf/evil-window-increase-width-by-five   . ">")
+                   (+daf/evil-window-decrease-width-by-five   . "«")
+                   (+daf/evil-window-decrease-width-by-five   . "<"))
+                 "Repeatable map for window resizing")
 
 ;;;###autoload
 (defun daf/toggle-window-enlargen (&optional window)
