@@ -164,7 +164,7 @@ rather than the default ~find-file~ action.
 (setq +workspaces-switch-project-function #'dired)
 #+end_src
 
-** Relocate bookmarks and projects
+** Relocate bookmarks and projects files
 
 Me dumb, when Emacs broky, me ~rm -rf emacs/.local~. This lead to losing some
 useful stuff, like bookmarks and ~projectile~'s known projects, let's put them
@@ -174,6 +174,31 @@ elsewhere.
 (setq bookmark-default-file (expand-file-name "local/bookmarks" doom-user-dir)
       projectile-known-projects-file (expand-file-name "local/projectile.projects" doom-user-dir))
 #+end_src
+
+There are also some projects and bookmarks I want as a base. Then I'll locally
+add projet and bookmark (but they _should not_ be tracked by git).
+
+#+begin_src lisp-data :tangle (if (not (file-exists-p "./local/projectile.projects")) "./local/projectile.projects" "")
+("~/.config/doom/" "~/.config/dafos/")
+#+end_src
+
+And the bookmarks (=SPC RET=).
+
+#+begin_src lisp-data :tangle (if (not (file-exists-p "./local/bookmarks")) "./local/bookmarks" "")
+;;;; Emacs Bookmark Format Version 1;;;; -*- coding: utf-8-emacs; mode: lisp-data -*-
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("~/ · Home" (filename . "~/"))
+ ("config · ~/.config" (filename . "~/.config/"))
+ ("dafos · ~/.config/dafos" (filename . "~/.config/dafos/"))
+ ("doom · ~/.config/doom" (filename . "~/.config/doom/"))
+ ("Downloads · ~/Downloads" (filename . "~/Downloads/"))
+ ("Projects · ~/Projects" (filename . "~/Projects/"))
+ ("Repos · ~/Repositories" (filename . "~/Repositories/"))
+ ("tmp · /tmp" (filename . "/tmp/")))
+#+end_src
+
 ** Can your repeat please?
 
 I don't remember where I stole this nugget, but it allows to define repeat keys!
@@ -1554,7 +1579,7 @@ org files to my phone. Let's setup the org directory.
   (setq org-outline-path-complete-in-steps nil))
 #+END_SRC
 
-Let's customize the ~org-todo-keywords~ list. Also, make ~org-code~ verbatim italic.
+Let's customize the ~org-todo-keywords~ list.
 
 #+begin_src emacs-lisp
 (after! org
@@ -1599,7 +1624,7 @@ Let's customize the ~org-todo-keywords~ list. Also, make ~org-code~ verbatim ita
           ("DROP"    . +org-todo-cancel))))
 #+end_src
 
-There are some handy shortcuts in ~org-mode~ to insert babel src blocks, we can
+There are some handy shortcuts in ~org-mode~ to insert babel /src/ blocks, we can
 define some of our own.
 
 #+begin_src emacs-lisp
