@@ -773,6 +773,7 @@ shortcuts.
        :desc "Display tab bar"           :mvn "."   #'+workspace/display))
 
 (map! :n "C-t" nil
+      :n "gt" nil
       :n "g»" #'+workspace/switch-right
       :n "g«" #'+workspace/switch-left)
 #+end_src

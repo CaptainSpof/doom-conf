@@ -338,6 +338,7 @@ the associated key is pressed after the repeatable action is triggered."
        :desc "Display tab bar"           :mvn "."   #'+workspace/display))
 
 (map! :n "C-t" nil
+      :n "gt" nil
       :n "g»" #'+workspace/switch-right
       :n "g«" #'+workspace/switch-left)
 
