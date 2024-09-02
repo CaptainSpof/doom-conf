@@ -15,7 +15,11 @@
 (defvar daf/localleader-key "SPC ç"
   "The localleader prefix key, for major-mode specific commands.")
 
+(setq shell-file-name (executable-find "bash"))
 (setq-default vterm-shell (executable-find "fish"))
+(setq-default explicit-shell-file-name (executable-find "fish"))
+
+(setq confirm-kill-processes nil)
 
 (setq which-key-idle-delay 0.5)
 
@@ -94,6 +98,20 @@ the associated key is pressed after the repeatable action is triggered."
                    (daf/scroll-down-line-by-five . "e")
                    (daf/scroll-down-line-by-five . "s"))
                  "Repeatable map for scrolling lines")
+
+(defun daf/scroll-bottom-line-to-top ()
+  "Move the bottom line of the buffer to the top, then pulse the line."
+  (interactive)
+  (evil-window-bottom)
+  (evil-scroll-line-to-top (line-number-at-pos))
+  (pulsar-pulse-line))
+
+(defun daf/scroll-top-line-to-bottom ()
+  "Move the top line of the buffer to the bottom, then pulse the line."
+  (interactive)
+  (evil-window-top)
+  (evil-scroll-line-to-bottom (line-number-at-pos))
+  (pulsar-pulse-line))
 
 (after! tramp
   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
@@ -773,6 +791,10 @@ This only works with orderless and for the first component of the search."
 ;;:after magit
 ;;:config
 ;;(magit-todos-mode 1))
+;; (map!
+ ;; :leader
+ ;; :prefix ("p" . "project")
+ ;; :desc "Project todos" :n "t" #'magit-todos-list)
 
 (dolist (char '(?⏩ ?⏪ ?❓ ?⏸))
   (set-char-table-range char-script-table char 'symbol))
@@ -789,6 +811,8 @@ This only works with orderless and for the first component of the search."
        :desc "Open elfeed.org" "." (cmd!
                                     (find-file
                                      (expand-file-name "elfeed.org" org-directory)))))
+
+(add-hook! 'elfeed-search-mode-hook #'elfeed-update)
 
 (after! org
   (setq org-directory "~/Sync/Org/")
@@ -835,6 +859,8 @@ This only works with orderless and for the first component of the search."
           ("SOMEDAY" . +org-todo-onhold)
           ("NO"      . +org-todo-cancel)
           ("DROP"    . +org-todo-cancel))))
+
+(add-hook 'org-mode-hook 'hl-todo-mode)
 
 (use-package! org-tempo
   :after org
@@ -1606,25 +1632,18 @@ This only works with orderless and for the first component of the search."
   :config
   (setq visual-fill-column-center-text t
         nov-text-width t
-        nov-variable-pitch t))
+        nov-variable-pitch t)
 
-(defun daf/scroll-bottom-line-to-top ()
-  (interactive)
-  (evil-window-bottom)
-  (evil-scroll-line-to-top (line-number-at-pos))
-  (+nav-flash/blink-cursor))
-
-(defun daf/scroll-top-line-to-bottom ()
-  (interactive)
-  (evil-window-top)
-  (evil-scroll-line-to-bottom (line-number-at-pos))
-  (+nav-flash/blink-cursor))
-
-:init
-(map!
- :map nov-mode-map
- :n "T" #'daf/scroll-bottom-line-to-top
- :n "S" #'daf/scroll-top-line-to-bottom)
+  :init
+  (map!
+   :after nov
+   :map nov-mode-map
+   :n "T"     #'daf/scroll-bottom-line-to-top
+   :n [down]  #'daf/scroll-bottom-line-to-top
+   :n [right] #'daf/scroll-bottom-line-to-top
+   :n "S"     #'daf/scroll-top-line-to-bottom
+   :n [up]    #'daf/scroll-top-line-to-bottom
+   :n [left]  #'daf/scroll-top-line-to-bottom))
 
 (map!
  :leader (:prefix ("t" . "toggle")
@@ -1660,12 +1679,21 @@ deleted, kill the pairs around point."
           (puni-backward-kill-line)
         (puni-kill-line)))))
 
+(defun daf/open-end-of-sexp ()
+  "Go to end of sexp and insert newline."
+  (interactive)
+  (puni-end-of-sexp)
+  (newline-and-indent)
+  (evil-insert 1))
+
 (use-package! puni
   :init
   (map!
    :map puni-mode-map
    (:prefix ("," . "daf")
+    :nv "o"   #'daf/open-end-of-sexp
     :nv "v"   #'puni-expand-region
+    :nv "V"   #'puni-contract-region
     :nv "s"   #'puni-squeeze
     :nv "/"   #'puni-split
     :nv "S"   #'puni-splice
@@ -1948,3 +1976,6 @@ exist after each headings's drawers."
                    t (if prefix
                          nil
                        'tree)))
+
+(after! hl-todo
+  (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" error bold)))

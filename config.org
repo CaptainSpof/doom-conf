@@ -132,7 +132,15 @@ Disabling ~evil-escape~, there's no escaping, I tried.
 To make ~fish~ happy, I guess.
 
 #+begin_src emacs-lisp
+(setq shell-file-name (executable-find "bash"))
 (setq-default vterm-shell (executable-find "fish"))
+(setq-default explicit-shell-file-name (executable-find "fish"))
+#+end_src
+
+Automatically kill sub-process on exit.
+
+#+begin_src emacs-lisp
+(setq confirm-kill-processes nil)
 #+end_src
 
 ** Unclutter ~which-key~ menus
@@ -195,6 +203,7 @@ And the bookmarks (=SPC RET=).
  ("doom · ~/.config/doom" (filename . "~/.config/doom/"))
  ("Downloads · ~/Downloads" (filename . "~/Downloads/"))
  ("Projects · ~/Projects" (filename . "~/Projects/"))
+ ("Sync · ~/Sync" (filename . "~/Sync/"))
  ("Repos · ~/Repositories" (filename . "~/Repositories/"))
  ("tmp · /tmp" (filename . "/tmp/")))
 #+end_src
@@ -285,6 +294,25 @@ want my cursor to move.
                    (daf/scroll-down-line-by-five . "e")
                    (daf/scroll-down-line-by-five . "s"))
                  "Repeatable map for scrolling lines")
+#+end_src
+
+While we're at it, let's declare some function to scroll around the buffer.
+Especially useful when reading books.
+
+#+begin_src emacs-lisp
+(defun daf/scroll-bottom-line-to-top ()
+  "Move the bottom line of the buffer to the top, then pulse the line."
+  (interactive)
+  (evil-window-bottom)
+  (evil-scroll-line-to-top (line-number-at-pos))
+  (pulsar-pulse-line))
+
+(defun daf/scroll-top-line-to-bottom ()
+  "Move the top line of the buffer to the bottom, then pulse the line."
+  (interactive)
+  (evil-window-top)
+  (evil-scroll-line-to-bottom (line-number-at-pos))
+  (pulsar-pulse-line))
 #+end_src
 
 ** FIXME ~Tramp~
@@ -1085,7 +1113,6 @@ But not *too* evil, please. Allows to use Emacs default bindings in insert mode.
         evil-want-fine-undo 'yes))
 #+end_src
 
-
 When creating window splits, it's nice to jump straight to them.
 
 #+begin_src emacs-lisp
@@ -1217,7 +1244,7 @@ with =C-==.
 (map! :ni "C-=" #'daf/toggle-window-enlargen)
 #+end_src
 
-*** ~fold~
+*** ~fold~ · « Look, Ma! No arms! »
 **** Mapping
 
 Quickly toggle ~folds~.
@@ -1503,6 +1530,10 @@ Show a list of TODO and other keywords in the ~magit~ status view.
 ;;:after magit
 ;;:config
 ;;(magit-todos-mode 1))
+;; (map!
+ ;; :leader
+ ;; :prefix ("p" . "project")
+ ;; :desc "Project todos" :n "t" #'magit-todos-list)
 #+end_src
 
 *** ~lsp~  :ARCHIVE:
@@ -1556,7 +1587,6 @@ Remove some Emoji, for which I want to display a symbol.
 ~Elfeed~ doesn't have a binding by default, conveniently, =SPC r= is available.
 
 #+begin_src emacs-lisp
-
 (map! :leader
       (:prefix ("r" . "rss")
        :desc "Elfeed"          "r" #'=rss
@@ -1564,7 +1594,12 @@ Remove some Emoji, for which I want to display a symbol.
        :desc "Open elfeed.org" "." (cmd!
                                     (find-file
                                      (expand-file-name "elfeed.org" org-directory)))))
+#+end_src
 
+Automatically update feed when opening ~Elfeed~.
+
+#+begin_src emacs-lisp
+(add-hook! 'elfeed-search-mode-hook #'elfeed-update)
 #+end_src
 
 ** Org Mode
@@ -1624,6 +1659,11 @@ Let's customize the ~org-todo-keywords~ list.
           ("NO"      . +org-todo-cancel)
           ("DROP"    . +org-todo-cancel))))
 #+end_src
+
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook 'hl-todo-mode)
+#+end_src
+
 
 There are some handy shortcuts in ~org-mode~ to insert babel /src/ blocks, we can
 define some of our own.
@@ -2924,7 +2964,7 @@ let's obliged.
     '(compilation objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check buffer-position time)))
 #+end_src
 
-** ~modus-themes~
+** ~modus-themes~ · My modus operandi? Impeccable theme
 /Two highly readable themes./
 *** Configuration
 
@@ -2949,7 +2989,7 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
 
 ** ~nov~
 /Ebook reader in Emacs./
-*** Configuration
+*** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! nov) ;; https://depp.brause.cc/nov.el/
@@ -2970,25 +3010,18 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
   :config
   (setq visual-fill-column-center-text t
         nov-text-width t
-        nov-variable-pitch t))
+        nov-variable-pitch t)
 
-(defun daf/scroll-bottom-line-to-top ()
-  (interactive)
-  (evil-window-bottom)
-  (evil-scroll-line-to-top (line-number-at-pos))
-  (+nav-flash/blink-cursor))
-
-(defun daf/scroll-top-line-to-bottom ()
-  (interactive)
-  (evil-window-top)
-  (evil-scroll-line-to-bottom (line-number-at-pos))
-  (+nav-flash/blink-cursor))
-
-:init
-(map!
- :map nov-mode-map
- :n "T" #'daf/scroll-bottom-line-to-top
- :n "S" #'daf/scroll-top-line-to-bottom)
+  :init
+  (map!
+   :after nov
+   :map nov-mode-map
+   :n "T"     #'daf/scroll-bottom-line-to-top
+   :n [down]  #'daf/scroll-bottom-line-to-top
+   :n [right] #'daf/scroll-bottom-line-to-top
+   :n "S"     #'daf/scroll-top-line-to-bottom
+   :n [up]    #'daf/scroll-top-line-to-bottom
+   :n [left]  #'daf/scroll-top-line-to-bottom))
 #+end_src
 
 ** ~nushell~
@@ -3077,13 +3110,26 @@ deleted, kill the pairs around point."
 
 #+end_src
 
+I want to be able to insert a new line at the end of a /sexp/.
+
+#+begin_src emacs-lisp
+(defun daf/open-end-of-sexp ()
+  "Go to end of sexp and insert newline."
+  (interactive)
+  (puni-end-of-sexp)
+  (newline-and-indent)
+  (evil-insert 1))
+#+end_src
+
 #+begin_src emacs-lisp
 (use-package! puni
   :init
   (map!
    :map puni-mode-map
    (:prefix ("," . "daf")
+    :nv "o"   #'daf/open-end-of-sexp
     :nv "v"   #'puni-expand-region
+    :nv "V"   #'puni-contract-region
     :nv "s"   #'puni-squeeze
     :nv "/"   #'puni-split
     :nv "S"   #'puni-splice
@@ -3611,7 +3657,7 @@ instruction.
 
 * Level 6: Central Processing · /Lang stuff/
 
-_TODO_: switch to ~novlang.el~ for *everything*.
+TODO: switch to ~novlang.el~ for *everything*.
 
 ** Plain text
 *** Configuration
@@ -3740,6 +3786,7 @@ will be moved to the relevant level./
 
 #+begin_src emacs-lisp
 (use-package! meow)
+
 
 (defconst meow-cheatsheet-layout-bepo
   '((<TLDE> "$"	"#")
@@ -3998,10 +4045,17 @@ exist after each headings's drawers."
                          nil
                        'tree)))
 #+end_src
+** hl-todo
+
+#+begin_src emacs-lisp
+(after! hl-todo
+  (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" error bold)))
+#+end_src
 
 * Level Ⅹ: Sewers · /It never ends…/
-« /Confing/ » Emacs is a never ending story. I'll always have stuff to tweak, new
-packages to try out, bug or unsatisfactory workflow… I'll try to remember to
+
+« /Tinkering/ » Emacs is a never ending story. I'll always have stuff to tweak,
+new packages to try out, bug or unsatisfactory workflow… I'll try to remember to
 reference all that here.
 
 ** Known Issues [4/7]
