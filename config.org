@@ -1392,14 +1392,14 @@ prompt. So lets set a specific font for ~vterm~.
 #+begin_src emacs-lisp
 (when (modulep! :term vterm)
   ;; Use monospaced font faces in current buffer
-  (defun +vterm-mode-setup ()
+  (defun daf/vterm-font-setup ()
     "Sets a fixed width (monospace) font in current buffer"
     (set (make-local-variable 'buffer-face-mode-face)
          '(:family "MonaspiceKr Nerd Font Propo"))
     (face-remap-add-relative 'fixed-pitch)
     (buffer-face-mode t))
 
-  (add-hook 'vterm-mode-hook #'+vterm-mode-setup))
+  (add-hook 'vterm-mode-hook #'daf/vterm-font-setup))
 #+end_src
 
 ~eshell~ has helpful functions to open a split right and bellow, lets do the same
@@ -1811,6 +1811,7 @@ Finally, lets pimp the symbols across ~org~.
                 :arrow_left    "←"
                 :arrow_lr      "↔"
                 :scheduled     ""
+                :deadline      "󰥔"
                 :properties    "󰻋"
                 :end           "⌞⌟"
                 :priority_a    #("" 0 1 (face nerd-icons-red))
@@ -1827,6 +1828,7 @@ Finally, lets pimp the symbols across ~org~.
     :arrow_left    "<-"
     :arrow_lr      "<->"
     :scheduled     "SCHEDULED:"
+    :deadline      "DEADLINE:"
     :properties    ":PROPERTIES:"
     :end           ":END:"
     :priority_a    "[#A]"
@@ -2749,7 +2751,7 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 #+begin_src emacs-lisp :tangle packages.el
 (package! focus) ;; https://github.com/larstvei/Focus
 #+end_src
-** ~grugru~
+** ~grugru~ · Death by ~grugru~
 /Rotate text at point in Emacs./
 *** Configuration & Mapping
 
@@ -2987,7 +2989,7 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
    modus-themes-bold-constructs t))
 #+end_src
 
-** ~nov~
+** ~nov~ · « 'Cause nothin' lasts forever, even cold ~Nov~ ember rain » 󰎇
 /Ebook reader in Emacs./
 *** Configuration & Mapping
 
@@ -3022,6 +3024,20 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
    :n "S"     #'daf/scroll-top-line-to-bottom
    :n [up]    #'daf/scroll-top-line-to-bottom
    :n [left]  #'daf/scroll-top-line-to-bottom))
+#+end_src
+
+I want a nice comfy font when reading e-books.
+
+#+begin_src emacs-lisp
+(defun daf/nov-font-setup ()
+  "Sets a specific font for 'nov'."
+  (set (make-local-variable 'buffer-face-mode-face)
+       '(:family "Literata"
+         :height 1.2))
+  (face-remap-add-relative 'fixed-pitch)
+  (buffer-face-mode t))
+
+(add-hook 'nov-mode-hook 'daf/nov-font-setup)
 #+end_src
 
 ** ~nushell~

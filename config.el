@@ -712,14 +712,14 @@ This only works with orderless and for the first component of the search."
 
 (when (modulep! :term vterm)
   ;; Use monospaced font faces in current buffer
-  (defun +vterm-mode-setup ()
+  (defun daf/vterm-font-setup ()
     "Sets a fixed width (monospace) font in current buffer"
     (set (make-local-variable 'buffer-face-mode-face)
          '(:family "MonaspiceKr Nerd Font Propo"))
     (face-remap-add-relative 'fixed-pitch)
     (buffer-face-mode t))
 
-  (add-hook 'vterm-mode-hook #'+vterm-mode-setup))
+  (add-hook 'vterm-mode-hook #'daf/vterm-font-setup))
 
 (when (modulep! :term vterm)
   (defun +vterm/split-right ()
@@ -960,6 +960,7 @@ This only works with orderless and for the first component of the search."
                 :arrow_left    "←"
                 :arrow_lr      "↔"
                 :scheduled     ""
+                :deadline      "󰥔"
                 :properties    "󰻋"
                 :end           "⌞⌟"
                 :priority_a    #("" 0 1 (face nerd-icons-red))
@@ -976,6 +977,7 @@ This only works with orderless and for the first component of the search."
     :arrow_left    "<-"
     :arrow_lr      "<->"
     :scheduled     "SCHEDULED:"
+    :deadline      "DEADLINE:"
     :properties    ":PROPERTIES:"
     :end           ":END:"
     :priority_a    "[#A]"
@@ -1644,6 +1646,16 @@ This only works with orderless and for the first component of the search."
    :n "S"     #'daf/scroll-top-line-to-bottom
    :n [up]    #'daf/scroll-top-line-to-bottom
    :n [left]  #'daf/scroll-top-line-to-bottom))
+
+(defun daf/nov-font-setup ()
+  "Sets a specific font for 'nov'."
+  (set (make-local-variable 'buffer-face-mode-face)
+       '(:family "Literata"
+         :height 1.2))
+  (face-remap-add-relative 'fixed-pitch)
+  (buffer-face-mode t))
+
+(add-hook 'nov-mode-hook 'daf/nov-font-setup)
 
 (map!
  :leader (:prefix ("t" . "toggle")
