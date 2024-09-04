@@ -286,7 +286,7 @@ the associated key is pressed after the repeatable action is triggered."
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 ;; (setq +doom-dashboard-functions '(doom-dashboard-widget-banner))
 
-(defun +doom-dashboard-setup-modified-keymap ()
+(defun +daf/doom-dashboard-setup-modified-keymap ()
   (setq +doom-dashboard-mode-map (make-sparse-keymap))
   (map! :map +doom-dashboard-mode-map
         :desc "Find file"            :ne "f" #'find-file
@@ -303,11 +303,11 @@ the associated key is pressed after the repeatable action is triggered."
         :desc "Set theme"            :ne "t" #'consult-theme
         :desc "GTD engage"           :ne "z" #'org-gtd-engage
         :desc "Quit"                 :ne "Q" #'save-buffers-kill-terminal
-        :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+doom-dashboard-mode-map))))
+        :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+daf/doom-dashboard-mode-map))))
 
-(add-transient-hook! #'+doom-dashboard-mode (+doom-dashboard-setup-modified-keymap))
-(add-transient-hook! #'+doom-dashboard-mode :append (+doom-dashboard-setup-modified-keymap))
-(add-hook! 'doom-init-ui-hook :append (+doom-dashboard-setup-modified-keymap))
+(add-transient-hook! #'+doom-dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
+(add-transient-hook! #'+doom-dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
+(add-hook! 'doom-init-ui-hook :append (+daf/doom-dashboard-setup-modified-keymap))
 
 (map! :leader :desc "Dashboard" "D" #'+doom-dashboard/open)
 
@@ -444,7 +444,7 @@ the associated key is pressed after the repeatable action is triggered."
   ;; This adds thin lines, sorting and hides the mode line of the window.
   (advice-add #'register-preview :override #'consult-register-window))
 
-(defun noct-consult-line-evil-history (&rest _)
+(defun daf/consult-line-evil-history (&rest _)
   "Add latest `consult-line' search pattern to the evil search history ring.
 This only works with orderless and for the first component of the search."
   (when (and (bound-and-true-p evil-mode)
@@ -456,12 +456,13 @@ This only works with orderless and for the first component of the search."
       (when evil-ex-search-persistent-highlight
         (evil-ex-search-activate-highlight evil-ex-search-pattern)))))
 
-(advice-add #'consult-line :after #'noct-consult-line-evil-history)
+(advice-add #'consult-line :after #'daf/consult-line-evil-history)
 
 (map!
  :leader
  (:prefix ("s" . "search")
   :desc "Search .emacs.d"       "E" #'+default/search-emacsd
+  :desc "Locate file"           "f" #'+vertico/consult-fd-or-find
   :desc "Jump to errors"        "e" #'consult-flymake
   :desc "Jump to global marks"  "R" #'consult-global-mark
   :desc "Search macros"         "q" #'consult-kmacro)
@@ -507,7 +508,7 @@ This only works with orderless and for the first component of the search."
 (autoload #'consult--read "consult")
 
 ;;;###autoload
-(defun +vertico/projectile-completion-fn (prompt choices)
+(defun +daf/vertico/projectile-completion-fn (prompt choices)
   "Given a PROMPT and a list of CHOICES, filter a list of files for
 `projectile-find-file'."
   (interactive)
@@ -519,11 +520,11 @@ This only works with orderless and for the first component of the search."
    :category 'file
    :history '(:input +vertico/find-file-in--history)))
 
-(setq projectile-completion-system '+vertico/projectile-completion-fn)
+(setq projectile-completion-system '+daf/vertico/projectile-completion-fn)
 
 (defvar-local consult-toggle-preview-orig nil)
 
-(defun consult-toggle-preview ()
+(defun daf/consult-toggle-preview ()
   "Command to enable/disable preview."
   (interactive)
   (if consult-toggle-preview-orig
@@ -534,7 +535,7 @@ This only works with orderless and for the first component of the search."
 
 ;; Bind to `vertico-map' or `selectrum-minibuffer-map'
 (after! vertico
-  (define-key vertico-map (kbd "M-o c") #'consult-toggle-preview))
+  (define-key vertico-map (kbd "M-o c") #'daf/consult-toggle-preview))
 
 (map!
  :map vertico-map
@@ -640,7 +641,7 @@ This only works with orderless and for the first component of the search."
 
 (setq undo-fu-allow-undo-in-region 't)
 
-(defun ediff-copy-both-to-C ()
+(defun daf/ediff-copy-both-to-C ()
   (interactive)
   (ediff-copy-diff
    ediff-current-difference nil 'C nil
@@ -650,10 +651,10 @@ This only works with orderless and for the first component of the search."
     (ediff-get-region-contents
      ediff-current-difference 'B ediff-control-buffer))))
 
-(defun add-d-to-ediff-mode-map ()
-  (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+(defun daf/add-d-to-ediff-mode-map ()
+  (define-key ediff-mode-map "d" 'daf/ediff-copy-both-to-C))
 
-(add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
+(add-hook 'ediff-keymap-setup-hook 'daf/add-d-to-ediff-mode-map)
 
 (defun daf/dired-open-file ()
   "In Dired, open the file named on this line."
@@ -694,6 +695,8 @@ This only works with orderless and for the first component of the search."
   :commands (aweshell-new aweshell-dedicated-open))
 
 (use-package! vterm
+  :hook (vterm-mode . daf/vterm-font-setup)
+
   :config
   (setf (alist-get "woman" vterm-eval-cmds nil nil #'equal)
         '((lambda (topic)
@@ -711,18 +714,15 @@ This only works with orderless and for the first component of the search."
        :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil))))
 
 (when (modulep! :term vterm)
-  ;; Use monospaced font faces in current buffer
   (defun daf/vterm-font-setup ()
     "Sets a fixed width (monospace) font in current buffer"
     (set (make-local-variable 'buffer-face-mode-face)
          '(:family "MonaspiceKr Nerd Font Propo"))
     (face-remap-add-relative 'fixed-pitch)
-    (buffer-face-mode t))
-
-  (add-hook 'vterm-mode-hook #'daf/vterm-font-setup))
+    (buffer-face-mode t)))
 
 (when (modulep! :term vterm)
-  (defun +vterm/split-right ()
+  (defun +daf/vterm/split-right ()
     "Create a new vterm window to the right of the current one."
     (interactive)
     (let* ((ignore-window-parameters t)
@@ -730,7 +730,7 @@ This only works with orderless and for the first component of the search."
       (select-window (split-window-horizontally))
       (+vterm/here default-directory)))
 
-  (defun +vterm/split-below ()
+  (defun +daf/vterm/split-below ()
     "Create a new vterm window below the current one."
     (interactive)
     (let* ((ignore-window-parameters t)
@@ -748,8 +748,8 @@ This only works with orderless and for the first component of the search."
        :desc "eshell right"                  "V" #'+eshell/split-right
        :desc "toggle vterm popup"            "T" #'+vterm/toggle
        :desc "open vterm here"               "t" #'+vterm/here
-       :desc "vterm below"                   "k" #'+vterm/split-below
-       :desc "vterm right"                   "v" #'+vterm/split-right))
+       :desc "vterm below"                   "k" #'+daf/vterm/split-below
+       :desc "vterm right"                   "v" #'+daf/vterm/split-right))
 
 (map!
  (:after flycheck
@@ -878,7 +878,7 @@ This only works with orderless and for the first component of the search."
         ("v" . "verse")
         ("q" . "quote")))
 
-(defun individual-visibility-source-blocks ()
+(defun daf/individual-visibility-source-blocks ()
   "Fold some blocks in the current buffer."
   (interactive)
   (org-show-block-all)
@@ -895,9 +895,7 @@ This only works with orderless and for the first component of the search."
                 (org-babel-get-src-block-info))))
          (org-hide-block-toggle))))))
 
-(add-hook
- 'org-mode-hook
- (function individual-visibility-source-blocks))
+(add-hook 'org-mode-hook (function daf/individual-visibility-source-blocks))
 
 (after! org
   (setq org-use-speed-commands
@@ -1385,7 +1383,7 @@ This only works with orderless and for the first component of the search."
   ;; Manual preview key for `affe-grep'
   (consult-customize affe-grep :preview-key (kbd "M-.")))
 
-(defun avy-action-kill-whole-line (pt)
+(defun daf/avy-action-kill-whole-line (pt)
   (save-excursion
     (goto-char pt)
     (kill-whole-line))
@@ -1396,9 +1394,9 @@ This only works with orderless and for the first component of the search."
 
 (after! avy
   (setf (alist-get ?d avy-dispatch-alist) 'avy-action-kill-stay
-        (alist-get ?D avy-dispatch-alist) 'avy-action-kill-whole-line))
+        (alist-get ?D avy-dispatch-alist) 'daf/avy-action-kill-whole-line))
 
-(defun avy-action-copy-whole-line (pt)
+(defun daf/avy-action-copy-whole-line (pt)
   (save-excursion
     (goto-char pt)
     (cl-destructuring-bind (start . end)
@@ -1409,26 +1407,26 @@ This only works with orderless and for the first component of the search."
     (ring-ref avy-ring 0)))
   t)
 
-(defun avy-action-yank-whole-line (pt)
-  (avy-action-copy-whole-line pt)
+(defun daf/avy-action-yank-whole-line (pt)
+  (daf/avy-action-copy-whole-line pt)
   (save-excursion (yank))
   t)
 
 (after! avy
   (setf (alist-get ?y avy-dispatch-alist) 'avy-action-yank
         (alist-get ?w avy-dispatch-alist) 'avy-action-copy
-        (alist-get ?W avy-dispatch-alist) 'avy-action-copy-whole-line
-        (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line))
+        (alist-get ?W avy-dispatch-alist) 'daf/avy-action-copy-whole-line
+        (alist-get ?Y avy-dispatch-alist) 'daf/avy-action-yank-whole-line))
 
-(defun avy-action-teleport-whole-line (pt)
-  (avy-action-kill-whole-line pt)
+(defun daf/avy-action-teleport-whole-line (pt)
+  (daf/avy-action-kill-whole-line pt)
   (save-excursion (yank)) t)
 
 (after! avy
   (setf (alist-get ?m avy-dispatch-alist) 'avy-action-teleport
-        (alist-get ?M avy-dispatch-alist) 'avy-action-teleport-whole-line))
+        (alist-get ?M avy-dispatch-alist) 'daf/avy-action-teleport-whole-line))
 
-(defun avy-action-embark (pt)
+(defun daf/avy-action-embark (pt)
   (unwind-protect
       (save-excursion
         (goto-char pt)
@@ -1438,7 +1436,7 @@ This only works with orderless and for the first component of the search."
   t)
 
 (after! avy
-  (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
+  (setf (alist-get ?. avy-dispatch-alist) 'daf/avy-action-embark))
 
 (use-package! blamer
   :defer
@@ -1458,18 +1456,13 @@ This only works with orderless and for the first component of the search."
 
 (use-package! circadian
   :init
-
   (add-hook 'circadian-after-load-theme-hook
             #'(lambda (theme)
                 (message "Setting circadian theme.")
                 (cond ((eq doom-theme daf/dark-theme)
                        (message "Setting dark modeline theme."))
-                      ;; (nano-theme-set-dark)
                       ((eq doom-theme daf/light-theme)
                        (message "Setting light modeline theme.")))
-                ;; (nano-theme-set-light-tinted)
-                ;; (nano-faces)
-                ;; (nano-theme)
                 (doom/reload-theme)))
 
   :config
@@ -1481,11 +1474,10 @@ This only works with orderless and for the first component of the search."
   :defer t
 
   :config
-  (setq
-   ;; ef-themes-variable-pitch-ui t
-   ef-themes-italic-constructs t
-   ef-themes-bold-constructs t
-   ef-themes-mixed-fonts t))
+  (setq ef-themes-bold-constructs   t
+        ef-themes-italic-constructs t
+        ef-themes-mixed-fonts       t
+        ef-themes-variable-pitch-ui t))
 
 (use-package! embrace
   :defer t
@@ -1538,6 +1530,7 @@ This only works with orderless and for the first component of the search."
    :leader
    (:prefix ("t" . "toggle")
     :desc "Spell checker"  "s"  #'jinx-mode))
+
   :config
   ;; Use my custom dictionary
   (setq jinx-languages "en fr"
@@ -1557,17 +1550,22 @@ This only works with orderless and for the first component of the search."
 
 (use-package! languagetool
   :defer t
+
   :config
   (setq languagetool-java-arguments '("-Dfile.encoding=UTF-8")
         languagetool-correction-language "en-US"  ;; 'auto' seems to target "en", which isn't working as well as 'en-US'
         languagetool-console-command "/etc/profiles/per-user/daf/share/languagetool-commandline.jar"
         languagetool-server-command "/etc/profiles/per-user/daf/share/languagetool-server.jar")
+
   :init
   (map!
    (:prefix ("z~" . "languagetool")
-    :n "b" #'languagetool-correct-buffer
-    :n "c" #'languagetool-correct-at-point
-    :desc "set language" :n "l" #'(lambda() (interactive) (languagetool-set-language (completing-read "lang: " '("fr" "en-US"))))
+    :desc "Correct buffer"   :n "b" #'languagetool-correct-buffer
+    :desc "Correct at point" :n "c" #'languagetool-correct-at-point
+    :desc "Set language"     :n "l" #'(lambda ()
+                                        (interactive)
+                                        (languagetool-set-language
+                                         (completing-read "lang: " '("fr" "en-US"))))
     :n "~" #'languagetool-check)))
 
 (use-package! litable
@@ -1580,7 +1578,9 @@ This only works with orderless and for the first component of the search."
 
 (use-package! logos
   :defer t
+
   :hook (logos-focus-mode . (lambda () (olivetti-mode 1)))
+
   :config
   (setq logos-outline-regexp-alist
         `((emacs-lisp-mode . ,(format "\\(^;;;+ \\|%s\\)" logos--page-delimiter))
@@ -1588,25 +1588,28 @@ This only works with orderless and for the first component of the search."
 
   ;; These apply when `logos-focus-mode' is enabled.  Their value is
   ;; buffer-local.
-  (setq-default logos-hide-cursor nil
-                logos-hide-mode-line nil
+  (setq-default logos-hide-cursor            nil
+                logos-hide-mode-line         nil
                 logos-hide-buffer-boundaries t
-                logos-outlines-are-pages t
-                logos-hide-fringe t
-                logos-variable-pitch t
-                logos-buffer-read-only nil
-                logos-scroll-lock nil
-                logos-olivetti t)
+                logos-outlines-are-pages     t
+                logos-hide-fringe            t
+                logos-variable-pitch         t
+                logos-buffer-read-only       nil
+                logos-scroll-lock            nil
+                logos-olivetti               t)
+
   :init
   (map! :leader
         (:prefix "t"
          :desc "Logos" "L" #'logos-focus-mode)))
 
 (use-package! mlscroll
-  :init
-  (setq mlscroll-right-align t)
   :config
-  (mlscroll-mode 1))
+  (mlscroll-mode 1)
+
+  :init
+  (setq mlscroll-right-align t))
+
 (after! doom-modeline
   (doom-modeline-def-modeline 'main
     '(eldoc bar workspace-name window-number modals matches follow buffer-info remote-host word-count parrot selection-info)
@@ -1614,27 +1617,28 @@ This only works with orderless and for the first component of the search."
 
 (use-package! modus-themes
   :init
-  (setq
-   ;; modus-themes-variable-pitch-ui t
-   modus-themes-mixed-fonts t
-   modus-themes-italic-constructs t
-   modus-themes-bold-constructs t))
+  (setq modus-themes-bold-constructs   t
+        modus-themes-italic-constructs t
+        modus-themes-mixed-fonts       t
+        modus-themes-variable-pitch-ui t))
 
 (use-package! nov
   :defer t
+
   :mode ("\\.epub\\'" . nov-mode)
+
   :hook (nov-mode . mixed-pitch-mode)
   :hook (nov-mode . visual-line-mode)
   :hook (nov-mode . visual-fill-column-mode)
   :hook (nov-mode . hide-mode-line-mode)
   :hook (nov-mode . (lambda () (hl-line-mode -1)))
-  :hook (nov-mode . (lambda ()
-                      (set (make-local-variable 'scroll-margin) 1)))
+  :hook (nov-mode . (lambda () (set (make-local-variable 'scroll-margin) 1)))
+  :hook (nov-mode . daf/nov-font-setup)
 
   :config
-  (setq visual-fill-column-center-text t
-        nov-text-width t
-        nov-variable-pitch t)
+  (setq nov-text-width t
+        nov-variable-pitch t
+        visual-fill-column-center-text t)
 
   :init
   (map!
@@ -1650,12 +1654,9 @@ This only works with orderless and for the first component of the search."
 (defun daf/nov-font-setup ()
   "Sets a specific font for 'nov'."
   (set (make-local-variable 'buffer-face-mode-face)
-       '(:family "Literata"
-         :height 1.2))
+       '(:family "Literata" :height 1.2))
   (face-remap-add-relative 'fixed-pitch)
   (buffer-face-mode t))
-
-(add-hook 'nov-mode-hook 'daf/nov-font-setup)
 
 (map!
  :leader (:prefix ("t" . "toggle")
@@ -1782,7 +1783,7 @@ deleted, kill the pairs around point."
   :init
 
   ;; Setup completion at point
-  (defun tempel-setup-capf ()
+  (defun daf/tempel-setup-capf ()
     ;; Add the Tempel Capf to `completion-at-point-functions'.
     ;; `tempel-expand' only triggers on exact matches. Alternatively use
     ;; `tempel-complete' if you want to see all matches, but then you
@@ -1794,9 +1795,9 @@ deleted, kill the pairs around point."
                 (cons #'tempel-expand
                       completion-at-point-functions)))
 
-  (add-hook 'conf-mode-hook 'tempel-setup-capf)
-  (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  (add-hook 'conf-mode-hook 'daf/tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'daf/tempel-setup-capf)
+  (add-hook 'text-mode-hook 'daf/tempel-setup-capf)
 
   (setq tempel-path (expand-file-name "templates/*" doom-user-dir))
 
@@ -1816,7 +1817,7 @@ deleted, kill the pairs around point."
   :config
   (setq verb-json-use-mode 'json-mode)
 
-  (defun graphql-to-json (rs)
+  (defun daf/graphql-to-json (rs)
     ;; Modify RS and return it (RS is a request specification, type `verb-request-spec')
     (oset rs body
           (replace-regexp-in-string "\n" ""
@@ -1880,7 +1881,8 @@ deleted, kill the pairs around point."
   (lsp-nix-nil-formatter ["nixfmt"]))
 
 (use-package! nix-mode
-  :hook (nix-mode . lsp-deferred))
+  :hook (nix-mode . lsp-deferred)
+  :hook (nix-mode . rainbow-delimiters-mode))
 
 (grugru-define-global 'symbol '("enabled" "disabled"))
 

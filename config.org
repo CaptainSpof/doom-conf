@@ -615,7 +615,7 @@ Enable ~mixed-pitched-mode~ in ~org-mode~.
 
 Ferris is just too cute, I need to see him everyday…
 
-Now come with more cute dinos!
+Now come with more cute dinos! 🦖
 
 #+begin_src emacs-lisp
 (setq fancy-splash-images
@@ -635,7 +635,6 @@ Now come with more cute dinos!
 #+end_src
 
 *** Dashboard
-
 **** Overview
 
 |--------------------------+----------------------------------+----------------------|
@@ -660,7 +659,6 @@ Now come with more cute dinos!
 | =Q=                        | ~save-buffers-kill-terminal~       | Quit                 |
 | =h=                        | […]                              | Show keybindings     |
 |--------------------------+----------------------------------+----------------------|
-
 **** Configuration & Mapping
 
 #+begin_quote
@@ -674,7 +672,7 @@ Now come with more cute dinos!
 ☝ What he says, also adding some shortcuts of my own.
 
 #+begin_src emacs-lisp
-(defun +doom-dashboard-setup-modified-keymap ()
+(defun +daf/doom-dashboard-setup-modified-keymap ()
   (setq +doom-dashboard-mode-map (make-sparse-keymap))
   (map! :map +doom-dashboard-mode-map
         :desc "Find file"            :ne "f" #'find-file
@@ -691,11 +689,11 @@ Now come with more cute dinos!
         :desc "Set theme"            :ne "t" #'consult-theme
         :desc "GTD engage"           :ne "z" #'org-gtd-engage
         :desc "Quit"                 :ne "Q" #'save-buffers-kill-terminal
-        :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+doom-dashboard-mode-map))))
+        :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+daf/doom-dashboard-mode-map))))
 
-(add-transient-hook! #'+doom-dashboard-mode (+doom-dashboard-setup-modified-keymap))
-(add-transient-hook! #'+doom-dashboard-mode :append (+doom-dashboard-setup-modified-keymap))
-(add-hook! 'doom-init-ui-hook :append (+doom-dashboard-setup-modified-keymap))
+(add-transient-hook! #'+doom-dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
+(add-transient-hook! #'+doom-dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
+(add-hook! 'doom-init-ui-hook :append (+daf/doom-dashboard-setup-modified-keymap))
 #+end_src
 
 #+begin_quote
@@ -823,6 +821,7 @@ the ~global-whitespace-mode~ and revert the buffer afterward.
   (global-whitespace-mode 'toggle)
   (revert-buffer))
 #+end_src
+
 *** ~vc-gutter~
 **** Configuration & Mapping
 
@@ -854,8 +853,6 @@ Add some bindings for hunk navigation =g (= , =g )=.
 #+end_src
 
 And make it repeatable.
-
-TODO: use either vc-gutter or diff-hunk command.
 
 #+begin_src emacs-lisp
 (daf/repeat-map! daf-navigate-hunk-repeat-map
@@ -932,8 +929,10 @@ different places.
 Send ~consult-line~ search pattern to the evil search history ring.
 Basically, =SPC s s= → =ret= → =n= → =n= …
 
+Courtesy of [[https://github.com/minad/consult/issues/318#issuecomment-882067919][noctuid ]].
+
 #+begin_src emacs-lisp
-(defun noct-consult-line-evil-history (&rest _)
+(defun daf/consult-line-evil-history (&rest _)
   "Add latest `consult-line' search pattern to the evil search history ring.
 This only works with orderless and for the first component of the search."
   (when (and (bound-and-true-p evil-mode)
@@ -945,7 +944,7 @@ This only works with orderless and for the first component of the search."
       (when evil-ex-search-persistent-highlight
         (evil-ex-search-activate-highlight evil-ex-search-pattern)))))
 
-(advice-add #'consult-line :after #'noct-consult-line-evil-history)
+(advice-add #'consult-line :after #'daf/consult-line-evil-history)
 #+end_src
 
 Finally, let's define some bindings.
@@ -955,6 +954,7 @@ Finally, let's define some bindings.
  :leader
  (:prefix ("s" . "search")
   :desc "Search .emacs.d"       "E" #'+default/search-emacsd
+  :desc "Locate file"           "f" #'+vertico/consult-fd-or-find
   :desc "Jump to errors"        "e" #'consult-flymake
   :desc "Jump to global marks"  "R" #'consult-global-mark
   :desc "Search macros"         "q" #'consult-kmacro)
@@ -1038,7 +1038,7 @@ should appear in the bottom.
 (autoload #'consult--read "consult")
 
 ;;;###autoload
-(defun +vertico/projectile-completion-fn (prompt choices)
+(defun +daf/vertico/projectile-completion-fn (prompt choices)
   "Given a PROMPT and a list of CHOICES, filter a list of files for
 `projectile-find-file'."
   (interactive)
@@ -1050,14 +1050,14 @@ should appear in the bottom.
    :category 'file
    :history '(:input +vertico/find-file-in--history)))
 
-(setq projectile-completion-system '+vertico/projectile-completion-fn)
+(setq projectile-completion-system '+daf/vertico/projectile-completion-fn)
 
 #+end_src
 
 #+begin_src emacs-lisp
 (defvar-local consult-toggle-preview-orig nil)
 
-(defun consult-toggle-preview ()
+(defun daf/consult-toggle-preview ()
   "Command to enable/disable preview."
   (interactive)
   (if consult-toggle-preview-orig
@@ -1068,7 +1068,7 @@ should appear in the bottom.
 
 ;; Bind to `vertico-map' or `selectrum-minibuffer-map'
 (after! vertico
-  (define-key vertico-map (kbd "M-o c") #'consult-toggle-preview))
+  (define-key vertico-map (kbd "M-o c") #'daf/consult-toggle-preview))
 #+end_src
 
 =C-n= and =C-p= to navigate groups.
@@ -1272,7 +1272,7 @@ though. The binding =C-_= is not really accessible with my layout unfortunately.
 Take A or B, why not both ?
 
 #+begin_src emacs-lisp
-(defun ediff-copy-both-to-C ()
+(defun daf/ediff-copy-both-to-C ()
   (interactive)
   (ediff-copy-diff
    ediff-current-difference nil 'C nil
@@ -1282,10 +1282,10 @@ Take A or B, why not both ?
     (ediff-get-region-contents
      ediff-current-difference 'B ediff-control-buffer))))
 
-(defun add-d-to-ediff-mode-map ()
-  (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+(defun daf/add-d-to-ediff-mode-map ()
+  (define-key ediff-mode-map "d" 'daf/ediff-copy-both-to-C))
 
-(add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
+(add-hook 'ediff-keymap-setup-hook 'daf/add-d-to-ediff-mode-map)
 #+end_src
 
 *** ~dired~ · « Our last resort, in these dire times »
@@ -1368,6 +1368,8 @@ them both!
 
 #+begin_src emacs-lisp
 (use-package! vterm
+  :hook (vterm-mode . daf/vterm-font-setup)
+
   :config
   (setf (alist-get "woman" vterm-eval-cmds nil nil #'equal)
         '((lambda (topic)
@@ -1385,21 +1387,17 @@ them both!
        :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil))))
 #+end_src
 
-
 I had some visual issue with my default font when rendering some symbols in the
 prompt. So lets set a specific font for ~vterm~.
 
 #+begin_src emacs-lisp
 (when (modulep! :term vterm)
-  ;; Use monospaced font faces in current buffer
   (defun daf/vterm-font-setup ()
     "Sets a fixed width (monospace) font in current buffer"
     (set (make-local-variable 'buffer-face-mode-face)
          '(:family "MonaspiceKr Nerd Font Propo"))
     (face-remap-add-relative 'fixed-pitch)
-    (buffer-face-mode t))
-
-  (add-hook 'vterm-mode-hook #'daf/vterm-font-setup))
+    (buffer-face-mode t)))
 #+end_src
 
 ~eshell~ has helpful functions to open a split right and bellow, lets do the same
@@ -1407,7 +1405,7 @@ for ~vterm~.
 
 #+begin_src emacs-lisp
 (when (modulep! :term vterm)
-  (defun +vterm/split-right ()
+  (defun +daf/vterm/split-right ()
     "Create a new vterm window to the right of the current one."
     (interactive)
     (let* ((ignore-window-parameters t)
@@ -1415,7 +1413,7 @@ for ~vterm~.
       (select-window (split-window-horizontally))
       (+vterm/here default-directory)))
 
-  (defun +vterm/split-below ()
+  (defun +daf/vterm/split-below ()
     "Create a new vterm window below the current one."
     (interactive)
     (let* ((ignore-window-parameters t)
@@ -1437,8 +1435,8 @@ Now lets put all this into a global binding, I'll use =SPC e=.
        :desc "eshell right"                  "V" #'+eshell/split-right
        :desc "toggle vterm popup"            "T" #'+vterm/toggle
        :desc "open vterm here"               "t" #'+vterm/here
-       :desc "vterm below"                   "k" #'+vterm/split-below
-       :desc "vterm right"                   "v" #'+vterm/split-right))
+       :desc "vterm below"                   "k" #'+daf/vterm/split-below
+       :desc "vterm right"                   "v" #'+daf/vterm/split-right))
 #+end_src
 
 ** Checkers · ~:check(er)~ mate
@@ -1660,10 +1658,11 @@ Let's customize the ~org-todo-keywords~ list.
           ("DROP"    . +org-todo-cancel))))
 #+end_src
 
+Display ~hl-todo-keywords~ in ~org-mode~, such as FIXME/TODO/BUG/REVIEW…
+
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook 'hl-todo-mode)
 #+end_src
-
 
 There are some handy shortcuts in ~org-mode~ to insert babel /src/ blocks, we can
 define some of our own.
@@ -1690,7 +1689,7 @@ Some ~or-babel~ blocks might take too much space, so let's have a way to specify
 hidden block.
 
 #+BEGIN_SRC emacs-lisp :hidden
-(defun individual-visibility-source-blocks ()
+(defun daf/individual-visibility-source-blocks ()
   "Fold some blocks in the current buffer."
   (interactive)
   (org-show-block-all)
@@ -1707,9 +1706,7 @@ hidden block.
                 (org-babel-get-src-block-info))))
          (org-hide-block-toggle))))))
 
-(add-hook
- 'org-mode-hook
- (function individual-visibility-source-blocks))
+(add-hook 'org-mode-hook (function daf/individual-visibility-source-blocks))
 #+END_SRC
 
 #+begin_quote
@@ -2553,7 +2550,7 @@ Add a hook to ~org-mode~.
 - /He delet/
 
 #+begin_src emacs-lisp
-(defun avy-action-kill-whole-line (pt)
+(defun daf/avy-action-kill-whole-line (pt)
   (save-excursion
     (goto-char pt)
     (kill-whole-line))
@@ -2564,13 +2561,13 @@ Add a hook to ~org-mode~.
 
 (after! avy
   (setf (alist-get ?d avy-dispatch-alist) 'avy-action-kill-stay
-        (alist-get ?D avy-dispatch-alist) 'avy-action-kill-whole-line))
+        (alist-get ?D avy-dispatch-alist) 'daf/avy-action-kill-whole-line))
 #+end_src
 
 - /He duplicat/
 
 #+begin_src emacs-lisp
-(defun avy-action-copy-whole-line (pt)
+(defun daf/avy-action-copy-whole-line (pt)
   (save-excursion
     (goto-char pt)
     (cl-destructuring-bind (start . end)
@@ -2581,34 +2578,34 @@ Add a hook to ~org-mode~.
     (ring-ref avy-ring 0)))
   t)
 
-(defun avy-action-yank-whole-line (pt)
-  (avy-action-copy-whole-line pt)
+(defun daf/avy-action-yank-whole-line (pt)
+  (daf/avy-action-copy-whole-line pt)
   (save-excursion (yank))
   t)
 
 (after! avy
   (setf (alist-get ?y avy-dispatch-alist) 'avy-action-yank
         (alist-get ?w avy-dispatch-alist) 'avy-action-copy
-        (alist-get ?W avy-dispatch-alist) 'avy-action-copy-whole-line
-        (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line))
+        (alist-get ?W avy-dispatch-alist) 'daf/avy-action-copy-whole-line
+        (alist-get ?Y avy-dispatch-alist) 'daf/avy-action-yank-whole-line))
 #+end_src
 
 - /He teleport/
 
 #+begin_src emacs-lisp
-(defun avy-action-teleport-whole-line (pt)
-  (avy-action-kill-whole-line pt)
+(defun daf/avy-action-teleport-whole-line (pt)
+  (daf/avy-action-kill-whole-line pt)
   (save-excursion (yank)) t)
 
 (after! avy
   (setf (alist-get ?m avy-dispatch-alist) 'avy-action-teleport
-        (alist-get ?M avy-dispatch-alist) 'avy-action-teleport-whole-line))
+        (alist-get ?M avy-dispatch-alist) 'daf/avy-action-teleport-whole-line))
 #+end_src
 
 - /He embark/
 
 #+begin_src emacs-lisp
-(defun avy-action-embark (pt)
+(defun daf/avy-action-embark (pt)
   (unwind-protect
       (save-excursion
         (goto-char pt)
@@ -2618,7 +2615,7 @@ Add a hook to ~org-mode~.
   t)
 
 (after! avy
-  (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
+  (setf (alist-get ?. avy-dispatch-alist) 'daf/avy-action-embark))
 #+end_src
 
 ** ~blamer~ · Who wrote that crap!? (probably me.)
@@ -2655,7 +2652,7 @@ Let's customize the face and add a few key bindings.
 #+end_src
 
 ** ~circadian~ · Cadia Stands!!!
-/But only until 19h30, after that: lights out./
+/But only until 19h30, after that: _lights out_./
 *** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2665,18 +2662,13 @@ Let's customize the face and add a few key bindings.
 #+begin_src emacs-lisp
 (use-package! circadian
   :init
-
   (add-hook 'circadian-after-load-theme-hook
             #'(lambda (theme)
                 (message "Setting circadian theme.")
                 (cond ((eq doom-theme daf/dark-theme)
                        (message "Setting dark modeline theme."))
-                      ;; (nano-theme-set-dark)
                       ((eq doom-theme daf/light-theme)
                        (message "Setting light modeline theme.")))
-                ;; (nano-theme-set-light-tinted)
-                ;; (nano-faces)
-                ;; (nano-theme)
                 (doom/reload-theme)))
 
   :config
@@ -2703,11 +2695,10 @@ We want our ~org~ headings to be of different size to be more distinguishable.
   :defer t
 
   :config
-  (setq
-   ;; ef-themes-variable-pitch-ui t
-   ef-themes-italic-constructs t
-   ef-themes-bold-constructs t
-   ef-themes-mixed-fonts t))
+  (setq ef-themes-bold-constructs   t
+        ef-themes-italic-constructs t
+        ef-themes-mixed-fonts       t
+        ef-themes-variable-pitch-ui t))
 #+end_src
 
 ** ~embrace~ · 🫂
@@ -2825,7 +2816,6 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 #+end_src
 
 #+begin_src emacs-lisp
-
 (use-package! jinx
   :defer t
 
@@ -2835,6 +2825,7 @@ We want our ~org~ headings to be of different size to be more distinguishable.
    :leader
    (:prefix ("t" . "toggle")
     :desc "Spell checker"  "s"  #'jinx-mode))
+
   :config
   ;; Use my custom dictionary
   (setq jinx-languages "en fr"
@@ -2851,7 +2842,6 @@ We want our ~org~ headings to be of different size to be more distinguishable.
   ;; I prefer for `point' to end up at the start of the word,
   ;; not just after the end.
   (advice-add 'jinx-next :after (lambda (_) (left-word))))
-
 #+end_src
 
 ** ~jq-mode~
@@ -2874,22 +2864,27 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 #+end_src
 
 ~languagetool~ being a Java program, it needs to be shown the way to its .jar,
-let's obliged.
+Let's obliged.
 
 #+begin_src emacs-lisp
 (use-package! languagetool
   :defer t
+
   :config
   (setq languagetool-java-arguments '("-Dfile.encoding=UTF-8")
         languagetool-correction-language "en-US"  ;; 'auto' seems to target "en", which isn't working as well as 'en-US'
         languagetool-console-command "/etc/profiles/per-user/daf/share/languagetool-commandline.jar"
         languagetool-server-command "/etc/profiles/per-user/daf/share/languagetool-server.jar")
+
   :init
   (map!
    (:prefix ("z~" . "languagetool")
-    :n "b" #'languagetool-correct-buffer
-    :n "c" #'languagetool-correct-at-point
-    :desc "set language" :n "l" #'(lambda() (interactive) (languagetool-set-language (completing-read "lang: " '("fr" "en-US"))))
+    :desc "Correct buffer"   :n "b" #'languagetool-correct-buffer
+    :desc "Correct at point" :n "c" #'languagetool-correct-at-point
+    :desc "Set language"     :n "l" #'(lambda ()
+                                        (interactive)
+                                        (languagetool-set-language
+                                         (completing-read "lang: " '("fr" "en-US"))))
     :n "~" #'languagetool-check)))
 #+end_src
 
@@ -2923,7 +2918,9 @@ let's obliged.
 #+begin_src emacs-lisp
 (use-package! logos
   :defer t
+
   :hook (logos-focus-mode . (lambda () (olivetti-mode 1)))
+
   :config
   (setq logos-outline-regexp-alist
         `((emacs-lisp-mode . ,(format "\\(^;;;+ \\|%s\\)" logos--page-delimiter))
@@ -2931,15 +2928,16 @@ let's obliged.
 
   ;; These apply when `logos-focus-mode' is enabled.  Their value is
   ;; buffer-local.
-  (setq-default logos-hide-cursor nil
-                logos-hide-mode-line nil
+  (setq-default logos-hide-cursor            nil
+                logos-hide-mode-line         nil
                 logos-hide-buffer-boundaries t
-                logos-outlines-are-pages t
-                logos-hide-fringe t
-                logos-variable-pitch t
-                logos-buffer-read-only nil
-                logos-scroll-lock nil
-                logos-olivetti t)
+                logos-outlines-are-pages     t
+                logos-hide-fringe            t
+                logos-variable-pitch         t
+                logos-buffer-read-only       nil
+                logos-scroll-lock            nil
+                logos-olivetti               t)
+
   :init
   (map! :leader
         (:prefix "t"
@@ -2956,10 +2954,12 @@ let's obliged.
 
 #+begin_src emacs-lisp
 (use-package! mlscroll
-  :init
-  (setq mlscroll-right-align t)
   :config
-  (mlscroll-mode 1))
+  (mlscroll-mode 1)
+
+  :init
+  (setq mlscroll-right-align t))
+
 (after! doom-modeline
   (doom-modeline-def-modeline 'main
     '(eldoc bar workspace-name window-number modals matches follow buffer-info remote-host word-count parrot selection-info)
@@ -2982,11 +2982,10 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
 #+begin_src emacs-lisp
 (use-package! modus-themes
   :init
-  (setq
-   ;; modus-themes-variable-pitch-ui t
-   modus-themes-mixed-fonts t
-   modus-themes-italic-constructs t
-   modus-themes-bold-constructs t))
+  (setq modus-themes-bold-constructs   t
+        modus-themes-italic-constructs t
+        modus-themes-mixed-fonts       t
+        modus-themes-variable-pitch-ui t))
 #+end_src
 
 ** ~nov~ · « 'Cause nothin' lasts forever, even cold ~Nov~ ember rain » 󰎇
@@ -3000,19 +2999,21 @@ Also, let's set it up in a similar fashion that we did with ~ef-themes~.
 #+begin_src emacs-lisp
 (use-package! nov
   :defer t
+
   :mode ("\\.epub\\'" . nov-mode)
+
   :hook (nov-mode . mixed-pitch-mode)
   :hook (nov-mode . visual-line-mode)
   :hook (nov-mode . visual-fill-column-mode)
   :hook (nov-mode . hide-mode-line-mode)
   :hook (nov-mode . (lambda () (hl-line-mode -1)))
-  :hook (nov-mode . (lambda ()
-                      (set (make-local-variable 'scroll-margin) 1)))
+  :hook (nov-mode . (lambda () (set (make-local-variable 'scroll-margin) 1)))
+  :hook (nov-mode . daf/nov-font-setup)
 
   :config
-  (setq visual-fill-column-center-text t
-        nov-text-width t
-        nov-variable-pitch t)
+  (setq nov-text-width t
+        nov-variable-pitch t
+        visual-fill-column-center-text t)
 
   :init
   (map!
@@ -3032,12 +3033,9 @@ I want a nice comfy font when reading e-books.
 (defun daf/nov-font-setup ()
   "Sets a specific font for 'nov'."
   (set (make-local-variable 'buffer-face-mode-face)
-       '(:family "Literata"
-         :height 1.2))
+       '(:family "Literata" :height 1.2))
   (face-remap-add-relative 'fixed-pitch)
   (buffer-face-mode t))
-
-(add-hook 'nov-mode-hook 'daf/nov-font-setup)
 #+end_src
 
 ** ~nushell~
@@ -3260,7 +3258,7 @@ A nice little package which allows to rotate layout.
   :init
 
   ;; Setup completion at point
-  (defun tempel-setup-capf ()
+  (defun daf/tempel-setup-capf ()
     ;; Add the Tempel Capf to `completion-at-point-functions'.
     ;; `tempel-expand' only triggers on exact matches. Alternatively use
     ;; `tempel-complete' if you want to see all matches, but then you
@@ -3272,9 +3270,9 @@ A nice little package which allows to rotate layout.
                 (cons #'tempel-expand
                       completion-at-point-functions)))
 
-  (add-hook 'conf-mode-hook 'tempel-setup-capf)
-  (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  (add-hook 'conf-mode-hook 'daf/tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'daf/tempel-setup-capf)
+  (add-hook 'text-mode-hook 'daf/tempel-setup-capf)
 
   (setq tempel-path (expand-file-name "templates/*" doom-user-dir))
 
@@ -3305,7 +3303,7 @@ A nice little package which allows to rotate layout.
   :config
   (setq verb-json-use-mode 'json-mode)
 
-  (defun graphql-to-json (rs)
+  (defun daf/graphql-to-json (rs)
     ;; Modify RS and return it (RS is a request specification, type `verb-request-spec')
     (oset rs body
           (replace-regexp-in-string "\n" ""
@@ -3709,7 +3707,8 @@ Let's add a couple pair of words to rotate.
   (lsp-nix-nil-formatter ["nixfmt"]))
 
 (use-package! nix-mode
-  :hook (nix-mode . lsp-deferred))
+  :hook (nix-mode . lsp-deferred)
+  :hook (nix-mode . rainbow-delimiters-mode))
 #+end_src
 
 Let's add « /enabled/ » and « /disabled/ » to ~grugru~.
@@ -3717,7 +3716,6 @@ Let's add « /enabled/ » and « /disabled/ » to ~grugru~.
 #+begin_src emacs-lisp
 (grugru-define-global 'symbol '("enabled" "disabled"))
 #+end_src
-
 
 -----
 
@@ -3855,7 +3853,7 @@ will be moved to the relevant level./
     (<LSGT> "ê" "Ê")))
 
 
-(defun meow-setup ()
+(defun daf/meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-bepo)
   (meow-motion-overwrite-define-key
    '("j" . meow-next)
@@ -3940,7 +3938,7 @@ will be moved to the relevant level./
    '("z" . meow-pop-selection)
    '("." . repeat)
    '("<escape>" . ignore)))
-;; (meow-setup)
+;; (daf/meow-setup)
 ;;(meow-global-mode 1)
 #+end_src
 
