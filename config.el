@@ -163,7 +163,7 @@ the associated key is pressed after the repeatable action is triggered."
               +doom-quit-messages))
 
 (defun daf/join-lines ()
-  "Remove all blank lines with 'delete-blank-lines', then call 'join-line'."
+  "Remove all blank lines with `delete-blank-lines', then call `join-line'."
   (interactive)
   (setq thisblank (looking-at "[ \t]*$"))
   (delete-blank-lines)
@@ -172,7 +172,7 @@ the associated key is pressed after the repeatable action is triggered."
 
 (map!
  (:prefix ("," . "daf")
-  :desc "Join lines" :nv "TAB" #'daf/join-lines))
+  :desc "Join lines" :nv [tab]  #'daf/join-lines))
 
 (map!
  :map 'override
@@ -572,7 +572,7 @@ This only works with orderless and for the first component of the search."
 (map! (:after evil-easymotion
               (:prefix (",")
                :desc "Go to word"            :nv "SPC" #'avy-goto-word-0
-               :desc "Go to line"            :nv "l" #'avy-goto-line
+               :desc "Go to line"            :nv "l"   #'avy-goto-line
                :desc "Go to char with timer" :nv ","   (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
 
 (map! (:after evil-easymotion
@@ -1481,6 +1481,7 @@ This only works with orderless and for the first component of the search."
 
 (use-package! embrace
   :defer t
+
   :init
   (map!
    (:prefix ("," . "daf")

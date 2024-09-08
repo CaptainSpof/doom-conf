@@ -197,15 +197,18 @@ And the bookmarks (=SPC RET=).
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("~/ · Home" (filename . "~/"))
+(("Root · /" (filename . "/"))
+ ("Tmp · /tmp" (filename . "/tmp/"))
+ ("Home · ~/" (filename . "~/"))
  ("config · ~/.config" (filename . "~/.config/"))
  ("dafos · ~/.config/dafos" (filename . "~/.config/dafos/"))
  ("doom · ~/.config/doom" (filename . "~/.config/doom/"))
  ("Downloads · ~/Downloads" (filename . "~/Downloads/"))
  ("Projects · ~/Projects" (filename . "~/Projects/"))
+ ("Pictures · ~/Pictures" (filename . "~/Pictures/"))
  ("Sync · ~/Sync" (filename . "~/Sync/"))
- ("Repos · ~/Repositories" (filename . "~/Repositories/"))
- ("tmp · /tmp" (filename . "/tmp/")))
+ ("Books · ~/Sync/Books" (filename . "~/Sync/Books/"))
+ ("Repos · ~/Repositories" (filename . "~/Repositories/")))
 #+end_src
 
 ** Can your repeat please?
@@ -442,7 +445,7 @@ Is it how it works ?
 
 #+begin_src emacs-lisp
 (defun daf/join-lines ()
-  "Remove all blank lines with 'delete-blank-lines', then call 'join-line'."
+  "Remove all blank lines with `delete-blank-lines', then call `join-line'."
   (interactive)
   (setq thisblank (looking-at "[ \t]*$"))
   (delete-blank-lines)
@@ -453,7 +456,7 @@ Is it how it works ?
 #+begin_src emacs-lisp
 (map!
  (:prefix ("," . "daf")
-  :desc "Join lines" :nv "TAB" #'daf/join-lines))
+  :desc "Join lines" :nv [tab]  #'daf/join-lines))
 #+end_src
 
 ** Expand region
@@ -1168,7 +1171,7 @@ accessible (=,,=).
 (map! (:after evil-easymotion
               (:prefix (",")
                :desc "Go to word"            :nv "SPC" #'avy-goto-word-0
-               :desc "Go to line"            :nv "l" #'avy-goto-line
+               :desc "Go to line"            :nv "l"   #'avy-goto-line
                :desc "Go to char with timer" :nv ","   (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
 
 (map! (:after evil-easymotion
@@ -2719,6 +2722,7 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 #+begin_src emacs-lisp
 (use-package! embrace
   :defer t
+
   :init
   (map!
    (:prefix ("," . "daf")
@@ -3062,7 +3066,7 @@ I want a nice comfy font when reading e-books.
 #+end_src
 
 ** ~olivetti~ · 🫒 Olive et +Tom+ Tim
-/Center buffer content./
+                            /Center buffer content./
 *** Configuration
 
 #+begin_src emacs-lisp :tangle packages.el
