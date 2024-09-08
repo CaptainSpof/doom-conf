@@ -1897,6 +1897,10 @@ deleted, kill the pairs around point."
         zoom-ignored-buffer-name-regexps '("^\\*calc" "\\*helpful variable: .*\\*")))
 
 (grugru-define-multiple
+  ((emacs-lisp-mode org-mode) ;; HACK: find a way to integrate with org-babel
+   (symbol "t" "nil")))
+
+(grugru-define-multiple
   (word "yes" "no")
   (word "true" "false")
   (word "left" "right"))
@@ -2020,4 +2024,6 @@ exist after each headings's drawers."
                        'tree)))
 
 (after! hl-todo
-  (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" error bold)))
+  (add-to-list 'hl-todo-keyword-faces
+               '("NOCOMMIT" error bold)
+               '("MAYBE" warning bold)))

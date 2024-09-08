@@ -3679,7 +3679,18 @@ instruction.
 
 * Level 6: Central Processing · /Lang stuff/
 
-TODO: switch to ~novlang.el~ for *everything*.
+TODO: adopt ~newspeak.el~ for *everything*.
+
+** Emacs Lisp
+*** Configuration
+
+Let's add a couple pair of words to rotate.
+
+#+begin_src emacs-lisp
+(grugru-define-multiple
+  ((emacs-lisp-mode org-mode) ;; HACK: find a way to integrate with org-babel
+   (symbol "t" "nil")))
+#+end_src
 
 ** Plain text
 *** Configuration
@@ -4071,7 +4082,9 @@ exist after each headings's drawers."
 
 #+begin_src emacs-lisp
 (after! hl-todo
-  (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" error bold)))
+  (add-to-list 'hl-todo-keyword-faces
+               '("NOCOMMIT" error bold)
+               '("MAYBE" warning bold)))
 #+end_src
 
 * Level Ⅹ: Sewers · /It never ends…/
