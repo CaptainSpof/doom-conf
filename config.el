@@ -1535,16 +1535,9 @@ This only works with orderless and for the first component of the search."
     :desc "Rotate text" :n "r" #'grugru)))
 
 (use-package! indent-bars
-  :custom
-  (indent-bars-treesit-support t)
-  (indent-bars-treesit-ignore-blank-lines-types '("module"))
-
-  :hook (prog-mode . indent-bars-mode)
-
-  :init
-  (map! :leader
-        (:prefix ("t" . "toggle")
-         :desc "Indent Bars" :mvn "i" #'indent-bars-mode)))
+  :config
+  (custom-reevaluate-setting 'indent-bars-color-by-depth)
+  (custom-reevaluate-setting 'indent-bars-highlight-current-depth))
 
 (use-package! info-colors
   :hook (Info-selection . info-colors-fontify-node))

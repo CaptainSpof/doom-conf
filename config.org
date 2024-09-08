@@ -2783,23 +2783,13 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 |------------+------------------+--------------------|
 *** Configuration & Mapping
 
-#+begin_src emacs-lisp :tangle packages.el
-(package! indent-bars
-  :recipe (:host github :repo "jdtsmith/indent-bars")) ;; https://github.com/jdtsmith/indent-bars
-#+end_src
+I like the default colored bars, lets reset the values.
 
 #+begin_src emacs-lisp
 (use-package! indent-bars
-  :custom
-  (indent-bars-treesit-support t)
-  (indent-bars-treesit-ignore-blank-lines-types '("module"))
-
-  :hook (prog-mode . indent-bars-mode)
-
-  :init
-  (map! :leader
-        (:prefix ("t" . "toggle")
-         :desc "Indent Bars" :mvn "i" #'indent-bars-mode)))
+  :config
+  (custom-reevaluate-setting 'indent-bars-color-by-depth)
+  (custom-reevaluate-setting 'indent-bars-highlight-current-depth))
 #+end_src
 
 ** ~info-colors~

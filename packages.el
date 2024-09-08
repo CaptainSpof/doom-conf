@@ -54,9 +54,6 @@
 
 (package! grugru) ;; https://github.com/ROCKTAKEY/grugru
 
-(package! indent-bars
-  :recipe (:host github :repo "jdtsmith/indent-bars")) ;; https://github.com/jdtsmith/indent-bars
-
 (package! info-colors) ;; https://github.com/ubolonton/info-colors
 
 (package! jinx) ;; https://github.com/minad/jinx
