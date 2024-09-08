@@ -670,12 +670,10 @@ This only works with orderless and for the first component of the search."
        :desc "Dired jump to current"       "d" #'dired-jump
        :desc "fd input to Dired"           "f" #'fd-dired
        :desc "Dired into project root"     "p" #'project-dired
+       :desc "Side bar"                    "s" #'dirvish-side
        :desc "Open Dired in another frame" "D" #'dired-other-window))
 
 (after! dired
-  (map! :leader
-        :prefix ("t" . "toggle")
-        :desc "Side bar" :mvn "d" #'dirvish-side)
   (map! :after dirvish
         :map dirvish-mode-map
         :n "s" #'dired-previous-line
@@ -1334,6 +1332,30 @@ This only works with orderless and for the first component of the search."
    :n "n" #'org-now
    :n "ç" #'org-now))
 
+(use-package! org-sidebar
+  :defer t)
+
+(defun daf/my-summary ()
+  (interactive)
+  (setq source-buffer (current-buffer))
+
+ (let ((display-buffer
+         (generate-new-buffer (format "org-sidebar<%s>" (buffer-name source-buffer))))
+        (title (concat "Upcoming items in: " (buffer-name source-buffer))))
+    (with-current-buffer display-buffer
+      (setf org-sidebar-source-buffer source-buffer))
+    (save-window-excursion
+      ;; `org-ql-search' displays the buffer, but we don't want to do that here.
+      (org-ql-search source-buffer
+        '(and (or (scheduled)
+                  (deadline))
+              (not (done)))
+        :narrow t :sort 'date
+        :super-groups '((:auto-planning))
+        :buffer display-buffer
+        :title title))
+    display-buffer))
+
 (use-package! org-remark
   :defer t
   :init
@@ -1495,6 +1517,11 @@ This only works with orderless and for the first component of the search."
   (after! evil-embrace
     (setq evil-embrace-show-help-p t))
   (setq embrace-show-help-p t))
+
+(map!
+ :leader
+ (:prefix ("t" . "toggle")
+  :desc "Dim · Focus mode" "D" #'focus-mode))
 
 (use-package! grugru
   :config

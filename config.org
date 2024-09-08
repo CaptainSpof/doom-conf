@@ -1293,7 +1293,7 @@ Take A or B, why not both ?
 
 *** ~dired~ · « Our last resort, in these dire times »
 **** TODO Overview
-**** Configuration
+**** Configuration & Mapping
 
 Open file with external application from ~Dired~.
 
@@ -1307,8 +1307,6 @@ Open file with external application from ~Dired~.
     (message "Opening %s done" file)))
 #+end_src
 
-**** Mapping
-
 Conveniently, Doom doesn't use =SPC d= and I use ~Dired~ often, so let's add a few
 key bindings.
 
@@ -1319,6 +1317,7 @@ key bindings.
        :desc "Dired jump to current"       "d" #'dired-jump
        :desc "fd input to Dired"           "f" #'fd-dired
        :desc "Dired into project root"     "p" #'project-dired
+       :desc "Side bar"                    "s" #'dirvish-side
        :desc "Open Dired in another frame" "D" #'dired-other-window))
 #+end_src
 
@@ -1327,9 +1326,6 @@ bindings.
 
 #+begin_src emacs-lisp
 (after! dired
-  (map! :leader
-        :prefix ("t" . "toggle")
-        :desc "Side bar" :mvn "d" #'dirvish-side)
   (map! :after dirvish
         :map dirvish-mode-map
         :n "s" #'dired-previous-line
@@ -2741,11 +2737,19 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 
 ** ~focus~ · But I can't!! I must conf Emacs!
 /A package to dim everything that is not in focus./
-*** Configuration
+*** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! focus) ;; https://github.com/larstvei/Focus
 #+end_src
+
+#+begin_src emacs-lisp
+(map!
+ :leader
+ (:prefix ("t" . "toggle")
+  :desc "Dim · Focus mode" "D" #'focus-mode))
+#+end_src
+
 ** ~grugru~ · Death by ~grugru~
 /Rotate text at point in Emacs./
 *** Configuration & Mapping
