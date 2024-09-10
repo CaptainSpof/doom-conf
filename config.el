@@ -265,10 +265,10 @@ the associated key is pressed after the repeatable action is triggered."
       (:prefix ("t" . "toggle")
        :desc "Theme" :mvn "t" #'daf/toggle-themes))
 
-(setq doom-font                (font-spec :family "Maple Mono NF" :size 11.5)
+(setq doom-font                (font-spec :family "mononoki" :size 11.5)
       doom-variable-pitch-font (font-spec :family "Maple Mono NF")
       doom-symbol-font         (font-spec :family "JuliaMono")
-      doom-emoji-font          (font-spec :family "Twitter Color Emoji"))
+      doom-emoji-font          (font-spec :family "Noto Color Emoji"))
 
 (use-package! mixed-pitch
   :hook (org-mode . mixed-pitch-mode)

@@ -595,14 +595,13 @@ Let us have a nice and easy way to toggle between the two themes.
 
 *** Fonts
 
-We'll setup some font stuff here too. But the ~fontaine~ package is used to setup most of it.
-Also, there's a fix to some shenanigan happening with the emojis.
+We'll setup some font stuff here too. But the ~fontaine~ package is used to setup most of it (or not ~fontaine~ is currently  MIA).
 
 #+begin_src emacs-lisp
-(setq doom-font                (font-spec :family "Maple Mono NF" :size 11.5)
+(setq doom-font                (font-spec :family "mononoki" :size 11.5)
       doom-variable-pitch-font (font-spec :family "Maple Mono NF")
       doom-symbol-font         (font-spec :family "JuliaMono")
-      doom-emoji-font          (font-spec :family "Twitter Color Emoji"))
+      doom-emoji-font          (font-spec :family "Noto Color Emoji"))
 #+end_src
 
 Enable ~mixed-pitched-mode~ in ~org-mode~.
