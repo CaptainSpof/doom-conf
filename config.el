@@ -666,27 +666,28 @@ This only works with orderless and for the first component of the search."
 
 (map! :leader
       (:prefix ("d" . "Dired")
-       :desc "Dired"                       "." #'dired
-       :desc "Dired jump to current"       "d" #'dired-jump
-       :desc "fd input to Dired"           "f" #'fd-dired
-       :desc "Dired into project root"     "p" #'project-dired
-       :desc "Side bar"                    "s" #'dirvish-side
-       :desc "Open Dired in another frame" "D" #'dired-other-window))
+       :desc "Open directory in dirvish"  "SPC" #'dirvish
+       :desc "Dired"                       "."  #'dired
+       :desc "Dired jump to current"       "d"  #'dired-jump
+       :desc "fd input to Dired"           "f"  #'dirvish-fd
+       :desc "Dired into project root"     "p"  #'project-dired
+       :desc "Side bar"                    "s"  #'+dired/dirvish-side-or-follow
+       :desc "Open Dired in another frame" "D"  #'dired-other-window))
 
-(after! dired
-  (map! :after dirvish
-        :map dirvish-mode-map
-        :n "s" #'dired-previous-line
-        :n "N" #'dirvish-narrow)
-  (map!
-   :map dired-mode-map
-   :n "g."    #'dired-omit-mode
-   :n "c"     #'dired-up-directory
-   :n "s"     #'dired-previous-line
-   :n "M-RET" #'daf/dired-open-file
-   :n "R"     #'dired-do-rename
-   :n "L"     #'dired-do-copy
-   :n "r"     #'dired-find-file))
+(map! :map dirvish-mode-map
+      :after dirvish
+      :n "s" #'dired-previous-line
+      :n "N" #'dirvish-narrow)
+(map! :map dired-mode-map
+      :after dired
+      :n "g."    #'dired-omit-mode
+      :n "h"     #'dired-omit-mode
+      :n "c"     #'dired-up-directory
+      :n "s"     #'dired-previous-line
+      :n "M-RET" #'daf/dired-open-file
+      :n "R"     #'dired-do-rename
+      :n "L"     #'dired-do-copy
+      :n "r"     #'dired-find-file)
 
 (use-package! aweshell
   :defer t
@@ -1488,7 +1489,7 @@ This only works with orderless and for the first component of the search."
                 (doom/reload-theme)))
 
   :config
-  (setq circadian-themes `(("7:30" . ,daf/light-theme)
+  (setq circadian-themes `(("8:00" . ,daf/light-theme)
                            ("19:30" . ,daf/dark-theme)))
   (circadian-setup))
 
