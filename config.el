@@ -671,7 +671,7 @@ This only works with orderless and for the first component of the search."
        :desc "Dired jump to current"       "d"  #'dired-jump
        :desc "fd input to Dired"           "f"  #'dirvish-fd
        :desc "Dired into project root"     "p"  #'project-dired
-       :desc "Side bar"                    "s"  #'+dired/dirvish-side-or-follow
+       :desc "Side bar"                    "s"  #'dirvish-side
        :desc "Open Dired in another frame" "D"  #'dired-other-window))
 
 (map! :map dirvish-mode-map
@@ -716,7 +716,7 @@ This only works with orderless and for the first component of the search."
   (defun daf/vterm-font-setup ()
     "Sets a fixed width (monospace) font in current buffer"
     (set (make-local-variable 'buffer-face-mode-face)
-         '(:family "MonaspiceKr Nerd Font Propo"))
+         '(:family "Departure Mono"))
     (face-remap-add-relative 'fixed-pitch)
     (buffer-face-mode t)))
 
@@ -1239,6 +1239,7 @@ This only works with orderless and for the first component of the search."
 
   :custom
   (org-gtd-directory org-directory)
+  (org-gtd-canceled "DROP")
   (org-gtd-areas-of-focus '("Home" "Personal" "Work" "Family" "Health" "Emacs" "NixOS" "YouTube" "Home-Assistant"))
   (org-agenda-property-list '("DELEGATED_TO"))
   (org-edna-use-inheritance t)
@@ -1332,30 +1333,6 @@ This only works with orderless and for the first component of the search."
    :prefix daf/localleader-key
    :n "n" #'org-now
    :n "ç" #'org-now))
-
-(use-package! org-sidebar
-  :defer t)
-
-(defun daf/my-summary ()
-  (interactive)
-  (setq source-buffer (current-buffer))
-
- (let ((display-buffer
-         (generate-new-buffer (format "org-sidebar<%s>" (buffer-name source-buffer))))
-        (title (concat "Upcoming items in: " (buffer-name source-buffer))))
-    (with-current-buffer display-buffer
-      (setf org-sidebar-source-buffer source-buffer))
-    (save-window-excursion
-      ;; `org-ql-search' displays the buffer, but we don't want to do that here.
-      (org-ql-search source-buffer
-        '(and (or (scheduled)
-                  (deadline))
-              (not (done)))
-        :narrow t :sort 'date
-        :super-groups '((:auto-planning))
-        :buffer display-buffer
-        :title title))
-    display-buffer))
 
 (use-package! org-remark
   :defer t

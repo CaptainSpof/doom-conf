@@ -1317,7 +1317,7 @@ key bindings.
        :desc "Dired jump to current"       "d"  #'dired-jump
        :desc "fd input to Dired"           "f"  #'dirvish-fd
        :desc "Dired into project root"     "p"  #'project-dired
-       :desc "Side bar"                    "s"  #'+dired/dirvish-side-or-follow
+       :desc "Side bar"                    "s"  #'dirvish-side
        :desc "Open Dired in another frame" "D"  #'dired-other-window))
 #+end_src
 
@@ -1394,7 +1394,7 @@ prompt. So lets set a specific font for ~vterm~.
   (defun daf/vterm-font-setup ()
     "Sets a fixed width (monospace) font in current buffer"
     (set (make-local-variable 'buffer-face-mode-face)
-         '(:family "MonaspiceKr Nerd Font Propo"))
+         '(:family "Departure Mono"))
     (face-remap-add-relative 'fixed-pitch)
     (buffer-face-mode t)))
 #+end_src
@@ -2163,7 +2163,7 @@ Sometimes it is nice to be able to use the mouse.
 (require 'org-mouse)
 #+end_src
 
-*** FIXME ~org-gtd~
+*** ~org-gtd~
 /A package for using GTD with org-mode/
 **** Configuration & Mapping
 
@@ -2180,6 +2180,7 @@ Sometimes it is nice to be able to use the mouse.
 
   :custom
   (org-gtd-directory org-directory)
+  (org-gtd-canceled "DROP")
   (org-gtd-areas-of-focus '("Home" "Personal" "Work" "Family" "Health" "Emacs" "NixOS" "YouTube" "Home-Assistant"))
   (org-agenda-property-list '("DELEGATED_TO"))
   (org-edna-use-inheritance t)
@@ -3744,7 +3745,30 @@ secret passage and so on. I can't keep up. So I'll try to write a /cheat sheet o
 | Jump to a ~mark~ bound to a register   | ~:nv~    | ~' [a-Z]~ |
 | Show all ~marks~ in a completion menu: | leader | ~SPC s r~ |
 |--------------------------------------+--------+---------|
-** TODO ~occur~ replace in project
+** ~occur~ · Search & Replace
+
+Search & replace, the bread and butter of coding/refactoring.
+
+Emacs is king in this area, but I +sometimes+ often suffer brain damage and forget
+how to Emacs.
+
+Here how it goes:
+
+_Problematic_:
+
+/Given a project containing multiples files. You're trying to search and replace
+every word '_vim_' and replace it with '_Emacs_'./
+
+1. =SPC /=        -> *Make a global search in the project with ~+default/search-project~.*
+2. *input 'vim' without pressing =RET=.*
+3. =C-,=          -> *invoke ~embark-act~.*
+4. =E=            -> *invoke ~embark-export~.*
+   /This will create a buffer with all matching results./
+5. =C-c C-p=      -> *invoke ~wgrep-change-to-wgrep-mode~.*
+   /This allows us to modify the buffer. Then./
+6. =Z Z=, =C-c C-c= -> *invoke ~wgrep-finish-edit~.*
+   /The magic is done, you've successfully completed a search and replace./
+
 ** Keybindings · They're useful, brain; why do you forget them?
 
 |---------+-------------------------------+---------|
@@ -3754,14 +3778,18 @@ secret passage and so on. I can't keep up. So I'll try to write a /cheat sheet o
 |         |                               |         |
 |---------+-------------------------------+---------|
 -----
+** Showing unsaved changes in the current buffer
+
+Sometimes, I edit a file, but I can't remember what I changed, should I keep it
+or discard it ? =M-x diff-buffer-with-file= to the rescue.
 
 * Level 9: Military Base · /Secret experiments/
 
 /We go straight to level 9, skipping level 8 altogether./
 
-/Welcome to the *Military Base* where we conduct experimentation with unstable/
-/elisp code. Then, when we are satisfied with the potency of the experiment, it
-will be moved to the relevant level./
+Welcome to the *Military Base* where we conduct experimentation with unstable/
+/Emacs Lisp code. Then, when we are satisfied with the potency of the experiment,
+it will be moved to the relevant level./
 
 ** evil mark
 *** persist mark
