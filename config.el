@@ -776,14 +776,18 @@ This only works with orderless and for the first component of the search."
    :n "$"   #'magit-process-buffer
    :n "g»"  #'+workspace/switch-right
    :n "g«"  #'+workspace/switch-left
-   :n "C-t" #'magit-section-forward-sibling
-   :n "C-s" #'magit-section-backward-sibling)
+   :n "R"   #'magit-rebase
+   :n "r"   #'evil-next-line
+   :n "C-r" #'magit-section-forward-sibling
+   :n "C-t" #'magit-section-backward-sibling)
   (map!
    :map magit-status-mode-map
+   :n "R"   #'magit-rebase
+   :n "r"   #'evil-next-line
    :n "g("  #'daf/prev-hunk
    :n "g)"  #'daf/next-hunk
-   :n "C-t" #'magit-section-forward-sibling
-   :n "C-s" #'magit-section-backward-sibling))
+   :n "C-r" #'magit-section-forward-sibling
+   :n "C-t" #'magit-section-backward-sibling))
 
 ;; REVIEW
 (after! gv
