@@ -20,7 +20,7 @@ literate configuration, meaning the code that I stole from more competent
 persons than myself will be generated to a nice Emacs config.
 
 Why literate? Well, this allows me to have a nicely organized configuration with
-lots of comments, which helps to give a false sense of order and quality.
+lots of comments, which helpbepogive a false sense of order and quality.
 
 Oh yeah, I almost forgot. The mandatory _disclaimer_:
 
@@ -241,29 +241,29 @@ I often use =zt=, =zz= and =zb= to scroll through my window, this help to keep a
 bit of context above and bellow the current line.
 
 #+begin_src emacs-lisp
-(setq-default scroll-margin 3)
+;; (setq-default scroll-margin 3)
 #+end_src
 
 Emacs 29 introduced pixel scrolling. Let's make its V1 single threaded engine
 roar!
 
 #+begin_src emacs-lisp
-(pixel-scroll-precision-mode 1)
-(setq mouse-wheel-tilt-scroll t)
+;; (pixel-scroll-precision-mode 1)
+;; (setq mouse-wheel-tilt-scroll t)
 
-(defun filter-mwheel-always-coalesce (orig &rest args)
-  "A filter function suitable for :around advices that ensures only
-   coalesced scroll events reach the advised function."
-  (if mwheel-coalesce-scroll-events
-      (apply orig args)
-    (setq mwheel-coalesce-scroll-events t)))
+;; (defun filter-mwheel-always-coalesce (orig &rest args)
+;;   "A filter function suitable for :around advices that ensures only
+;;    coalesced scroll events reach the advised function."
+;;   (if mwheel-coalesce-scroll-events
+;;       (apply orig args)
+;;     (setq mwheel-coalesce-scroll-events t)))
 
-(defun filter-mwheel-never-coalesce (orig &rest args)
-  "A filter function suitable for :around advices that ensures only
-   non-coalesced scroll events reach the advised function."
-  (if mwheel-coalesce-scroll-events
-      (setq mwheel-coalesce-scroll-events nil)
-    (apply orig args)))
+;; (defun filter-mwheel-never-coalesce (orig &rest args)
+;;   "A filter function suitable for :around advices that ensures only
+;;    non-coalesced scroll events reach the advised function."
+;;   (if mwheel-coalesce-scroll-events
+;;       (setq mwheel-coalesce-scroll-events nil)
+;;     (apply orig args)))
 
                                         ; Don't coalesce for high precision scrolling
 ;; (advice-add 'pixel-scroll-precision :around #'filter-mwheel-never-coalesce)
@@ -543,7 +543,7 @@ Let us define a dark and a light theme. We'll setup ~Circadian~ later on to mana
 them.
 
 #+begin_src emacs-lisp
-(defvar daf/dark-theme  'doom-gruvbox)
+(defvar daf/dark-theme  'kanagawa-dragon)
 (defvar daf/light-theme 'ef-eagle)
 #+end_src
 
@@ -664,9 +664,9 @@ Now come with more cute dinos! 🦖
 **** Configuration & Mapping
 
 #+begin_quote
-    When using the dashboard, there are often a small number of actions I will take.
-    As the dashboard is it's own major mode, there is no need to suffer the tyranny
-    of unnecessary keystrokes --- we can simply bind common actions to a single key!
+When using the dashboard, there are often a small number of actions I will take.
+As the dashboard is it's own major mode, there is no need to suffer the tyranny
+of unnecessary keystrokes --- we can simply bind common actions to a single key!
 
 ―Tecosaur
 #+end_quote
@@ -693,16 +693,16 @@ Now come with more cute dinos! 🦖
         :desc "Quit"                 :ne "Q" #'save-buffers-kill-terminal
         :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+daf/doom-dashboard-mode-map))))
 
-(add-transient-hook! #'+doom-dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
-(add-transient-hook! #'+doom-dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
+;;(add-transient-hook! #'+doom-dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
+;;(add-transient-hook! #'+doom-dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
 (add-hook! 'doom-init-ui-hook :append (+daf/doom-dashboard-setup-modified-keymap))
 #+end_src
 
 #+begin_quote
-    Unfortunately the show keybindings help doesn't currently work as intended, but
-    this is still quite nice overall.
+Unfortunately the show keybindings help doesn't currently work as intended, but
+this is still quite nice overall.
 
-    Now that the dashboard is so convenient, I'll want to make it easier to get to.
+Now that the dashboard is so convenient, I'll want to make it easier to get to.
 
 ―Tecosaur
 #+end_quote
@@ -721,8 +721,8 @@ What is that little ball in the left bottom doing anyway? Remove it!
 #+end_src
 
 #+begin_quote
-    However, by default red text is used in the modeline, so let’s make that orange
-    so I don’t feel like something’s gone wrong when editing files.
+However, by default red text is used in the modeline, so let’s make that orange
+so I don’t feel like something’s gone wrong when editing files.
 
 ―Tecosaur
 #+end_quote
@@ -734,9 +734,12 @@ What is that little ball in the left bottom doing anyway? Remove it!
 
 Let's simplify the ~doom-modeline~, since some information will be redundant with
 the ~nano-modeline~.
+Also we'll show the relative path instead of just filename in doom-modeline.
 
 #+begin_src emacs-lisp
 (setq doom-modeline-position-column-line-format '(""))
+(after! doom-modeline
+  (setq doom-modeline-buffer-file-name-style 'relative-to-project))
 #+end_src
 
 Since we have two modelines (we at Dafos Corporation™  spare no expense), it would be handy to disable the ~doom-modeline~ via a shortcut =SPC t m=.
@@ -1325,20 +1328,22 @@ key bindings.
 bindings.
 
 #+begin_src emacs-lisp
-(map! :map dirvish-mode-map
-      :after dirvish
-      :n "s" #'dired-previous-line
-      :n "N" #'dirvish-narrow)
+;; (map! :map dirvish-mode-map
+;;       :after dirvish
+;;       :n "s" #'dired-previous-line
+;;       :n "N" #'dirvish-narrow)
 (map! :map dired-mode-map
       :after dired
       :n "g."    #'dired-omit-mode
       :n "h"     #'dired-omit-mode
-      :n "c"     #'dired-up-directory
-      :n "s"     #'dired-previous-line
+      :n "l"     #'dired-up-directory
+      :n "r"     #'dired-next-line
+      :n "t"     #'dired-previous-line
       :n "M-RET" #'daf/dired-open-file
-      :n "R"     #'dired-do-rename
-      :n "L"     #'dired-do-copy
-      :n "r"     #'dired-find-file)
+      :n "I"     #'dired-do-rename
+      :n "i"     #'dired-find-file
+      ;; :n "L"     #'dired-do-copy
+      )
 #+end_src
 
 ** Term · ~:term~ inally ill
@@ -1522,15 +1527,14 @@ Show a list of TODO and other keywords in the ~magit~ status view.
 (after! gv
   (put 'buffer-local-value 'byte-obsolete-generalized-variable nil))
 
-;; FIXME <- oh the irony
-;;(use-package! magit-todos
-;;:after magit
-;;:config
-;;(magit-todos-mode 1))
-;; (map!
- ;; :leader
- ;; :prefix ("p" . "project")
- ;; :desc "Project todos" :n "t" #'magit-todos-list)
+(use-package! magit-todos
+  :after magit
+  :config
+  (magit-todos-mode 1))
+(map!
+ :leader
+ :prefix ("p" . "project")
+ :desc "Project todos" :n "t" #'magit-todos-list)
 #+end_src
 
 *** ~lsp~  :ARCHIVE:
@@ -1709,10 +1713,10 @@ hidden block.
 #+END_SRC
 
 #+begin_quote
-    Enable Speed Keys, which allows quick single-key commands when the cursor is
-    placed on a heading. Usually the cursor needs to be at the beginning of a
-    headline line, but defining it with this function makes them active on any of
-    the asterisks at the beginning of the line.
+Enable Speed Keys, which allows quick single-key commands when the cursor is
+placed on a heading. Usually the cursor needs to be at the beginning of a
+headline line, but defining it with this function makes them active on any of
+the asterisks at the beginning of the line.
 
 —— Diego Zamboni
 #+end_quote
@@ -1849,6 +1853,7 @@ Let's start by removing some ~DOOM~ code, this makes ~org-habit~ graph acting we
                  (expand-file-name "*.org" org-directory)))
         ;; org-agenda-tags-column 20
         org-agenda-include-diary t
+        org-display-custom-times t
         org-agenda-block-separator ?─
         org-agenda-hide-tags-regexp ".*"      ;; hide tags in org-agenda
         org-agenda-skip-deadline-if-done t
@@ -2049,8 +2054,8 @@ Evil binding are broken in ~org-super-agenda~.
 **** Configuration
 
 #+begin_quote
-    Fontifying org-mode buffers to be as pretty as possible is of paramount
-    importance, and Minad’s lovely org-modern goes a long way in this regard.
+Fontifying org-mode buffers to be as pretty as possible is of paramount
+importance, and Minad’s lovely org-modern goes a long way in this regard.
 
 ―Tecosaur
 #+end_quote
@@ -2324,6 +2329,41 @@ Add a hook to ~org-mode~.
    :n "n" #'org-now
    :n "ç" #'org-now))
 #+end_src
+*** ~org-sidebar~
+**** Configuration & Mapping
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-sidebar
+  :recipe (:host github :repo "alphapapa/org-sidebar")) ;; https://github.com/alphapapa/org-sidebar
+(package! org-ql
+  :recipe (:host github :repo "alphapapa/org-ql")) ;; https://github.com/alphapapa/org-ql
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! org-sidebar
+  :defer t)
+
+(defun daf/my-summary ()
+  (interactive)
+  (setq source-buffer (current-buffer))
+
+  (let ((display-buffer
+         (generate-new-buffer (format "org-sidebar<%s>" (buffer-name source-buffer))))
+        (title (concat "Upcoming items in: " (buffer-name source-buffer))))
+    (with-current-buffer display-buffer
+      (setf org-sidebar-source-buffer source-buffer))
+    (save-window-excursion
+      ;; `org-ql-search' displays the buffer, but we don't want to do that here.
+      (org-ql-search source-buffer
+        '(and (or (scheduled)
+                  (deadline))
+              (not (done)))
+        :narrow t :sort 'date
+        :super-groups '((:auto-planning))
+        :buffer display-buffer
+        :title title))
+    display-buffer))
+#+end_src
 
 *** ~org-remark~
 /Highlight & annotate text, EWW, Info, and EPUB/
@@ -2362,18 +2402,18 @@ Add a hook to ~org-mode~.
 **** Configuration & Mapping
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! image-popup
-  :recipe (:host gitlab :repo "OlMon/image-popup")) ;; https://gitlab.com/OlMon/image-popup
+;; (package! image-popup
+;;   :recipe (:host gitlab :repo "OlMon/image-popup")) ;; https://gitlab.com/OlMon/image-popup
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! image-popup
-  :defer t
-  :init
-  (map!
-   :map org-mode-map
-   (:prefix ("ç" . "daf")
-    :n "i" #'image-popup-display-image-at-point)))
+;; (use-package! image-popup
+;;   :defer t
+;;   :init
+;;   (map!
+;;    :map org-mode-map
+;;    (:prefix ("ç" . "daf")
+;;     :n "i" #'image-popup-display-image-at-point)))
 #+end_src
 
 *** ~mermaid-mode~
@@ -3428,118 +3468,122 @@ I wrote some ugly function to add filters to ~logcat~.
 ;;         "k" #'elogcat-toggle-kernel
 ;;         "c" #'elogcat-erase-buffer))
 #+end_src
-** ~fontaine~  · Maître Corbeau, sur un arbre perché :ARCHIVE:
+** ~fontaine~  · Maître Corbeau, sur un arbre perché
 /Faces preset./
 /The Quick Brown Fox Jumps Over The Lazy Dog/
 *** Configuration
 
 #+begin_src emacs-lisp :tangle packages.el
-;; (package! fontaine) ;; https://github.com/protesilaos/fontaine
+ (package! fontaine) ;; https://github.com/protesilaos/fontaine
 #+end_src
 
 And now, for the configuration, which is largely copied from the repo's
 instruction.
 
 #+begin_src emacs-lisp
-;; (use-package! fontaine
-;;   :config
+(use-package! fontaine
+  :config
 
-;;   ;; Iosevka Comfy is my highly customised build of Iosevka with
-;;   ;; monospaced and duospaced (quasi-proportional) variants as well as
-;;   ;; support or no support for ligatures:
-;;   ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
-;;   ;;
-;;   ;; Iosevka Comfy            == monospaced, supports ligatures
-;;   ;; Iosevka Comfy Fixed      == monospaced, no ligatures
-;;   ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
-;;   ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
-;;   ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
-;;   ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
-;;   ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
-;;   (setq fontaine-presets
-;;         '((smaller
-;;            :default-family "Iosevka Comfy Wide Fixed"
-;;            :default-height 90
-;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
-;;           (small
-;;            :default-family "Iosevka Comfy Wide Fixed"
-;;            :default-height 100
-;;            :variable-pitch-family "Iosevka Comfy Wide Duo")
-;;           (regular
-;;            :default-height 120)
-;;           (large
-;;            :default-weight semilight
-;;            :default-height 150
-;;            :bold-weight extrabold)
-;;           (larger
-;;            :default-weight semilight
-;;            :default-height 160
-;;            :bold-weight extrabold)
-;;           (code-demo
-;;            :default-family "Iosevka Comfy Fixed"
-;;            :default-weight semilight
-;;            :default-height 190
-;;            :variable-pitch-family "Iosevka Comfy Duo"
-;;            :bold-weight extrabold)
-;;           (presentation
-;;            :default-weight semilight
-;;            :default-height 220
-;;            :bold-weight extrabold)
-;;           (legally-blind
-;;            :default-weight semilight
-;;            :default-height 260
-;;            :bold-weight extrabold)
-;;           (merriweather
-;;            :default-family "Merriweather"
-;;            :variable-pitch-family "Merriweather"
-;;            :default-height 150)
-;;           (iosevka-nerd-font
-;;            :default-family "Iosevka Nerd Font")
-;;           (sarasa
-;;            :default-family "Sarasa Term J"
-;;            :variable-pitch-family "Sarasa Term Slab TC")
-;;           (ibm-plex-sans
-;;            :default-family "IBM Plex Sans")
-;;           (ibm-plex-mono
-;;            :default-family "IBM Plex Mono")
-;;           (t
-;;            ;; I keep all properties for didactic purposes, but most can be
-;;            ;; omitted.  See the fontaine manual for the technicalities:
-;;            ;; <https://protesilaos.com/emacs/fontaine>.
-;;            :default-family "Iosevka Comfy"
-;;            :default-weight regular
-;;            :default-height 120
-;;            :fixed-pitch-family nil      ; falls back to :default-family
-;;            :fixed-pitch-weight nil      ; falls back to :default-weight
-;;            :fixed-pitch-height 1.0
-;;            :fixed-pitch-serif-family nil ; falls back to :default-family
-;;            :fixed-pitch-serif-weight nil ; falls back to :default-weight
-;;            :fixed-pitch-serif-height 1.0
-;;            :variable-pitch-family "Iosevka Comfy Motion Duo"
-;;            :variable-pitch-weight nil
-;;            :variable-pitch-height 1.0
-;;            :bold-family nil             ; use whatever the underlying face has
-;;            :bold-weight bold
-;;            :italic-family nil
-;;            :italic-slant italic
-;;            :line-spacing nil)))
+  ;; Iosevka Comfy is my highly customised build of Iosevka with
+  ;; monospaced and duospaced (quasi-proportional) variants as well as
+  ;; support or no support for ligatures:
+  ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
+  ;;
+  ;; Iosevka Comfy            == monospaced, supports ligatures
+  ;; Iosevka Comfy Fixed      == monospaced, no ligatures
+  ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
+  ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
+  ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
+  ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
+  ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
+  (setq fontaine-presets
+        '((smaller
+           :default-family "Iosevka Comfy Wide Fixed"
+           :default-height 90
+           :variable-pitch-family "Iosevka Comfy Wide Duo")
+          (small
+           :default-family "Iosevka Comfy Wide Fixed"
+           :default-height 100
+           :variable-pitch-family "Iosevka Comfy Wide Duo")
+          (regular
+           :default-height 120)
+          (large
+           :default-weight semilight
+           :default-height 150
+           :bold-weight extrabold)
+          (larger
+           :default-weight semilight
+           :default-height 160
+           :bold-weight extrabold)
+          (code-demo
+           :default-family "Iosevka Comfy Fixed"
+           :default-weight semilight
+           :default-height 190
+           :variable-pitch-family "Iosevka Comfy Duo"
+           :bold-weight extrabold)
+          (presentation
+           :default-weight semilight
+           :default-height 220
+           :bold-weight extrabold)
+          (legally-blind
+           :default-weight semilight
+           :default-height 260
+           :bold-weight extrabold)
+          (departure
+           :default-family "Departure Mono"
+           :variable-pitch-family "Departure Mono"
+           :default-height 120)
+          (merriweather
+           :default-family "Merriweather"
+           :variable-pitch-family "Merriweather"
+           :default-height 150)
+          (iosevka-nerd-font
+           :default-family "Iosevka Nerd Font")
+          (sarasa
+           :default-family "Sarasa Term J"
+           :variable-pitch-family "Sarasa Term Slab TC")
+          (ibm-plex-sans
+           :default-family "IBM Plex Sans")
+          (ibm-plex-mono
+           :default-family "IBM Plex Mono")
+          (t
+           ;; I keep all properties for didactic purposes, but most can be
+           ;; omitted.  See the fontaine manual for the technicalities:
+           ;; <https://protesilaos.com/emacs/fontaine>.
+           :default-family "Iosevka Comfy"
+           :default-weight regular
+           :default-height 120
+           :fixed-pitch-family nil      ; falls back to :default-family
+           :fixed-pitch-weight nil      ; falls back to :default-weight
+           :fixed-pitch-height 1.0
+           :fixed-pitch-serif-family nil ; falls back to :default-family
+           :fixed-pitch-serif-weight nil ; falls back to :default-weight
+           :fixed-pitch-serif-height 1.0
+           :variable-pitch-family "Iosevka Comfy Motion Duo"
+           :variable-pitch-weight nil
+           :variable-pitch-height 1.0
+           :bold-family nil             ; use whatever the underlying face has
+           :bold-weight bold
+           :italic-family nil
+           :italic-slant italic
+           :line-spacing nil)))
 
-;;   ;; Set last preset or fall back to desired style from `fontaine-presets'.
-;;   (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+  ;; Set last preset or fall back to desired style from `fontaine-presets'.
+  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
 
-;;   ;; The other side of `fontaine-restore-latest-preset'.
-;;   (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
+  ;; The other side of `fontaine-restore-latest-preset'.
+  (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
 
-;;   ;; Persist font configurations while switching themes (doing it with
-;;   ;; my `modus-themes' and `ef-themes' via the hooks they provide).
-;;   (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
-;;     (add-hook hook #'fontaine-apply-current-preset))
+  ;; Persist font configurations while switching themes (doing it with
+  ;; my `modus-themes' and `ef-themes' via the hooks they provide).
+  (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
+    (add-hook hook #'fontaine-apply-current-preset))
 
-;;   :init
-;;   (map! :leader
-;;         (:prefix ("ç" . "daf")
-;;                      "F" #'fontaine-set-face-font
-;;                      "f" #'fontaine-set-preset)))
+  :init
+  (map! :leader
+        (:prefix ("ç" . "daf")
+                     "F" #'fontaine-set-face-font
+                     "f" #'fontaine-set-preset)))
 #+end_src
 
 ** ~golden-ratio~  :ARCHIVE:
@@ -3794,18 +3838,18 @@ it will be moved to the relevant level./
 ** evil mark
 *** persist mark
 #+BEGIN_SRC emacs-lisp
-(after! savehist
-  (add-to-list 'savehist-additional-variables 'evil-markers-alist)
-  (add-hook! 'savehist-save-hook
-    (kill-local-variable 'evil-markers-alist)
-    (dolist (entry evil-markers-alist)
-      (when (markerp (cdr entry))
-        (setcdr entry (cons (file-truename (buffer-file-name (marker-buffer (cdr entry))))
-                            (marker-position (cdr entry)))))))
-  (add-hook! 'savehist-mode-hook
-    (setq-default evil-markers-alist evil-markers-alist)
-    (kill-local-variable 'evil-markers-alist)
-    (make-local-variable 'evil-markers-alist)))
+;; (after! savehist
+;;   (add-to-list 'savehist-additional-variables 'evil-markers-alist)
+;;   (add-hook! 'savehist-save-hook
+;;     (kill-local-variable 'evil-markers-alist)
+;;     (dolist (entry evil-markers-alist)
+;;       (when (markerp (cdr entry))
+;;         (setcdr entry (cons (file-truename (buffer-file-name (marker-buffer (cdr entry))))
+;;                             (marker-position (cdr entry)))))))
+;;   (add-hook! 'savehist-mode-hook
+;;     (setq-default evil-markers-alist evil-markers-alist)
+;;     (kill-local-variable 'evil-markers-alist)
+;;     (make-local-variable 'evil-markers-alist)))
 #+end_src
 
 **** ~evil-fringe-mark~
@@ -4103,6 +4147,18 @@ exist after each headings's drawers."
   (add-to-list 'hl-todo-keyword-faces
                '("NOCOMMIT" error bold)
                '("MAYBE" warning bold)))
+#+end_src
+** orgaggregate
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! orgtbl-aggregate)
+#+end_src
+
+** Kanagawa
+*** Configuration
+#+begin_src emacs-lisp :tangle packages.el
+
+(package! kanagawa-themes) ;; https://github.com/Fabiokleis/kanagawa-emacs
 #+end_src
 
 * Level Ⅹ: Sewers · /It never ends…/

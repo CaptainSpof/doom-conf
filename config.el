@@ -52,24 +52,24 @@ the associated key is pressed after the repeatable action is triggered."
 
 (add-hook 'after-init-hook 'repeat-mode)
 
-(setq-default scroll-margin 3)
+;; (setq-default scroll-margin 3)
 
-(pixel-scroll-precision-mode 1)
-(setq mouse-wheel-tilt-scroll t)
+;; (pixel-scroll-precision-mode 1)
+;; (setq mouse-wheel-tilt-scroll t)
 
-(defun filter-mwheel-always-coalesce (orig &rest args)
-  "A filter function suitable for :around advices that ensures only
-   coalesced scroll events reach the advised function."
-  (if mwheel-coalesce-scroll-events
-      (apply orig args)
-    (setq mwheel-coalesce-scroll-events t)))
+;; (defun filter-mwheel-always-coalesce (orig &rest args)
+;;   "A filter function suitable for :around advices that ensures only
+;;    coalesced scroll events reach the advised function."
+;;   (if mwheel-coalesce-scroll-events
+;;       (apply orig args)
+;;     (setq mwheel-coalesce-scroll-events t)))
 
-(defun filter-mwheel-never-coalesce (orig &rest args)
-  "A filter function suitable for :around advices that ensures only
-   non-coalesced scroll events reach the advised function."
-  (if mwheel-coalesce-scroll-events
-      (setq mwheel-coalesce-scroll-events nil)
-    (apply orig args)))
+;; (defun filter-mwheel-never-coalesce (orig &rest args)
+;;   "A filter function suitable for :around advices that ensures only
+;;    non-coalesced scroll events reach the advised function."
+;;   (if mwheel-coalesce-scroll-events
+;;       (setq mwheel-coalesce-scroll-events nil)
+;;     (apply orig args)))
 
                                         ; Don't coalesce for high precision scrolling
 ;; (advice-add 'pixel-scroll-precision :around #'filter-mwheel-never-coalesce)
@@ -225,7 +225,7 @@ the associated key is pressed after the repeatable action is triggered."
        :desc "daf/toggle-lock" "," #'daf/window-toggle-lock-size
        :desc "daf/shrink"      "." #'daf/window-shrink-and-lock))
 
-(defvar daf/dark-theme  'doom-gruvbox)
+(defvar daf/dark-theme  'kanagawa-dragon)
 (defvar daf/light-theme 'ef-eagle)
 
 (setq everforest-hard-dark-cyan    "#83c092"
@@ -305,8 +305,8 @@ the associated key is pressed after the repeatable action is triggered."
         :desc "Quit"                 :ne "Q" #'save-buffers-kill-terminal
         :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+daf/doom-dashboard-mode-map))))
 
-(add-transient-hook! #'+doom-dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
-(add-transient-hook! #'+doom-dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
+;;(add-transient-hook! #'+doom-dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
+;;(add-transient-hook! #'+doom-dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
 (add-hook! 'doom-init-ui-hook :append (+daf/doom-dashboard-setup-modified-keymap))
 
 (map! :leader :desc "Dashboard" "D" #'+doom-dashboard/open)
@@ -317,6 +317,8 @@ the associated key is pressed after the repeatable action is triggered."
   '(doom-modeline-buffer-modified :foreground "orange"))
 
 (setq doom-modeline-position-column-line-format '(""))
+(after! doom-modeline
+  (setq doom-modeline-buffer-file-name-style 'relative-to-project))
 
 (map!
  :leader (:prefix ("t" . "toggle")
@@ -674,20 +676,22 @@ This only works with orderless and for the first component of the search."
        :desc "Side bar"                    "s"  #'dirvish-side
        :desc "Open Dired in another frame" "D"  #'dired-other-window))
 
-(map! :map dirvish-mode-map
-      :after dirvish
-      :n "s" #'dired-previous-line
-      :n "N" #'dirvish-narrow)
+;; (map! :map dirvish-mode-map
+;;       :after dirvish
+;;       :n "s" #'dired-previous-line
+;;       :n "N" #'dirvish-narrow)
 (map! :map dired-mode-map
       :after dired
       :n "g."    #'dired-omit-mode
       :n "h"     #'dired-omit-mode
-      :n "c"     #'dired-up-directory
-      :n "s"     #'dired-previous-line
+      :n "l"     #'dired-up-directory
+      :n "r"     #'dired-next-line
+      :n "t"     #'dired-previous-line
       :n "M-RET" #'daf/dired-open-file
-      :n "R"     #'dired-do-rename
-      :n "L"     #'dired-do-copy
-      :n "r"     #'dired-find-file)
+      :n "I"     #'dired-do-rename
+      :n "i"     #'dired-find-file
+      ;; :n "L"     #'dired-do-copy
+      )
 
 (use-package! aweshell
   :defer t
@@ -785,15 +789,14 @@ This only works with orderless and for the first component of the search."
 (after! gv
   (put 'buffer-local-value 'byte-obsolete-generalized-variable nil))
 
-;; FIXME <- oh the irony
-;;(use-package! magit-todos
-;;:after magit
-;;:config
-;;(magit-todos-mode 1))
-;; (map!
- ;; :leader
- ;; :prefix ("p" . "project")
- ;; :desc "Project todos" :n "t" #'magit-todos-list)
+(use-package! magit-todos
+  :after magit
+  :config
+  (magit-todos-mode 1))
+(map!
+ :leader
+ :prefix ("p" . "project")
+ :desc "Project todos" :n "t" #'magit-todos-list)
 
 (dolist (char '(?⏩ ?⏪ ?❓ ?⏸))
   (set-char-table-range char-script-table char 'symbol))
@@ -990,6 +993,7 @@ This only works with orderless and for the first component of the search."
                  (expand-file-name "*.org" org-directory)))
         ;; org-agenda-tags-column 20
         org-agenda-include-diary t
+        org-display-custom-times t
         org-agenda-block-separator ?─
         org-agenda-hide-tags-regexp ".*"      ;; hide tags in org-agenda
         org-agenda-skip-deadline-if-done t
@@ -1334,6 +1338,30 @@ This only works with orderless and for the first component of the search."
    :n "n" #'org-now
    :n "ç" #'org-now))
 
+(use-package! org-sidebar
+  :defer t)
+
+(defun daf/my-summary ()
+  (interactive)
+  (setq source-buffer (current-buffer))
+
+  (let ((display-buffer
+         (generate-new-buffer (format "org-sidebar<%s>" (buffer-name source-buffer))))
+        (title (concat "Upcoming items in: " (buffer-name source-buffer))))
+    (with-current-buffer display-buffer
+      (setf org-sidebar-source-buffer source-buffer))
+    (save-window-excursion
+      ;; `org-ql-search' displays the buffer, but we don't want to do that here.
+      (org-ql-search source-buffer
+        '(and (or (scheduled)
+                  (deadline))
+              (not (done)))
+        :narrow t :sort 'date
+        :super-groups '((:auto-planning))
+        :buffer display-buffer
+        :title title))
+    display-buffer))
+
 (use-package! org-remark
   :defer t
   :init
@@ -1349,13 +1377,13 @@ This only works with orderless and for the first component of the search."
 (after! org
   (setq org-roam-directory org-directory))
 
-(use-package! image-popup
-  :defer t
-  :init
-  (map!
-   :map org-mode-map
-   (:prefix ("ç" . "daf")
-    :n "i" #'image-popup-display-image-at-point)))
+;; (use-package! image-popup
+;;   :defer t
+;;   :init
+;;   (map!
+;;    :map org-mode-map
+;;    (:prefix ("ç" . "daf")
+;;     :n "i" #'image-popup-display-image-at-point)))
 
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -1867,6 +1895,110 @@ deleted, kill the pairs around point."
                                            "*helpful variable: argv*")
         zoom-ignored-buffer-name-regexps '("^\\*calc" "\\*helpful variable: .*\\*")))
 
+(use-package! fontaine
+  :config
+
+  ;; Iosevka Comfy is my highly customised build of Iosevka with
+  ;; monospaced and duospaced (quasi-proportional) variants as well as
+  ;; support or no support for ligatures:
+  ;; <https://git.sr.ht/~protesilaos/iosevka-comfy>.
+  ;;
+  ;; Iosevka Comfy            == monospaced, supports ligatures
+  ;; Iosevka Comfy Fixed      == monospaced, no ligatures
+  ;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
+  ;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
+  ;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
+  ;; Iosevka Comfy Motion     == monospaced, supports ligatures, fancier glyphs
+  ;; Iosevka Comfy Motion Duo == as above, but quasi-proportional
+  (setq fontaine-presets
+        '((smaller
+           :default-family "Iosevka Comfy Wide Fixed"
+           :default-height 90
+           :variable-pitch-family "Iosevka Comfy Wide Duo")
+          (small
+           :default-family "Iosevka Comfy Wide Fixed"
+           :default-height 100
+           :variable-pitch-family "Iosevka Comfy Wide Duo")
+          (regular
+           :default-height 120)
+          (large
+           :default-weight semilight
+           :default-height 150
+           :bold-weight extrabold)
+          (larger
+           :default-weight semilight
+           :default-height 160
+           :bold-weight extrabold)
+          (code-demo
+           :default-family "Iosevka Comfy Fixed"
+           :default-weight semilight
+           :default-height 190
+           :variable-pitch-family "Iosevka Comfy Duo"
+           :bold-weight extrabold)
+          (presentation
+           :default-weight semilight
+           :default-height 220
+           :bold-weight extrabold)
+          (legally-blind
+           :default-weight semilight
+           :default-height 260
+           :bold-weight extrabold)
+          (departure
+           :default-family "Departure Mono"
+           :variable-pitch-family "Departure Mono"
+           :default-height 120)
+          (merriweather
+           :default-family "Merriweather"
+           :variable-pitch-family "Merriweather"
+           :default-height 150)
+          (iosevka-nerd-font
+           :default-family "Iosevka Nerd Font")
+          (sarasa
+           :default-family "Sarasa Term J"
+           :variable-pitch-family "Sarasa Term Slab TC")
+          (ibm-plex-sans
+           :default-family "IBM Plex Sans")
+          (ibm-plex-mono
+           :default-family "IBM Plex Mono")
+          (t
+           ;; I keep all properties for didactic purposes, but most can be
+           ;; omitted.  See the fontaine manual for the technicalities:
+           ;; <https://protesilaos.com/emacs/fontaine>.
+           :default-family "Iosevka Comfy"
+           :default-weight regular
+           :default-height 120
+           :fixed-pitch-family nil      ; falls back to :default-family
+           :fixed-pitch-weight nil      ; falls back to :default-weight
+           :fixed-pitch-height 1.0
+           :fixed-pitch-serif-family nil ; falls back to :default-family
+           :fixed-pitch-serif-weight nil ; falls back to :default-weight
+           :fixed-pitch-serif-height 1.0
+           :variable-pitch-family "Iosevka Comfy Motion Duo"
+           :variable-pitch-weight nil
+           :variable-pitch-height 1.0
+           :bold-family nil             ; use whatever the underlying face has
+           :bold-weight bold
+           :italic-family nil
+           :italic-slant italic
+           :line-spacing nil)))
+
+  ;; Set last preset or fall back to desired style from `fontaine-presets'.
+  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+
+  ;; The other side of `fontaine-restore-latest-preset'.
+  (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
+
+  ;; Persist font configurations while switching themes (doing it with
+  ;; my `modus-themes' and `ef-themes' via the hooks they provide).
+  (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
+    (add-hook hook #'fontaine-apply-current-preset))
+
+  :init
+  (map! :leader
+        (:prefix ("ç" . "daf")
+                     "F" #'fontaine-set-face-font
+                     "f" #'fontaine-set-preset)))
+
 (grugru-define-multiple
   ((emacs-lisp-mode org-mode) ;; HACK: find a way to integrate with org-babel
    (symbol "t" "nil")))
@@ -1889,18 +2021,18 @@ deleted, kill the pairs around point."
 
 (grugru-define-global 'symbol '("enabled" "disabled"))
 
-(after! savehist
-  (add-to-list 'savehist-additional-variables 'evil-markers-alist)
-  (add-hook! 'savehist-save-hook
-    (kill-local-variable 'evil-markers-alist)
-    (dolist (entry evil-markers-alist)
-      (when (markerp (cdr entry))
-        (setcdr entry (cons (file-truename (buffer-file-name (marker-buffer (cdr entry))))
-                            (marker-position (cdr entry)))))))
-  (add-hook! 'savehist-mode-hook
-    (setq-default evil-markers-alist evil-markers-alist)
-    (kill-local-variable 'evil-markers-alist)
-    (make-local-variable 'evil-markers-alist)))
+;; (after! savehist
+;;   (add-to-list 'savehist-additional-variables 'evil-markers-alist)
+;;   (add-hook! 'savehist-save-hook
+;;     (kill-local-variable 'evil-markers-alist)
+;;     (dolist (entry evil-markers-alist)
+;;       (when (markerp (cdr entry))
+;;         (setcdr entry (cons (file-truename (buffer-file-name (marker-buffer (cdr entry))))
+;;                             (marker-position (cdr entry)))))))
+;;   (add-hook! 'savehist-mode-hook
+;;     (setq-default evil-markers-alist evil-markers-alist)
+;;     (kill-local-variable 'evil-markers-alist)
+;;     (make-local-variable 'evil-markers-alist)))
 
 (use-package! evil-fringe-mark
   :defer t

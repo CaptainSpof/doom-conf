@@ -33,10 +33,15 @@
 (package! org-now
   :recipe (:host github :repo "alphapapa/org-now")) ;; https://github.com/alphapapa/org-now
 
+(package! org-sidebar
+  :recipe (:host github :repo "alphapapa/org-sidebar")) ;; https://github.com/alphapapa/org-sidebar
+(package! org-ql
+  :recipe (:host github :repo "alphapapa/org-ql")) ;; https://github.com/alphapapa/org-ql
+
 (package! org-remark) ;; https://github.com/nobiot/org-remark
 
-(package! image-popup
-  :recipe (:host gitlab :repo "OlMon/image-popup")) ;; https://gitlab.com/OlMon/image-popup
+;; (package! image-popup
+;;   :recipe (:host gitlab :repo "OlMon/image-popup")) ;; https://gitlab.com/OlMon/image-popup
 
 (package! ob-mermaid) ;; https://github.com/arnm/ob-mermaid
 
@@ -96,6 +101,8 @@
 
 (package! zoom) ;; https://github.com/cyrus-and/zoom
 
+(package! fontaine) ;; https://github.com/protesilaos/fontaine
+
 (unpin! nix-mode)
 
 (package! evil-fringe-mark) ;; https://github.com/Andrew-William-Smith/evil-fringe-mark
@@ -108,3 +115,7 @@
 
 (package! helm :disable t)
 (package! helm-org :disable t)
+
+(package! orgtbl-aggregate)
+
+(package! kanagawa-themes) ;; https://github.com/Fabiokleis/kanagawa-emacs
