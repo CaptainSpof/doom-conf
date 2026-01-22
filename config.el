@@ -716,6 +716,9 @@ This only works with orderless and for the first component of the search."
        :actions (+popup-display-buffer-stacked-side-window-fn)
        :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil))))
 
+(map! (:map vterm-mode-map "<deletechar>" #'vterm-send-delete
+                           "<backspace>"  #'vterm-send-backspace))
+
 (when (modulep! :term vterm)
   (defun daf/vterm-font-setup ()
     "Sets a fixed width (monospace) font in current buffer"
@@ -771,23 +774,24 @@ This only works with orderless and for the first component of the search."
    :n "z?" #'define-word-at-point))
 
 (after! magit
-  (map!
-   :map magit-mode-map
-   :n "$"   #'magit-process-buffer
-   :n "g»"  #'+workspace/switch-right
-   :n "g«"  #'+workspace/switch-left
-   :n "R"   #'magit-rebase
-   :n "r"   #'evil-next-line
-   :n "C-r" #'magit-section-forward-sibling
-   :n "C-t" #'magit-section-backward-sibling)
-  (map!
-   :map magit-status-mode-map
-   :n "R"   #'magit-rebase
-   :n "r"   #'evil-next-line
-   :n "g("  #'daf/prev-hunk
-   :n "g)"  #'daf/next-hunk
-   :n "C-r" #'magit-section-forward-sibling
-   :n "C-t" #'magit-section-backward-sibling))
+  (add-hook! 'magit-mode-hook :append
+    (evil-define-key* 'normal magit-mode-map
+      "$" #'magit-process-buffer
+      "g»" #'+workspace/switch-right
+      "g«" #'+workspace/switch-left
+      "R" #'magit-rebase
+      "r" #'evil-next-line
+      (kbd "C-r") #'magit-section-forward-sibling
+      (kbd "C-t") #'magit-section-backward-sibling))
+  
+  (add-hook! 'magit-status-mode-hook :append
+    (evil-define-key* 'normal magit-status-mode-map
+      "R" #'magit-rebase
+      "r" #'evil-next-line
+      "g(" #'daf/prev-hunk
+      "g)" #'daf/next-hunk
+      (kbd "C-r") #'magit-section-forward-sibling
+      (kbd "C-t") #'magit-section-backward-sibling)))
 
 ;; REVIEW
 (after! gv
