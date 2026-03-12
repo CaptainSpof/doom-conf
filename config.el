@@ -3,6 +3,8 @@
 (setq user-full-name "Cédric Da Fonseca"
       user-mail-address "captain.spof@gmail.com")
 
+(setenv "SSH_AUTH_SOCK" (shell-command-to-string "echo -n $SSH_AUTH_SOCK"))
+
 (setq gc-cons-percentage 0.6
       read-process-output-max (* 1024 1024)) ;; 1mb
 
@@ -113,8 +115,9 @@ the associated key is pressed after the repeatable action is triggered."
   (evil-scroll-line-to-bottom (line-number-at-pos))
   (pulsar-pulse-line))
 
-(after! tramp
-  (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
+(setq tramp-default-method "sshx")
+;; (after! tramp
+;;   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
 
 ;; (after! tramp (advice-add 'doom--recentf-file-truename-fn :override
 ;; (defun my-recent-truename (file &rest _args)
@@ -409,42 +412,42 @@ the associated key is pressed after the repeatable action is triggered."
   :hook
   (embark-collect-mode . embark-consult-preview-minor-mode))
 
-(use-package! consult
-  :when (modulep! :completion vertico)
-  :defer t
-  :init
-  :config
-  (consult-customize
-   consult-theme :preview-key '(:debounce 0.2 any))
-  (setq consult-preview-key
-        '(:debounce 0.4 any))
-  (add-to-list 'consult-preview-allowed-hooks
-               'global-org-modern-mode-check-buffers)
-  (add-to-list 'consult-preview-allowed-hooks
-               'global-hl-todo-mode-check-buffers)
-  (consult-customize
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file
-   consult--source-recent-file consult--source-project-recent-file
-   consult--source-bookmark
-   :preview-key 'any)
-  (when (modulep! :config default)
-    (consult-customize
-     +default/search-project +default/search-other-project
-     +default/search-project-for-symbol-at-point
-     +default/search-cwd +default/search-other-cwd
-     +default/search-notes-for-symbol-at-point
-     +default/search-emacsd
-     :preview-key 'any))
-  ;; Optionally configure the register formatting. This improves the register
-  ;; preview for `consult-register', `consult-register-load',
-  ;; `consult-register-store' and the Emacs built-ins.
-  (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
+;; (use-package! consult
+;;   :when (modulep! :completion vertico)
+;;   :defer t
+;;   :init
+;;   :config
+;;   (consult-customize
+;;    consult-theme :preview-key '(:debounce 0.2 any))
+;;   (setq consult-preview-key
+;;         '(:debounce 0.4 any))
+;;   (add-to-list 'consult-preview-allowed-hooks
+;;                'global-org-modern-mode-check-buffers)
+;;   (add-to-list 'consult-preview-allowed-hooks
+;;                'global-hl-todo-mode-check-buffers)
+;;   (consult-customize
+;;    consult-ripgrep consult-git-grep consult-grep
+;;    consult-bookmark consult-recent-file
+;;    consult--source-recent-file consult--source-project-recent-file
+;;    consult--source-bookmark
+;;    :preview-key 'any)
+;;   (when (modulep! :config default)
+;;     (consult-customize
+;;      +default/search-project +default/search-other-project
+;;      +default/search-project-for-symbol-at-point
+;;      +default/search-cwd +default/search-other-cwd
+;;      +default/search-notes-for-symbol-at-point
+;;      +default/search-emacsd
+;;      :preview-key 'any))
+;;   ;; Optionally configure the register formatting. This improves the register
+;;   ;; preview for `consult-register', `consult-register-load',
+;;   ;; `consult-register-store' and the Emacs built-ins.
+;;   (setq register-preview-delay 0.5
+;;         register-preview-function #'consult-register-format)
 
-  ;; Optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
-  (advice-add #'register-preview :override #'consult-register-window))
+;;   ;; Optionally tweak the register preview window.
+;;   ;; This adds thin lines, sorting and hides the mode line of the window.
+;;   (advice-add #'register-preview :override #'consult-register-window))
 
 (defun daf/consult-line-evil-history (&rest _)
   "Add latest `consult-line' search pattern to the evil search history ring.
@@ -716,9 +719,6 @@ This only works with orderless and for the first component of the search."
        :actions (+popup-display-buffer-stacked-side-window-fn)
        :side bottom :width 0.5 :height 0.55 :quit 'other :ttl nil))))
 
-(map! (:map vterm-mode-map "<deletechar>" #'vterm-send-delete
-                           "<backspace>"  #'vterm-send-backspace))
-
 (when (modulep! :term vterm)
   (defun daf/vterm-font-setup ()
     "Sets a fixed width (monospace) font in current buffer"
@@ -756,6 +756,8 @@ This only works with orderless and for the first component of the search."
        :desc "open vterm here"               "t" #'+vterm/here
        :desc "vterm below"                   "k" #'+daf/vterm/split-below
        :desc "vterm right"                   "v" #'+daf/vterm/split-right))
+
+(map! (:map vterm-mode-map "<deletechar>" #'vterm-send-backspace))
 
 (map!
  (:after flycheck
@@ -1545,7 +1547,7 @@ This only works with orderless and for the first component of the search."
   :init
   (map!
    (:prefix ("ç" . "daf")
-    :desc "Rotate text" :n "ç" #'grugru
+    :desc "Rotate text" :n "c" #'grugru
     :desc "Rotate text" :n "r" #'grugru)))
 
 (use-package! indent-bars
@@ -1771,7 +1773,8 @@ deleted, kill the pairs around point."
   ;; `puni-global-mode` before `puni` is actually loaded. Only after you press
   ;; any key that calls Puni commands, it's loaded.
   (puni-global-mode)
-  (add-hook 'term-mode-hook #'puni-disable-puni-mode))
+  (add-hook 'vterm-mode-hook  #'puni-disable-puni-mode)
+  (add-hook 'term-mode-hook  #'puni-disable-puni-mode))
 
 (use-package! pulsar
   :defer t
@@ -2021,7 +2024,8 @@ deleted, kill the pairs around point."
   :demand t
 
   :custom
-  (lsp-nix-nil-formatter ["nixfmt"]))
+  (lsp-nix-nil-formatter ["nixfmt"])
+  (lsp-nix-nil-auto-eval-inputs nil))
 
 (use-package! nix-mode
   :hook (nix-mode . lsp-deferred)

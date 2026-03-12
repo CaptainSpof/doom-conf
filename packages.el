@@ -103,6 +103,8 @@
 
 (package! fontaine) ;; https://github.com/protesilaos/fontaine
 
+;; (package! combobulate) ;; https://github.com/mickeynp/combobulate
+
 (unpin! nix-mode)
 
 (package! evil-fringe-mark) ;; https://github.com/Andrew-William-Smith/evil-fringe-mark

@@ -167,7 +167,7 @@
         +tree-sitter)    ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
        (org             ; organize your plain life in plain text
-        +roam2)
+        +roam)
        ;; +pretty
        ;; +pandoc          ; export-with-pandoc support
        ;; +present         ; Emacs for presentations
