@@ -114,6 +114,9 @@
 (package! systemd) ;; https://github.com/holomorph/systemd-mode
 
 (package! nano-modeline)
+;; Needed by `global-hide-mode-line-mode'. It used to come in as a transitive
+;; dependency, but that no longer holds on every Emacs build, so declare it.
+(package! hide-mode-line) ;; https://github.com/hlissner/emacs-hide-mode-line
 
 (package! helm :disable t)
 (package! helm-org :disable t)

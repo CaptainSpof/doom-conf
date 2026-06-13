@@ -330,12 +330,18 @@ keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
  :leader (:prefix ("t" . "toggle")
           :desc "Doom Modeline" "m" #'hide-mode-line-mode))
 
-(global-hide-mode-line-mode 1)
+;; Enable once Doom has finished initialising, so it runs after doom-modeline's
+;; own UI setup. `hide-mode-line' is only a transitive dependency on some Emacs
+;; builds, so require it defensively -- if it isn't installed yet (run `doom
+;; sync'), skip silently instead of erroring in the startup hook.
+(add-hook! 'doom-after-init-hook :append
+  (when (require 'hide-mode-line nil t)
+    (global-hide-mode-line-mode 1)))
 
 ;;;###autoload
 (defun daf/turn-on-mode-line ()
-  (if hide-mode-line-mode
-      (hide-mode-line-mode -1)))
+  (when (bound-and-true-p hide-mode-line-mode)
+    (hide-mode-line-mode -1)))
 
 (add-hook 'lsp-after-open-hook 'daf/turn-on-mode-line)
 
