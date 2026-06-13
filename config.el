@@ -454,7 +454,7 @@ the associated key is pressed after the repeatable action is triggered."
 This only works with orderless and for the first component of the search."
   (when (and (bound-and-true-p evil-mode)
              (eq evil-search-module 'evil-search))
-    (let ((pattern (car (orderless-pattern-compiler (car consult--line-history)))))
+    (let ((pattern (cadr (orderless-compile (car consult--line-history)))))
       (add-to-history 'evil-ex-search-history pattern)
       (setq evil-ex-search-pattern (list pattern t t))
       (setq evil-ex-search-direction 'forward)
@@ -1413,8 +1413,10 @@ This only works with orderless and for the first component of the search."
     (setq affe-grep-command (format "%s --null --max-columns=1000 --no-heading --line-number -v ^$ ." base)))
 
   ;; Configure Orderless
-  (setq affe-regexp-function #'orderless-pattern-compiler)
-  (setq affe-highlight-function #'orderless-highlight-matches)
+  (defun daf/affe-orderless-regexp-compiler (input _type _ignorecase)
+    (setq input (cdr (orderless-compile input)))
+    (cons input (apply-partially #'orderless--highlight input t)))
+  (setq affe-regexp-compiler #'daf/affe-orderless-regexp-compiler)
 
   ;; Manual preview key for `affe-grep'
   (consult-customize affe-grep :preview-key (kbd "M-.")))
