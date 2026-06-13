@@ -613,7 +613,7 @@ Enable ~mixed-pitched-mode~ in ~org-mode~.
 (use-package! mixed-pitch
   :hook (org-mode . mixed-pitch-mode)
   :config
-  (setq mixed-pitch-set-heigth t))
+  (setq mixed-pitch-set-height t))
 #+end_src
 
 *** Splash screen
@@ -2187,11 +2187,9 @@ Sometimes it is nice to be able to use the mouse.
 #+end_src
 
 #+begin_src emacs-lisp
-(setq org-gtd-update-ack "3.0.0")
+(setq org-gtd-update-ack "4.0.0")
 (use-package! org-gtd
-  :demand t
   :after org
-  :defer t
 
   :custom
   (org-gtd-directory org-directory)
@@ -3878,9 +3876,8 @@ it will be moved to the relevant level./
   :config
   ;; Use right fringe
   (setq-default right-fringe-width 16)
-  (setq-default evil-fringe-mark-side 'right-fringe))
-:init
-(global-evil-fringe-mark-mode 1)
+  (setq-default evil-fringe-mark-side 'right-fringe)
+  (global-evil-fringe-mark-mode 1))
 #+END_SRC
 
 ** ~meow~ ·  :ARCHIVE:

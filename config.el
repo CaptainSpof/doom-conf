@@ -276,7 +276,7 @@ the associated key is pressed after the repeatable action is triggered."
 (use-package! mixed-pitch
   :hook (org-mode . mixed-pitch-mode)
   :config
-  (setq mixed-pitch-set-heigth t))
+  (setq mixed-pitch-set-height t))
 
 (setq fancy-splash-images
       (list
@@ -1245,11 +1245,9 @@ This only works with orderless and for the first component of the search."
 
 (require 'org-mouse)
 
-(setq org-gtd-update-ack "3.0.0")
+(setq org-gtd-update-ack "4.0.0")
 (use-package! org-gtd
-  :demand t
   :after org
-  :defer t
 
   :custom
   (org-gtd-directory org-directory)
@@ -2052,9 +2050,8 @@ deleted, kill the pairs around point."
   :config
   ;; Use right fringe
   (setq-default right-fringe-width 16)
-  (setq-default evil-fringe-mark-side 'right-fringe))
-:init
-(global-evil-fringe-mark-mode 1)
+  (setq-default evil-fringe-mark-side 'right-fringe)
+  (global-evil-fringe-mark-mode 1))
 
 (use-package! org-wild-notifier
   :hook (org-load . org-wild-notifier-mode)
