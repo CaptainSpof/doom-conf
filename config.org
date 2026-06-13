@@ -646,8 +646,8 @@ Now come with more cute dinos! 🦖
 …and only him, remove the dashboard shortcuts, I'll customize them later anyway.
 
 #+begin_src emacs-lisp
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-;; (setq +doom-dashboard-functions '(doom-dashboard-widget-banner))
+(remove-hook '+dashboard-functions #'+dashboard-widget-shortmenu)
+;; (setq +dashboard-functions '(+dashboard-widget-banner))
 #+end_src
 
 *** Dashboard
@@ -656,9 +656,9 @@ Now come with more cute dinos! 🦖
 |--------------------------+----------------------------------+----------------------|
 | Keybind(s)               | Emacs Command                    | Description          |
 |--------------------------+----------------------------------+----------------------|
-| =SPC D=                    | ~+doom-dashboard/open~             | Open the dashboard   |
+| =SPC D=                    | ~+dashboard/open~             | Open the dashboard   |
 |--------------------------+----------------------------------+----------------------|
-| _+doom-dashboard-mode-map_ |                                  |                      |
+| _+dashboard-mode-map_ |                                  |                      |
 |                          |                                  |                      |
 | =f=                        | ~find-file~                        | Find file            |
 | =r=                        | ~consult-recent-file~              | Recent files         |
@@ -689,8 +689,8 @@ of unnecessary keystrokes --- we can simply bind common actions to a single key!
 
 #+begin_src emacs-lisp
 (defun +daf/doom-dashboard-setup-modified-keymap ()
-  (setq +doom-dashboard-mode-map (make-sparse-keymap))
-  (map! :map +doom-dashboard-mode-map
+  (setq +dashboard-mode-map (make-sparse-keymap))
+  (map! :map +dashboard-mode-map
         :desc "Find file"            :ne "f" #'find-file
         :desc "Recent files"         :ne "r" #'consult-recent-file
         :desc "Restore last session" :ne "R" #'doom/restart-and-restore
@@ -705,10 +705,10 @@ of unnecessary keystrokes --- we can simply bind common actions to a single key!
         :desc "Set theme"            :ne "t" #'consult-theme
         :desc "GTD engage"           :ne "z" #'org-gtd-engage
         :desc "Quit"                 :ne "Q" #'save-buffers-kill-terminal
-        :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+daf/doom-dashboard-mode-map))))
+        :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+dashboard-mode-map))))
 
-;;(add-transient-hook! #'+doom-dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
-;;(add-transient-hook! #'+doom-dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
+;;(add-transient-hook! #'+dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
+;;(add-transient-hook! #'+dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
 (add-hook! 'doom-init-ui-hook :append (+daf/doom-dashboard-setup-modified-keymap))
 #+end_src
 
@@ -722,7 +722,7 @@ Now that the dashboard is so convenient, I'll want to make it easier to get to.
 #+end_quote
 
 #+begin_src emacs-lisp
-(map! :leader :desc "Dashboard" "D" #'+doom-dashboard/open)
+(map! :leader :desc "Dashboard" "D" #'+dashboard/open)
 #+end_src
 
 *** Modeline

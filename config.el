@@ -289,12 +289,12 @@ keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
 
 (setq fancy-splash-image (nth (random (length fancy-splash-images)) fancy-splash-images))
 
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-;; (setq +doom-dashboard-functions '(doom-dashboard-widget-banner))
+(remove-hook '+dashboard-functions #'+dashboard-widget-shortmenu)
+;; (setq +dashboard-functions '(+dashboard-widget-banner))
 
 (defun +daf/doom-dashboard-setup-modified-keymap ()
-  (setq +doom-dashboard-mode-map (make-sparse-keymap))
-  (map! :map +doom-dashboard-mode-map
+  (setq +dashboard-mode-map (make-sparse-keymap))
+  (map! :map +dashboard-mode-map
         :desc "Find file"            :ne "f" #'find-file
         :desc "Recent files"         :ne "r" #'consult-recent-file
         :desc "Restore last session" :ne "R" #'doom/restart-and-restore
@@ -309,13 +309,13 @@ keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
         :desc "Set theme"            :ne "t" #'consult-theme
         :desc "GTD engage"           :ne "z" #'org-gtd-engage
         :desc "Quit"                 :ne "Q" #'save-buffers-kill-terminal
-        :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+daf/doom-dashboard-mode-map))))
+        :desc "Show keybindings"     :ne "h" (cmd! (which-key-show-keymap '+dashboard-mode-map))))
 
-;;(add-transient-hook! #'+doom-dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
-;;(add-transient-hook! #'+doom-dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
+;;(add-transient-hook! #'+dashboard-mode (+daf/doom-dashboard-setup-modified-keymap))
+;;(add-transient-hook! #'+dashboard-mode :append (+daf/doom-dashboard-setup-modified-keymap))
 (add-hook! 'doom-init-ui-hook :append (+daf/doom-dashboard-setup-modified-keymap))
 
-(map! :leader :desc "Dashboard" "D" #'+doom-dashboard/open)
+(map! :leader :desc "Dashboard" "D" #'+dashboard/open)
 
 (advice-add #'doom-modeline-segment--modals :override #'ignore)
 
