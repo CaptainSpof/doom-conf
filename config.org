@@ -577,19 +577,30 @@ borrowed from ~everforest~.
   `(hl-line         :background ,(doom-lighten (doom-color 'base3) 0.10)))
 #+end_src
 
+~kanagawa-themes~ defines ~org-hide~ as inheriting from ~org-indent~, while Org's
+built-in ~org-indent~ inherits from ~org-hide~. That mutual reference is an
+inheritance cycle and raises /Face inheritance results in inheritance cycle:
+org-indent/ whenever the theme loads. We break it on the always-highest-priority
+~user~ face layer (the theme's own colours still come through underneath).
+
+#+begin_src emacs-lisp
+(custom-set-faces '(org-indent ((t (:inherit fixed-pitch)))))
+#+end_src
+
 Let us have a nice and easy way to toggle between the two themes.
 
 #+begin_src emacs-lisp
 (defun daf/toggle-themes ()
-  "Toggle between light and dark themes."
+  "Toggle between light and dark themes.
+Disable every active theme first so nothing lingers underneath, and
+keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
   (interactive)
-  (if (eq (car custom-enabled-themes) daf/dark-theme)
-      (progn
-        (disable-theme daf/dark-theme)
-        (load-theme daf/light-theme t))
-    (progn
-      (disable-theme daf/light-theme)
-      (load-theme daf/dark-theme t))))
+  (let ((next (if (custom-theme-enabled-p daf/dark-theme)
+                  daf/light-theme
+                daf/dark-theme)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (setq doom-theme next)
+    (load-theme next t)))
 
 (map! :leader
       (:prefix ("t" . "toggle")

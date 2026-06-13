@@ -253,16 +253,19 @@ the associated key is pressed after the repeatable action is triggered."
   `(org-level-8     :foreground ,everforest-hard-dark-yellow)
   `(hl-line         :background ,(doom-lighten (doom-color 'base3) 0.10)))
 
+(custom-set-faces '(org-indent ((t (:inherit fixed-pitch)))))
+
 (defun daf/toggle-themes ()
-  "Toggle between light and dark themes."
+  "Toggle between light and dark themes.
+Disable every active theme first so nothing lingers underneath, and
+keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
   (interactive)
-  (if (eq (car custom-enabled-themes) daf/dark-theme)
-      (progn
-        (disable-theme daf/dark-theme)
-        (load-theme daf/light-theme t))
-    (progn
-      (disable-theme daf/light-theme)
-      (load-theme daf/dark-theme t))))
+  (let ((next (if (custom-theme-enabled-p daf/dark-theme)
+                  daf/light-theme
+                daf/dark-theme)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (setq doom-theme next)
+    (load-theme next t)))
 
 (map! :leader
       (:prefix ("t" . "toggle")
