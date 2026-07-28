@@ -615,7 +615,7 @@ keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
     (load-theme next t)))
 
 (map! :leader
-      (:prefix ("t" . "toggle")
+      (:prefix "t"
        :desc "Theme" :mvn "t" #'daf/toggle-themes))
 #+end_src
 
@@ -772,7 +772,7 @@ Since we have two modelines (we at Dafos Corporation™  spare no expense), it w
 
 #+begin_src emacs-lisp
 (map!
- :leader (:prefix ("t" . "toggle")
+ :leader (:prefix "t"
           :desc "Doom Modeline" "m" #'hide-mode-line-mode))
 #+end_src
 
@@ -829,7 +829,7 @@ shortcuts.
 
 #+begin_src emacs-lisp
 (map! :leader
-      (:prefix ("TAB" . "workspace")
+      (:prefix "TAB"
        :desc "Select workspace"          :mvn "TAB" #'+workspace/switch-to
        :desc "Switch to right workspace" :mvn "»"   #'+workspace/switch-right
        :desc "Switch to left workspace"  :mvn "«"   #'+workspace/switch-left
@@ -850,7 +850,7 @@ the ~global-whitespace-mode~ and revert the buffer afterward.
 #+begin_src emacs-lisp
 (map!
  :leader
- :prefix ("t" . "toggle")
+ :prefix "t"
  :desc "Whitespaces" "SPC" #'daf/show-whitespaces)
 
 (defun daf/show-whitespaces ()
@@ -989,19 +989,19 @@ Finally, let's define some bindings.
 #+begin_src emacs-lisp
 (map!
  :leader
- (:prefix ("s" . "search")
+ (:prefix "s"
   :desc "Search .emacs.d"       "E" #'+default/search-emacsd
   :desc "Locate file"           "f" #'+vertico/consult-fd-or-find
   :desc "Jump to errors"        "e" #'consult-flymake
   :desc "Jump to global marks"  "R" #'consult-global-mark
   :desc "Search macros"         "q" #'consult-kmacro)
- (:prefix ("h" . "help")
+ (:prefix "h"
   :desc "(Wo)Man" "W" #'consult-man))
 
 (map!
  :map org-mode-map
  :leader
- (:prefix ("s" . "search")
+ (:prefix "s"
   :desc "Jump to org headings" "." #'consult-org-heading))
 #+end_src
 
@@ -1590,7 +1590,7 @@ Show a list of TODO and other keywords in the ~magit~ status view.
   (magit-todos-mode 1))
 (map!
  :leader
- :prefix ("p" . "project")
+ :prefix "p"
  :desc "Project todos" :n "t" #'magit-todos-list)
 #+end_src
 
@@ -1624,7 +1624,7 @@ Remove some Emoji, for which I want to display a symbol.
 #+begin_src emacs-lisp
 (map!
  :leader
- (:prefix ("i" . "insert")
+ (:prefix "i"
   :desc "Nerd Icons" "n" #'nerd-icons-insert))
 #+end_src
 
@@ -2743,7 +2743,7 @@ Let's customize the face and add a few key bindings.
   :init
   (map!
    :leader
-   (:prefix ("g" . "git")
+   (:prefix "g"
     :desc  "Blamer posframe commit info" "," #'blamer-show-posframe-commit-info
     :desc  "Blamer mode"                 ";" #'blamer-mode)))
 #+end_src
@@ -2819,7 +2819,7 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 
   :init
   (map!
-   (:prefix ("," . "daf")
+   (:prefix ","
             (:prefix ("e" . "embrace")
              :desc "Commander" :nv  "e" #'embrace-commander
              :desc "Add"       :nv  "a" #'embrace-add
@@ -2844,7 +2844,7 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 #+begin_src emacs-lisp
 (map!
  :leader
- (:prefix ("t" . "toggle")
+ (:prefix "t"
   :desc "Dim · Focus mode" "D" #'focus-mode))
 #+end_src
 
@@ -2919,7 +2919,7 @@ I like the default colored bars, lets reset the values.
   (add-hook 'doom-init-ui-hook #'global-jinx-mode)
   (map!
    :leader
-   (:prefix ("t" . "toggle")
+   (:prefix "t"
     :desc "Spell checker"  "s"  #'jinx-mode))
 
   :config
@@ -3153,7 +3153,7 @@ I want a nice comfy font when reading e-books.
 
 #+begin_src emacs-lisp
 (map!
- :leader (:prefix ("t" . "toggle")
+ :leader (:prefix "t"
           :desc "Obvious" "O" #'obvious-mode))
 #+end_src
 
@@ -3300,7 +3300,7 @@ I want to be able to insert a new line at the end of a /sexp/.
   :init
   (map!
    :leader
-   (:prefix ("t" . "toggle")
+   (:prefix "t"
     :desc "Pulse line" "." #'pulsar-pulse-line))
   :hook
   ((next-error . (pulsar-pulse-line-red pulsar-recenter-top pulsar-reveal-entry))
@@ -3315,7 +3315,7 @@ I want to be able to insert a new line at the end of a /sexp/.
   :hook prog-mode
   :init
   (map!
-   :leader (:prefix ("t" . "toggle")
+   :leader (:prefix "t"
             :desc "Rainbow mode"  "R" #'rainbow-mode)))
 #+end_src
 
@@ -3457,7 +3457,7 @@ with popup shell.
 
   :init
   (map! :leader
-        (:prefix ("t" . "toggle")
+        (:prefix "t"
          :desc "Zoom mode" "=" #'zoom-mode))
   (setq zoom-mode nil)
 

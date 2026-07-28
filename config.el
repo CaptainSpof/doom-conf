@@ -270,7 +270,7 @@ keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
     (load-theme next t)))
 
 (map! :leader
-      (:prefix ("t" . "toggle")
+      (:prefix "t"
        :desc "Theme" :mvn "t" #'daf/toggle-themes))
 
 (setq doom-font                (font-spec :family "mononoki" :size 11.5)
@@ -329,7 +329,7 @@ keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
   (setq doom-modeline-buffer-file-name-style 'relative-to-project))
 
 (map!
- :leader (:prefix ("t" . "toggle")
+ :leader (:prefix "t"
           :desc "Doom Modeline" "m" #'hide-mode-line-mode))
 
 ;; Enable once Doom has finished initialising, so it runs after doom-modeline's
@@ -365,7 +365,7 @@ keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
         (?? aw-show-dispatch-help)))
 
 (map! :leader
-      (:prefix ("TAB" . "workspace")
+      (:prefix "TAB"
        :desc "Select workspace"          :mvn "TAB" #'+workspace/switch-to
        :desc "Switch to right workspace" :mvn "»"   #'+workspace/switch-right
        :desc "Switch to left workspace"  :mvn "«"   #'+workspace/switch-left
@@ -378,7 +378,7 @@ keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
 
 (map!
  :leader
- :prefix ("t" . "toggle")
+ :prefix "t"
  :desc "Whitespaces" "SPC" #'daf/show-whitespaces)
 
 (defun daf/show-whitespaces ()
@@ -476,19 +476,19 @@ This only works with orderless and for the first component of the search."
 
 (map!
  :leader
- (:prefix ("s" . "search")
+ (:prefix "s"
   :desc "Search .emacs.d"       "E" #'+default/search-emacsd
   :desc "Locate file"           "f" #'+vertico/consult-fd-or-find
   :desc "Jump to errors"        "e" #'consult-flymake
   :desc "Jump to global marks"  "R" #'consult-global-mark
   :desc "Search macros"         "q" #'consult-kmacro)
- (:prefix ("h" . "help")
+ (:prefix "h"
   :desc "(Wo)Man" "W" #'consult-man))
 
 (map!
  :map org-mode-map
  :leader
- (:prefix ("s" . "search")
+ (:prefix "s"
   :desc "Jump to org headings" "." #'consult-org-heading))
 
 (map! [remap describe-bindings] #'embark-bindings
@@ -825,7 +825,7 @@ This only works with orderless and for the first component of the search."
   (magit-todos-mode 1))
 (map!
  :leader
- :prefix ("p" . "project")
+ :prefix "p"
  :desc "Project todos" :n "t" #'magit-todos-list)
 
 (dolist (char '(?⏩ ?⏪ ?❓ ?⏸))
@@ -833,7 +833,7 @@ This only works with orderless and for the first component of the search."
 
 (map!
  :leader
- (:prefix ("i" . "insert")
+ (:prefix "i"
   :desc "Nerd Icons" "n" #'nerd-icons-insert))
 
 (map! :leader
@@ -1508,7 +1508,7 @@ This only works with orderless and for the first component of the search."
   :init
   (map!
    :leader
-   (:prefix ("g" . "git")
+   (:prefix "g"
     :desc  "Blamer posframe commit info" "," #'blamer-show-posframe-commit-info
     :desc  "Blamer mode"                 ";" #'blamer-mode)))
 
@@ -1542,7 +1542,7 @@ This only works with orderless and for the first component of the search."
 
   :init
   (map!
-   (:prefix ("," . "daf")
+   (:prefix ","
             (:prefix ("e" . "embrace")
              :desc "Commander" :nv  "e" #'embrace-commander
              :desc "Add"       :nv  "a" #'embrace-add
@@ -1556,7 +1556,7 @@ This only works with orderless and for the first component of the search."
 
 (map!
  :leader
- (:prefix ("t" . "toggle")
+ (:prefix "t"
   :desc "Dim · Focus mode" "D" #'focus-mode))
 
 (use-package! grugru
@@ -1585,7 +1585,7 @@ This only works with orderless and for the first component of the search."
   (add-hook 'doom-init-ui-hook #'global-jinx-mode)
   (map!
    :leader
-   (:prefix ("t" . "toggle")
+   (:prefix "t"
     :desc "Spell checker"  "s"  #'jinx-mode))
 
   :config
@@ -1716,7 +1716,7 @@ This only works with orderless and for the first component of the search."
   (buffer-face-mode t))
 
 (map!
- :leader (:prefix ("t" . "toggle")
+ :leader (:prefix "t"
           :desc "Obvious" "O" #'obvious-mode))
 
 (use-package! olivetti
@@ -1814,7 +1814,7 @@ deleted, kill the pairs around point."
   :init
   (map!
    :leader
-   (:prefix ("t" . "toggle")
+   (:prefix "t"
     :desc "Pulse line" "." #'pulsar-pulse-line))
   :hook
   ((next-error . (pulsar-pulse-line-red pulsar-recenter-top pulsar-reveal-entry))
@@ -1824,7 +1824,7 @@ deleted, kill the pairs around point."
   :hook prog-mode
   :init
   (map!
-   :leader (:prefix ("t" . "toggle")
+   :leader (:prefix "t"
             :desc "Rainbow mode"  "R" #'rainbow-mode)))
 
 (map! :map evil-window-map
@@ -1913,7 +1913,7 @@ deleted, kill the pairs around point."
 
   :init
   (map! :leader
-        (:prefix ("t" . "toggle")
+        (:prefix "t"
          :desc "Zoom mode" "=" #'zoom-mode))
   (setq zoom-mode nil)
 
