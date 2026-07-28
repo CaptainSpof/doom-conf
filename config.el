@@ -3,8 +3,6 @@
 (setq user-full-name "Cédric Da Fonseca"
       user-mail-address "captain.spof@gmail.com")
 
-(setenv "SSH_AUTH_SOCK" (shell-command-to-string "echo -n $SSH_AUTH_SOCK"))
-
 (setq gc-cons-percentage 0.6
       read-process-output-max (* 1024 1024)) ;; 1mb
 
@@ -27,10 +25,9 @@
 
 (setq which-key-allow-multiple-replacements t)
 (after! which-key
-  (pushnew!
-   which-key-replacement-alist
-   '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "󰇴-\\1"))
-   '(("" . "\\`+?evilem--?motion-\\(.*\\)")     . (nil . "󰱯-\\1"))))
+  (dolist (rule '((("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "󰇴-\\1"))
+                  (("" . "\\`+?evilem--?motion-\\(.*\\)")     . (nil . "󰱯-\\1"))))
+    (cl-pushnew rule which-key-replacement-alist :test #'equal)))
 
 (setq +workspaces-switch-project-function #'dired)
 
@@ -142,7 +139,7 @@ the associated key is pressed after the repeatable action is triggered."
 
 (setq +zen-text-scale 0)
 
-(setq default-major-mode 'text-mode)
+(setq-default major-mode 'text-mode)
 
 (setq doom-scratch-initial-major-mode 'lisp-interaction-mode)
 
@@ -299,7 +296,7 @@ keep `doom-theme' in sync so `doom/reload-theme' and circadian agree."
   (map! :map +dashboard-mode-map
         :desc "Find file"            :ne "f" #'find-file
         :desc "Recent files"         :ne "r" #'consult-recent-file
-        :desc "Restore last session" :ne "R" #'doom/restart-and-restore
+        :desc "Restore last session" :ne "R" #'doom/quickload-session
         :desc "Doom config dir"      :ne "C" #'doom/open-private-config
         :desc "Open config.org"      :ne "c" (cmd! (find-file (expand-file-name "config.org" doom-user-dir)))
         :desc "Open dotfile"         :ne "." (cmd! (doom-project-find-file "~/.config/"))
@@ -780,12 +777,6 @@ This only works with orderless and for the first component of the search."
 (map! (:map vterm-mode-map "<deletechar>" #'vterm-send-backspace))
 
 (map!
- (:after flycheck
-         (:map flycheck-mode-map
-               "M-n" #'flycheck-next-error
-               "M-p" #'flycheck-previous-error)))
-
-(map!
  (:after flymake
          (:map flymake-mode-map
                "M-n" #'flymake-goto-next-error
@@ -983,19 +974,19 @@ This only works with orderless and for the first component of the search."
         (?C . 'nerd-icons-yellow)
         (?D . 'nerd-icons-green)))
 
-(appendq! +ligatures-extra-symbols
-          (list :list_property "∷"
-                :em_dash       "—"
-                :arrow_right   "→"
-                :arrow_left    "←"
-                :arrow_lr      "↔"
-                :scheduled     ""
-                :deadline      "󰥔"
-                :properties    "󰻋"
-                :end           "⌞⌟"
-                :priority_a    #("" 0 1 (face nerd-icons-red))
-                :priority_b    #("⚑" 0 1  (face nerd-icons-orange))
-                :priority_c    #("⚑" 0 1  (face nerd-icons-yellow))))
+(cl-callf append +ligatures-extra-symbols
+  (list :list_property "∷"
+        :em_dash       "—"
+        :arrow_right   "→"
+        :arrow_left    "←"
+        :arrow_lr      "↔"
+        :scheduled     ""
+        :deadline      "󰥔"
+        :properties    "󰻋"
+        :end           "⌞⌟"
+        :priority_a    #("" 0 1 (face nerd-icons-red))
+        :priority_b    #("⚑" 0 1  (face nerd-icons-orange))
+        :priority_c    #("⚑" 0 1  (face nerd-icons-yellow))))
 
 (defadvice! +org-init-appearance-h--no-ligatures-a ()
   :after #'+org-init-appearance-h
@@ -1895,7 +1886,7 @@ deleted, kill the pairs around point."
           :desc "show sent request"        "r" #'verb-show-request
           :desc "show headers"             "h" #'verb-toggle-show-headers
           :desc "show vars"                "v" #'verb-show-vars
-          :desc "show logs"                "l" #'verb-show-log
+          :desc "show logs"                "l" #'verb-util-show-log
           :desc "set var"                  "s" #'verb-set-var
           :desc "unset vars"               "u" #'verb-unset-vars))))
 
@@ -2019,15 +2010,13 @@ deleted, kill the pairs around point."
   ;; The other side of `fontaine-restore-latest-preset'.
   (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
 
-  ;; Persist font configurations while switching themes (doing it with
-  ;; my `modus-themes' and `ef-themes' via the hooks they provide).
-  (dolist (hook '(modus-themes-after-load-theme-hook ef-themes-post-load-hook))
-    (add-hook hook #'fontaine-apply-current-preset))
+  ;; NOTE: fontaine >= 3.0 re-applies the current preset on theme changes by
+  ;; itself, so the old `fontaine-apply-current-preset' theme hooks are gone.
 
   :init
   (map! :leader
         (:prefix ("ç" . "daf")
-                     "F" #'fontaine-set-face-font
+                     "F" #'fontaine-toggle-preset
                      "f" #'fontaine-set-preset)))
 
 (grugru-define-multiple
