@@ -320,6 +320,18 @@ Especially useful when reading books.
   (pulsar-pulse-line))
 #+end_src
 
+** Mouse support in the terminal
+
+Emacs 31 claims to enable ~xterm-mouse-mode~ by default, but only in terminals
+it recognizes as xterm-compatible — and Doom's =:os tty= module stopped enabling
+it on Emacs 31+ for that very reason. WezTerm sets =TERM=wezterm=, which slips
+through both checks, leaving mouse clicks unable to move the cursor. Enable it
+explicitly.
+
+#+begin_src emacs-lisp
+(add-hook 'tty-setup-hook #'xterm-mouse-mode)
+#+end_src
+
 ** FIXME ~Tramp~
 
 Fix weird problems due to prompt, I don't know, wild c/c from google.
@@ -1200,6 +1212,24 @@ accessible (=,,=).
        :m "gé" evilem-map
        (:map evilem-map
              "é" (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
+#+end_src
+
+All the =,= prefix bindings (avy above, embrace, puni's =, d=…) fight with
+~evil-snipe~: after every =f=/=t=/=s= motion, snipe installs a /transient/ keymap
+binding =,= and =;= to repeat the last snipe, so the first =,= pressed right
+after such a motion gets swallowed and the prefix only registers on the second
+try. Snipe also overrides evil's =;=/=,= repeat keys permanently in its override
+map. Reclaim =,= for our prefix — =;= still repeats snipes.
+
+#+begin_src emacs-lisp
+(setq evil-snipe-override-evil-repeat-keys nil)
+
+(after! evil-snipe
+  ;; Drop `,' from the transient map installed after each f/t/s motion.
+  (define-key evil-snipe-parent-transient-map "," nil)
+  ;; And from the always-on override map, in case it was built before the
+  ;; setq above took effect.
+  (evil-define-key* 'motion evil-snipe-override-local-mode-map "," nil))
 #+end_src
 
 I like to resize pane, but I don't like to repeat the same key sequence a bunch.

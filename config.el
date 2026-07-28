@@ -115,6 +115,8 @@ the associated key is pressed after the repeatable action is triggered."
   (evil-scroll-line-to-bottom (line-number-at-pos))
   (pulsar-pulse-line))
 
+(add-hook 'tty-setup-hook #'xterm-mouse-mode)
+
 (setq tramp-default-method "sshx")
 ;; (after! tramp
 ;;   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
@@ -593,6 +595,15 @@ This only works with orderless and for the first component of the search."
        :m "gé" evilem-map
        (:map evilem-map
              "é" (cmd! (let ((current-prefix-arg t)) (evil-avy-goto-char-timer))))))
+
+(setq evil-snipe-override-evil-repeat-keys nil)
+
+(after! evil-snipe
+  ;; Drop `,' from the transient map installed after each f/t/s motion.
+  (define-key evil-snipe-parent-transient-map "," nil)
+  ;; And from the always-on override map, in case it was built before the
+  ;; setq above took effect.
+  (evil-define-key* 'motion evil-snipe-override-local-mode-map "," nil))
 
 ;;;###autoload
 (defun +daf/evil-window-increase-width-by-five (count)
