@@ -819,6 +819,17 @@ This only works with orderless and for the first component of the search."
  :prefix "p"
  :desc "Project todos" :n "t" #'magit-todos-list)
 
+(defvar envrc-async)  ; so the let below binds it dynamically when compiled
+
+(after! envrc
+  (defadvice! +daf/direnv--async-during-global-setup-a (fn &rest args)
+    "Don't block while `envrc-global-mode' walks the buffer list.
+It iterates over a snapshot of `buffer-list', and blocking lets timers run,
+which can kill a buffer in that snapshot before it is reached."
+    :around #'envrc-global-mode
+    (let ((envrc-async t))
+      (apply fn args))))
+
 (dolist (char '(?⏩ ?⏪ ?❓ ?⏸))
   (set-char-table-range char-script-table char 'symbol))
 
@@ -2041,6 +2052,172 @@ deleted, kill the pairs around point."
   :hook (nix-mode . rainbow-delimiters-mode))
 
 (grugru-define-global 'symbol '("enabled" "disabled"))
+
+(defun daf/yaml--line-indent ()
+  "Indentation of the current line, or nil if it is blank or a comment."
+  (save-excursion
+    (beginning-of-line)
+    (unless (looking-at-p "[[:space:]]*\\(?:#\\|$\\)")
+      (current-indentation))))
+
+(defun daf/yaml--indent ()
+  "Indentation to treat the current line as having."
+  (or (daf/yaml--line-indent) (current-indentation)))
+
+(defun daf/yaml--sibling (dir base)
+  "Position of the nearest line indented to BASE, scanning in DIR.
+Stops at the first line indented less than BASE, so a sibling search
+never escapes the enclosing block."
+  (save-excursion
+    (let (target stop)
+      (while (and (not target) (not stop) (zerop (forward-line dir)))
+        (let ((ind (daf/yaml--line-indent)))
+          (cond ((null ind))
+                ((= ind base) (setq target (point)))
+                ((< ind base) (setq stop t)))))
+      target)))
+
+(after! evil
+  (evil-define-motion daf/yaml-next-sibling (count)
+    "Move to the next key at the same indentation."
+    :type line :jump t
+    (dotimes (_ (or count 1))
+      (when-let* ((tgt (daf/yaml--sibling 1 (daf/yaml--indent))))
+        (goto-char tgt)))
+    (back-to-indentation))
+
+  (evil-define-motion daf/yaml-prev-sibling (count)
+    "Move to the previous key at the same indentation."
+    :type line :jump t
+    (dotimes (_ (or count 1))
+      (when-let* ((tgt (daf/yaml--sibling -1 (daf/yaml--indent))))
+        (goto-char tgt)))
+    (back-to-indentation))
+
+  (evil-define-motion daf/yaml-parent (count)
+    "Move out to the enclosing key."
+    :type line :jump t
+    (dotimes (_ (or count 1))
+      (let ((base (daf/yaml--indent)))
+        (when-let* ((tgt (save-excursion
+                           (let (target)
+                             (while (and (not target) (zerop (forward-line -1)))
+                               (let ((ind (daf/yaml--line-indent)))
+                                 (when (and ind (< ind base)) (setq target (point)))))
+                             target))))
+          (goto-char tgt))))
+    (back-to-indentation))
+
+  (evil-define-motion daf/yaml-child (count)
+    "Move in to the first nested key."
+    :type line :jump t
+    (dotimes (_ (or count 1))
+      (let ((base (daf/yaml--indent)))
+        (when-let* ((tgt (save-excursion
+                           (let (target stop)
+                             (while (and (not target) (not stop) (zerop (forward-line 1)))
+                               (let ((ind (daf/yaml--line-indent)))
+                                 (cond ((null ind))
+                                       ((> ind base) (setq target (point)))
+                                       (t (setq stop t)))))
+                             target))))
+          (goto-char tgt))))
+    (back-to-indentation)))
+
+(map! :map (yaml-mode-map yaml-ts-mode-map)
+      :nvm "g r" #'daf/yaml-next-sibling
+      :nvm "g t" #'daf/yaml-prev-sibling
+      :nvm "g l" #'daf/yaml-parent
+      :nvm "g i" #'daf/yaml-child)
+
+(defun daf/yaml--block-end (base)
+  "End of the block headed by the current line, whose indentation is BASE.
+Blank lines and comments inside the block don't end it, but trailing
+ones aren't swallowed either."
+  (save-excursion
+    (let ((end (line-end-position)) stop)
+      (while (and (not stop) (zerop (forward-line 1)))
+        (let ((ind (daf/yaml--line-indent)))
+          (cond ((null ind))
+                ((> ind base) (setq end (line-end-position)))
+                (t (setq stop t)))))
+      end)))
+
+(defun daf/yaml-focus ()
+  "Narrow to the key at point and everything nested under it.
+Call it again on a nested key to drill further in."
+  (interactive)
+  (let ((base (daf/yaml--indent)))
+    (narrow-to-region (line-beginning-position) (daf/yaml--block-end base))
+    (goto-char (point-min))
+    (back-to-indentation)))
+
+(defun daf/yaml-unfocus ()
+  "Widen out to the enclosing key, or fully if already at the top level."
+  (interactive)
+  (if (not (buffer-narrowed-p))
+      (message "Not focused")
+    (let ((head (point-min)))
+      (widen)
+      (goto-char head)
+      (back-to-indentation)
+      (if (zerop (daf/yaml--indent))
+          (when (get-buffer-window) (recenter))
+        (daf/yaml-parent 1)
+        (narrow-to-region (line-beginning-position)
+                          (daf/yaml--block-end (daf/yaml--indent)))
+        (goto-char (point-min))
+        (back-to-indentation)))))
+
+(map! :map (yaml-mode-map yaml-ts-mode-map)
+      :nv "z i" #'daf/yaml-focus
+      :nv "z u" #'daf/yaml-unfocus)
+
+(defvar daf/yaml-imenu-separator " / "
+  "Separator between path segments in the YAML imenu index.")
+
+(defconst daf/yaml--key-re
+  (concat "[ \t]*\\(?:-[ \t]+\\)?"
+          "\\(\"[^\"\n]+\"\\|'[^'\n]+'\\|[^][ \t\n#\"'{}&*-][^:\n]*?\\)"
+          "[ \t]*:\\(?:[ \t]\\|$\\)")
+  "Match a YAML key, optionally quoted and optionally opening a sequence item.")
+
+(defun daf/yaml-imenu-index ()
+  "Build a flat imenu index of every key, named by its full path.
+Entries read like `spec / template / spec / containers', so
+`consult-imenu' can be narrowed by any part of the path.  The bodies of
+block scalars are skipped, so `key: |' literals don't pollute the index."
+  (let (index stack)
+    (save-excursion
+      (goto-char (point-min))
+      (while (not (eobp))
+        (if (not (and (daf/yaml--line-indent) (looking-at daf/yaml--key-re)))
+            (forward-line 1)
+          ;; Grab every position first: `string-trim' clobbers the match data.
+          (let* ((beg (match-beginning 1))
+                 (raw (match-string-no-properties 1))
+                 (col (save-excursion (goto-char beg) (current-column)))
+                 (literal (save-excursion
+                            (goto-char (match-end 0))
+                            (looking-at-p "[ \t]*[|>][+-]?[0-9]*[ \t]*$")))
+                 (key (string-trim raw "[\"']" "[\"']")))
+            (while (and stack (>= (caar stack) col))
+              (pop stack))
+            (push (cons col key) stack)
+            (push (cons (mapconcat #'cdr (reverse stack) daf/yaml-imenu-separator)
+                        (copy-marker beg))
+                  index)
+            (forward-line 1)
+            (when literal
+              (while (and (not (eobp))
+                          (let ((ind (daf/yaml--line-indent)))
+                            (or (null ind) (> ind col))))
+                (forward-line 1)))))))
+    (nreverse index)))
+
+(add-hook 'yaml-mode-hook
+          (defun daf/yaml-setup-imenu-h ()
+            (setq-local imenu-create-index-function #'daf/yaml-imenu-index)))
 
 ;; (after! savehist
 ;;   (add-to-list 'savehist-additional-variables 'evil-markers-alist)
