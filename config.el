@@ -2016,7 +2016,10 @@ deleted, kill the pairs around point."
            :line-spacing nil)))
 
   ;; Set last preset or fall back to desired style from `fontaine-presets'.
-  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+  ;; NOTE: `fontaine-set-preset' emits a `display-warning' when called from a
+  ;; non-daemon terminal frame, so mirror its own guard and skip it in tty.
+  (when (or (daemonp) (display-graphic-p))
+    (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular)))
 
   ;; The other side of `fontaine-restore-latest-preset'.
   (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
