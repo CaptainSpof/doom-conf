@@ -114,6 +114,9 @@ the associated key is pressed after the repeatable action is triggered."
 
 (add-hook 'tty-setup-hook #'xterm-mouse-mode)
 
+(use-package! clipetty
+  :hook (tty-setup . global-clipetty-mode))
+
 (setq tramp-default-method "sshx")
 ;; (after! tramp
 ;;   (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"))
@@ -829,6 +832,17 @@ which can kill a buffer in that snapshot before it is reached."
     :around #'envrc-global-mode
     (let ((envrc-async t))
       (apply fn args))))
+
+(after! docker
+  ;; `docker' defaults to /var/run/docker.sock, which is podman's rootful
+  ;; socket here -- a different image and container store than the rootless
+  ;; one everything actually lives in, so every list came up empty.
+  (when-let* ((runtime (or (getenv "XDG_RUNTIME_DIR")
+                           (format "/run/user/%d" (user-uid))))
+              (socket (expand-file-name "podman/podman.sock" runtime))
+              ((file-exists-p socket))
+              ((not (getenv "DOCKER_HOST"))))
+    (setenv "DOCKER_HOST" (concat "unix://" socket))))
 
 (dolist (char '(?⏩ ?⏪ ?❓ ?⏸))
   (set-char-table-range char-script-table char 'symbol))

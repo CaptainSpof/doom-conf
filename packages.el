@@ -2,6 +2,8 @@
 
 (package! evil-escape :disable t)
 
+(package! clipetty) ;; https://github.com/spudlyo/clipetty
+
 (package! aweshell
   :recipe (:host github
            :repo "manateelazycat/aweshell")) ;; https://github.com/manateelazycat/aweshel

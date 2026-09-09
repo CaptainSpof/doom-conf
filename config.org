@@ -329,6 +329,17 @@ explicitly.
 (add-hook 'tty-setup-hook #'xterm-mouse-mode)
 #+end_src
 
+** Clipboard from a terminal frame
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! clipetty) ;; https://github.com/spudlyo/clipetty
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! clipetty
+  :hook (tty-setup . global-clipetty-mode))
+#+end_src
+
 ** FIXME ~Tramp~
 
 Fix weird problems due to prompt, I don't know, wild c/c from google.
@@ -1607,6 +1618,33 @@ which can kill a buffer in that snapshot before it is reached."
     :around #'envrc-global-mode
     (let ((envrc-async t))
       (apply fn args))))
+#+end_src
+
+*** ~docker~
+**** Configuration
+
+The =docker= CLI defaults to =/var/run/docker.sock=, which here is a symlink to
+podman's /rootful/ socket. Images pulled as my own user live in the /rootless/
+store instead, so =SPC o D= listed nothing while =podman images= in a shell
+showed everything: two daemons, two separate stores. ~docker.el~ shells out to
+=docker=, so it was faithfully reporting an empty store.
+
+Pointing ~DOCKER_HOST~ at the user socket makes ~docker.el~ talk to the same
+podman the shell does. Guarded twice, so it never overrides an explicit
+~DOCKER_HOST~ and never fires on a machine that has a real rootful daemon and no
+user socket.
+
+#+begin_src emacs-lisp
+(after! docker
+  ;; `docker' defaults to /var/run/docker.sock, which is podman's rootful
+  ;; socket here -- a different image and container store than the rootless
+  ;; one everything actually lives in, so every list came up empty.
+  (when-let* ((runtime (or (getenv "XDG_RUNTIME_DIR")
+                           (format "/run/user/%d" (user-uid))))
+              (socket (expand-file-name "podman/podman.sock" runtime))
+              ((file-exists-p socket))
+              ((not (getenv "DOCKER_HOST"))))
+    (setenv "DOCKER_HOST" (concat "unix://" socket))))
 #+end_src
 
 *** ~lsp~  :ARCHIVE:
