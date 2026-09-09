@@ -2021,8 +2021,9 @@ deleted, kill the pairs around point."
   (when (or (daemonp) (display-graphic-p))
     (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular)))
 
-  ;; The other side of `fontaine-restore-latest-preset'.
-  (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
+  ;; The other side of `fontaine-restore-latest-preset': `fontaine-mode' stores
+  ;; the preset both on exit and whenever one is set.
+  (fontaine-mode 1)
 
   ;; NOTE: fontaine >= 3.0 re-applies the current preset on theme changes by
   ;; itself, so the old `fontaine-apply-current-preset' theme hooks are gone.
