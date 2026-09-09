@@ -834,15 +834,19 @@ which can kill a buffer in that snapshot before it is reached."
       (apply fn args))))
 
 (after! docker
-  ;; `docker' defaults to /var/run/docker.sock, which is podman's rootful
-  ;; socket here -- a different image and container store than the rootless
-  ;; one everything actually lives in, so every list came up empty.
-  (when-let* ((runtime (or (getenv "XDG_RUNTIME_DIR")
-                           (format "/run/user/%d" (user-uid))))
-              (socket (expand-file-name "podman/podman.sock" runtime))
-              ((file-exists-p socket))
-              ((not (getenv "DOCKER_HOST"))))
-    (setenv "DOCKER_HOST" (concat "unix://" socket))))
+  ;; No `docker' CLI at all on one box; on the other, /var/run/docker.sock is
+  ;; podman's *rootful* socket, whose store is empty.  Talking to podman
+  ;; directly sidesteps both.
+  (when (executable-find "podman")
+    (setq docker-command "podman"
+          docker-container-tramp-method "podman")
+
+    (defadvice! +daf/docker--tolerate-podman-sizes-a (fn size)
+      "Strip the space out of SIZE before parsing it.
+podman reports \"81.1 MB\" where docker reports \"81.1MB\", and
+`docker-utils-human-size-to-bytes' only accepts the latter."
+      :around #'docker-utils-human-size-to-bytes
+      (funcall fn (if (stringp size) (string-replace " " "" size) size)))))
 
 (dolist (char '(?⏩ ?⏪ ?❓ ?⏸))
   (set-char-table-range char-script-table char 'symbol))
