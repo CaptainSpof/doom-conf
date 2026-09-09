@@ -1589,7 +1589,17 @@ which can kill a buffer in that snapshot before it is reached."
 (use-package! indent-bars
   :config
   (custom-reevaluate-setting 'indent-bars-color-by-depth)
-  (custom-reevaluate-setting 'indent-bars-highlight-current-depth))
+  (custom-reevaluate-setting 'indent-bars-highlight-current-depth)
+
+  (defadvice! +daf/indent-bars--skip-torn-down-buffer-a (fn buf)
+    "Don't run the current-depth timer in a buffer that was torn down.
+A major mode change wipes the buffer-local timer handle before
+`indent-bars-teardown' can cancel the pending idle timer, which then fires
+against a nil `indent-bars--offset'."
+    :around #'indent-bars--update-current-depth-highlight-in-buffer
+    (when (and (buffer-live-p buf)
+               (buffer-local-value 'indent-bars-mode buf))
+      (funcall fn buf))))
 
 (use-package! info-colors
   :hook (Info-selection . info-colors-fontify-node))

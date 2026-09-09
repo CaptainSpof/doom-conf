@@ -2936,11 +2936,38 @@ We want our ~org~ headings to be of different size to be more distinguishable.
 
 I like the default colored bars, lets reset the values.
 
+Restoring ~indent-bars-highlight-current-depth~ re-enables the current-depth
+highlight, which Doom turns off — and that puts
+~indent-bars--update-current-depth-highlight~ on ~post-command-hook~, so moving
+point schedules an idle timer holding the current buffer.
+
+If the buffer's major mode changes before that timer fires,
+~kill-all-local-variables~ wipes ~indent-bars-mode~, ~indent-bars-spacing~,
+~indent-bars--offset~ /and/ the buffer-local timer handle. ~indent-bars-teardown~
+then has nothing left to cancel the timer with, so it fires anyway, into a
+buffer whose ~indent-bars--offset~ is now nil:
+
+: Error running timer 'indent-bars--update-current-depth-highlight-in-buffer': (wrong-type-argument number-or-marker-p nil)
+
+The timer callback is missing the ~(when indent-bars-mode …)~ guard that its own
+scheduler has, so give it one. Upstream bug — latent for everyone else because
+Doom disables this highlight in the first place.
+
 #+begin_src emacs-lisp
 (use-package! indent-bars
   :config
   (custom-reevaluate-setting 'indent-bars-color-by-depth)
-  (custom-reevaluate-setting 'indent-bars-highlight-current-depth))
+  (custom-reevaluate-setting 'indent-bars-highlight-current-depth)
+
+  (defadvice! +daf/indent-bars--skip-torn-down-buffer-a (fn buf)
+    "Don't run the current-depth timer in a buffer that was torn down.
+A major mode change wipes the buffer-local timer handle before
+`indent-bars-teardown' can cancel the pending idle timer, which then fires
+against a nil `indent-bars--offset'."
+    :around #'indent-bars--update-current-depth-highlight-in-buffer
+    (when (and (buffer-live-p buf)
+               (buffer-local-value 'indent-bars-mode buf))
+      (funcall fn buf))))
 #+end_src
 
 ** ~info-colors~
