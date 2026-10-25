@@ -1386,10 +1386,12 @@ key bindings.
 bindings.
 
 #+begin_src emacs-lisp
-;; (map! :map dirvish-mode-map
-;;       :after dirvish
-;;       :n "s" #'dired-previous-line
-;;       :n "N" #'dirvish-narrow)
+;; Doom's dirvish binds h/l in `dirvish-mode-map', which shadows `dired-mode-map'
+(map! :map dirvish-mode-map
+      :after dirvish
+      :n "h" #'dired-omit-mode
+      :n "l" #'dired-up-directory
+      :n "i" #'dired-find-file)
 (map! :map dired-mode-map
       :after dired
       :n "g."    #'dired-omit-mode
@@ -1572,6 +1574,14 @@ Show a list of TODO and other keywords in the ~magit~ status view.
       "r" #'evil-next-line
       "g(" #'daf/prev-hunk
       "g)" #'daf/next-hunk
+      (kbd "C-r") #'magit-section-forward-sibling
+      (kbd "C-t") #'magit-section-backward-sibling))
+
+  ;; magit-log-mode has its own emacs-style ~r~ (=magit-status-quick=) that
+  ;; shadows the movement key, and =C-r=/=C-t= fall through to evil.
+  (add-hook! 'magit-log-mode-hook :append
+    (evil-define-key* 'normal magit-log-mode-map
+      "r" #'evil-next-line
       (kbd "C-r") #'magit-section-forward-sibling
       (kbd "C-t") #'magit-section-backward-sibling)))
 
@@ -4131,6 +4141,45 @@ Nesting comes from the /column of the key/, not the indentation of the line, so
 ~- name:~ and the ~image:~ under it come out as siblings instead of parent and
 child. Multi-document files just repeat their top-level keys, which is honest.
 ~SPC s I~ spreads the same index across every open buffer.
+
+*** ~k8s-mode~ · Manifests without the typing
+
+[[https://github.com/TxGVNN/emacs-k8s-mode][~k8s-mode~]] derives from ~yaml-mode~, so everything above (motions, focus, ~imenu~) carries
+over. What it adds is a bundle of ~yasnippet~ snippets for the usual suspects —
+~Deployment~, ~Service~, ~ConfigMap~ and friends — plus ~k8s-goto-documents~ to open the API
+reference.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! k8s-mode) ;; https://github.com/TxGVNN/emacs-k8s-mode
+#+end_src
+
+Nothing turns it on by itself, and a ~.yaml~ is a ~.yaml~. So it kicks in for
+~*.k8s.yaml~, or for any ~YAML~ file whose head has both ~apiVersion:~ and ~kind:~ — minus
+anything with ={{= in it, that's a ~helm~ template and not valid ~YAML~. A brand new
+file has neither, hence the ~.k8s.yaml~ suffix (or ~M-x k8s-mode~).
+
+#+begin_src emacs-lisp
+(use-package! k8s-mode
+  :mode "\\.k8s\\.ya?ml\\'"
+  :init
+  (defun daf/k8s-buffer-p ()
+    "Non-nil if the current buffer is a plain Kubernetes manifest."
+    (and buffer-file-name
+         (string-match-p "\\.ya?ml\\'" buffer-file-name)
+         (let ((case-fold-search nil))
+           (save-excursion
+             (goto-char (point-min))
+             (and (re-search-forward "^apiVersion:" 2000 t)
+                  (progn (goto-char (point-min))
+                         (re-search-forward "^kind:" 2000 t))
+                  (not (search-forward "{{" nil t)))))))
+
+  (add-to-list 'magic-mode-alist '(daf/k8s-buffer-p . k8s-mode)))
+#+end_src
+
+What the bundle lacks — no ~ReplicaSet~ in there — lives in [[file:snippets/k8s-mode/replicaset][snippets/k8s-mode/]] as
+plain ~yasnippet~ files, next to the other ones: ~replicaset~ then ~TAB~, or ~SPC i s~. The name
+is asked once and mirrored into the labels, the selector and the container.
 
 -----
 

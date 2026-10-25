@@ -109,6 +109,8 @@
 
 (unpin! nix-mode)
 
+(package! k8s-mode) ;; https://github.com/TxGVNN/emacs-k8s-mode
+
 (package! evil-fringe-mark) ;; https://github.com/Andrew-William-Smith/evil-fringe-mark
 
 (package! org-wild-notifier) ;; https://github.com/akhramov/org-wild-notifier.el

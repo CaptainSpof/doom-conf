@@ -699,10 +699,12 @@ This only works with orderless and for the first component of the search."
        :desc "Side bar"                    "s"  #'dirvish-side
        :desc "Open Dired in another frame" "D"  #'dired-other-window))
 
-;; (map! :map dirvish-mode-map
-;;       :after dirvish
-;;       :n "s" #'dired-previous-line
-;;       :n "N" #'dirvish-narrow)
+;; Doom's dirvish binds h/l in `dirvish-mode-map', which shadows `dired-mode-map'
+(map! :map dirvish-mode-map
+      :after dirvish
+      :n "h" #'dired-omit-mode
+      :n "l" #'dired-up-directory
+      :n "i" #'dired-find-file)
 (map! :map dired-mode-map
       :after dired
       :n "g."    #'dired-omit-mode
@@ -806,6 +808,14 @@ This only works with orderless and for the first component of the search."
       "r" #'evil-next-line
       "g(" #'daf/prev-hunk
       "g)" #'daf/next-hunk
+      (kbd "C-r") #'magit-section-forward-sibling
+      (kbd "C-t") #'magit-section-backward-sibling))
+
+  ;; magit-log-mode has its own emacs-style ~r~ (=magit-status-quick=) that
+  ;; shadows the movement key, and =C-r=/=C-t= fall through to evil.
+  (add-hook! 'magit-log-mode-hook :append
+    (evil-define-key* 'normal magit-log-mode-map
+      "r" #'evil-next-line
       (kbd "C-r") #'magit-section-forward-sibling
       (kbd "C-t") #'magit-section-backward-sibling)))
 
@@ -2250,6 +2260,23 @@ block scalars are skipped, so `key: |' literals don't pollute the index."
 (add-hook 'yaml-mode-hook
           (defun daf/yaml-setup-imenu-h ()
             (setq-local imenu-create-index-function #'daf/yaml-imenu-index)))
+
+(use-package! k8s-mode
+  :mode "\\.k8s\\.ya?ml\\'"
+  :init
+  (defun daf/k8s-buffer-p ()
+    "Non-nil if the current buffer is a plain Kubernetes manifest."
+    (and buffer-file-name
+         (string-match-p "\\.ya?ml\\'" buffer-file-name)
+         (let ((case-fold-search nil))
+           (save-excursion
+             (goto-char (point-min))
+             (and (re-search-forward "^apiVersion:" 2000 t)
+                  (progn (goto-char (point-min))
+                         (re-search-forward "^kind:" 2000 t))
+                  (not (search-forward "{{" nil t)))))))
+
+  (add-to-list 'magic-mode-alist '(daf/k8s-buffer-p . k8s-mode)))
 
 ;; (after! savehist
 ;;   (add-to-list 'savehist-additional-variables 'evil-markers-alist)
