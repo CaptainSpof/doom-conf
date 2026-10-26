@@ -965,12 +965,14 @@ podman reports \"81.1 MB\" where docker reports \"81.1MB\", and
           (and (looking-at org-outline-regexp)
                (looking-back "^\**")))))
 
-(map!
- :after (evil org evil-org)
- :map  evil-org-mode-map
- :nvm "gc" nil
- :nvm "((" #'evil-org-backward-sentence
- :nvm "))" #'evil-org-forward-sentence)
+(after! evil-org
+  (map! :map evil-org-mode-map
+        :nvm "(" nil
+        :nvm ")" nil)
+  (map! :map evil-org-mode-map
+        :nvm "gc" nil
+        :nvm "((" #'evil-org-backward-sentence
+        :nvm "))" #'evil-org-forward-sentence))
 
 (after! org
   (setq org-auto-align-tags nil

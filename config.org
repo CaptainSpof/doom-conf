@@ -1845,13 +1845,20 @@ the asterisks at the beginning of the line.
 I don't use =g c= to navigate org headings, but I often time need to =g c c= to
 comment out code in org babel src blocks.
 
+=evil-org= binds =(= and =)= to commands, so they must be unbound before =((= and
+=))= can use them as prefixes. Otherwise, depending on load order, this errors
+with "starts with non-prefix key", which also breaks anything loading =org=
+(e.g. =lsp-mode=).
+
 #+begin_src emacs-lisp
-(map!
- :after (evil org evil-org)
- :map  evil-org-mode-map
- :nvm "gc" nil
- :nvm "((" #'evil-org-backward-sentence
- :nvm "))" #'evil-org-forward-sentence)
+(after! evil-org
+  (map! :map evil-org-mode-map
+        :nvm "(" nil
+        :nvm ")" nil)
+  (map! :map evil-org-mode-map
+        :nvm "gc" nil
+        :nvm "((" #'evil-org-backward-sentence
+        :nvm "))" #'evil-org-forward-sentence))
 #+end_src
 
 **** Visual
